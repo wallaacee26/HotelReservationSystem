@@ -13,4 +13,5 @@ public enum AccessRightEnum {
     OPERATIONS,
     SALES,
     RELATIONS
+    
 }

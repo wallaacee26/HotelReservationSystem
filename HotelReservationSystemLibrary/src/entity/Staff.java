@@ -24,6 +24,7 @@ public class Staff implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccessRightEnum accessRights;
+    
 
     // default no-argument constructor for JPA
     public Staff() {
