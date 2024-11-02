@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.Staff;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -50,7 +51,7 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, Sta
     }
     
     public Staff retrieveStaffByUsername(String username) throws StaffDNEException {
-        Query query = em.createQuery("SELECT s FROM Staff WHERE s.username = :inUsername");
+        Query query = em.createQuery("SELECT s FROM Staff s WHERE s.username = :inUsername");
         query.setParameter("inUsername", username);
         
         try {
@@ -58,6 +59,11 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, Sta
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new StaffDNEException("Staff username " + username + " does not exist!");
         }
+    }
+    
+    public List<Staff> retrieveAllStaffs() {
+        Query query = em.createQuery("SELECT s from Staff s");
+        return query.getResultList();
     }
     
     public Staff staffLogin(String username, String password) throws InvalidLoginCredentialException {

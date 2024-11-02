@@ -3,3 +3,13 @@
 /HoRSReservationClient/nbproject/private/
 /HotelReservationSystem-ejb/nbproject/private/
 /nbproject/private/
+/dist/
+/build/
+/HoRSReservationClient/build/
+/HoRSReservationClient/dist/
+/HoRSManagementClient/dist/
+/HoRSManagementClient/build/
+/HotelReservationSystemLibrary/dist/
+/HotelReservationSystemLibrary/build/
+/HotelReservationSystem-ejb/dist/
+/HotelReservationSystem-ejb/build/
