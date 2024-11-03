@@ -32,7 +32,7 @@ public class DataInitSessionBean {
     @PostConstruct
     public void postConstruct() {
         try {
-            staffSBLocal.retrieveStaffByUsername("test admin");
+            staffSBLocal.retrieveStaffByUsername("admin");
         } catch (StaffDNEException ex) {
             loadTestData();
         }
@@ -40,7 +40,7 @@ public class DataInitSessionBean {
     
     private void loadTestData() {
         try {
-            staffSBLocal.createNewStaff(new Staff("test admin", "123", AccessRightEnum.ADMINISTRATOR));
+            staffSBLocal.createNewStaff(new Staff("admin", "123", AccessRightEnum.ADMINISTRATOR));
         } catch (StaffUsernameExistsException ex) {
             ex.printStackTrace();
         }

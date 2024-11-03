@@ -30,6 +30,7 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
     public StaffSessionBean() {
     }
 
+    @Override
     public Long createNewStaff(Staff staff) throws StaffUsernameExistsException {
         try {
             em.persist(staff);
@@ -50,6 +51,7 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
         }
     }
     
+    @Override
     public Staff retrieveStaffByUsername(String username) throws StaffDNEException {
         Query query = em.createQuery("SELECT s FROM Staff s WHERE s.username = :inUsername");
         query.setParameter("inUsername", username);
@@ -66,12 +68,14 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
         return query.getResultList();
     }
     
+    @Override
     public Staff staffLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
             Staff s = retrieveStaffByUsername(username);
             
             if (s.getPassword().equals(password)) {
                 // preload any lazy data if needed
+                s.getStaffId();
                 return s;
             } else {
                 throw new InvalidLoginCredentialException("Staff username or password is incorrect!");
