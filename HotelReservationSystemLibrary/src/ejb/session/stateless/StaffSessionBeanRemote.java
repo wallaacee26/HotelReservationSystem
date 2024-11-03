@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.Staff;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.StaffDNEException;
@@ -20,4 +21,6 @@ public interface StaffSessionBeanRemote {
     public Long createNewStaff(Staff staff) throws StaffUsernameExistsException;
 
     public Staff staffLogin(String username, String password) throws InvalidLoginCredentialException;
+
+    public List<Staff> retrieveAllStaffs();
 }

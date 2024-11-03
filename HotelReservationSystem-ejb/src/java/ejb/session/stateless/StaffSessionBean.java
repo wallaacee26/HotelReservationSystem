@@ -63,6 +63,7 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
         }
     }
     
+    @Override
     public List<Staff> retrieveAllStaffs() {
         Query query = em.createQuery("SELECT s from Staff s");
         return query.getResultList();

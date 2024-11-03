@@ -6,6 +6,7 @@ package horsmanagementclient;
 
 import ejb.session.stateless.StaffSessionBeanRemote;
 import entity.Staff;
+import java.util.List;
 import java.util.Scanner;
 import util.enumeration.AccessRightEnum;
 import util.exception.StaffUsernameExistsException;
@@ -50,6 +51,7 @@ public class AdministratorModule {
                     doCreateNewEmployee();
                 } else if (response == 2) {
                     // view all employees
+                    doViewAllEmployees();
                 } else if (response == 3) {
                     // create new partner
                 } else if (response == 4) {
@@ -96,9 +98,25 @@ public class AdministratorModule {
         
         try {
             Long newStaffId = staffSBRemote.createNewStaff(newStaff);
-            System.out.println("New employee created!: " + newStaffId + "\n");
+            System.out.println("New employee created: " + newStaffId + "\n");
         } catch (StaffUsernameExistsException ex) {
             System.out.println("Error when creating new employee. Username already exists!\n");
         }
+    }
+    
+    private void doViewAllEmployees() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: View All Employees ***\n");
+        
+        List<Staff> listOfEmployees = staffSBRemote.retrieveAllStaffs();
+        for (Staff s : listOfEmployees) {
+            System.out.println("ID: " + s.getStaffId() +
+                    " | Username: " + s.getUsername() +
+                    " | Password: " + s.getPassword() + 
+                    " | AccessRights: " + s.getAccessRights().toString());
+        }
+        
+        System.out.print("Press any key to cotinue> ");
+        sc.nextLine();
     }
 }
