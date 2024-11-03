@@ -22,12 +22,12 @@ import util.exception.StaffUsernameExistsException;
  * @author yewkhang
  */
 @Stateless
-public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, StaffEntitySessionBeanLocal {
+public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBeanLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-    public StaffEntitySessionBean() {
+    public StaffSessionBean() {
     }
 
     public Long createNewStaff(Staff staff) throws StaffUsernameExistsException {
