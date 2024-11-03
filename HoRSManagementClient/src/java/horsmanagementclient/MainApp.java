@@ -19,6 +19,8 @@ public class MainApp {
     private Staff currentStaff;
     private StaffSessionBeanRemote staffSBRemote;
     private PartnerSessionBeanRemote partnerSBRemote;
+    
+    private AdministratorModule adminModule;
 
     public MainApp() {
         currentStaff = null;
@@ -48,7 +50,8 @@ public class MainApp {
                         // separate modules by accessRights
                         if (currentStaff.getAccessRights().equals(AccessRightEnum.ADMINISTRATOR)) {
                             // do administrator things
-                            adminMenu();
+                            adminModule = new AdministratorModule(staffSBRemote, currentStaff);
+                            adminModule.adminMenu();
                         }
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
@@ -83,42 +86,4 @@ public class MainApp {
         }
     }
     
-    private void adminMenu() {
-        Scanner sc = new Scanner(System.in);
-        Integer response = 0;
-        
-        while(true) {
-            System.out.println("*** HoRS Management Client ***\n");
-            System.out.println("You are logged in as " + currentStaff.getUsername() + " with " + currentStaff.getAccessRights().toString() + " rights");
-            System.out.println("1: Create New Employee");
-            System.out.println("2: View All Employees");
-            System.out.println("3: Create New Partner");
-            System.out.println("4: View All Partners");
-            System.out.println("5: Logout");
-            response = 0;
-            
-            while(response < 1 || response > 5) {
-                System.out.print("> ");
-                response = sc.nextInt();
-                
-                if (response == 1) {
-                    // create new employee
-                } else if (response == 2) {
-                    // view all employees
-                } else if (response == 3) {
-                    // create new partner
-                } else if (response == 4) {
-                    // view all partners
-                } else if (response == 5) {
-                    break;
-                } else {
-                    System.out.println("Invalid option, please try again!\n");
-                }
-            }
-            
-            if (response == 5) { // logout
-                break;
-            }
-        }
-    }
 }
