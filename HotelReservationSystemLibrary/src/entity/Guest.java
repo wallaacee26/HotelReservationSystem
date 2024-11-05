@@ -1,34 +1,42 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  *
  * @author wallace
  */
 @Entity
-public class Guest implements Serializable {
+public class Guest extends Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long guestId;
 
+    @Column(nullable = false)
+    private int phoneNumber; // uniquely identifiable?
+    @Column(nullable = false)
+    private int password;
+    
     // default no-argument constructor for JPA
     public Guest() {
         
     }
-    
-    public Long getGuestId() {
-        return guestId;
+
+    public int getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setGuestId(Long guestId) {
-        this.guestId = guestId;
+    public void setPhoneNumber(int phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public int getPassword() {
+        return password;
+    }
+
+    public void setPassword(int password) {
+        this.password = password;
     }
 
     @Override
