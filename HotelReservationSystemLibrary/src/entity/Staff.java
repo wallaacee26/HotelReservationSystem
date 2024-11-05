@@ -33,6 +33,14 @@ public class Staff implements Serializable {
     public Staff() {
         
     }
+    
+    public Staff(String username, String password, AccessRightEnum accessRights) {
+        this();
+        
+        this.username = username;
+        this.password = password;
+        this.accessRights = accessRights;
+    }
 
     // Getters and Setters //
     public AccessRightEnum getAccessRights() {

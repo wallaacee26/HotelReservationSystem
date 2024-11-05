@@ -22,14 +22,15 @@ import util.exception.StaffUsernameExistsException;
  * @author yewkhang
  */
 @Stateless
-public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, StaffEntitySessionBeanLocal {
+public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBeanLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-    public StaffEntitySessionBean() {
+    public StaffSessionBean() {
     }
 
+    @Override
     public Long createNewStaff(Staff staff) throws StaffUsernameExistsException {
         try {
             em.persist(staff);
@@ -50,6 +51,7 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, Sta
         }
     }
     
+    @Override
     public Staff retrieveStaffByUsername(String username) throws StaffDNEException {
         Query query = em.createQuery("SELECT s FROM Staff s WHERE s.username = :inUsername");
         query.setParameter("inUsername", username);
@@ -61,17 +63,20 @@ public class StaffEntitySessionBean implements StaffEntitySessionBeanRemote, Sta
         }
     }
     
+    @Override
     public List<Staff> retrieveAllStaffs() {
         Query query = em.createQuery("SELECT s from Staff s");
         return query.getResultList();
     }
     
+    @Override
     public Staff staffLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
             Staff s = retrieveStaffByUsername(username);
             
             if (s.getPassword().equals(password)) {
                 // preload any lazy data if needed
+                s.getStaffId();
                 return s;
             } else {
                 throw new InvalidLoginCredentialException("Staff username or password is incorrect!");
