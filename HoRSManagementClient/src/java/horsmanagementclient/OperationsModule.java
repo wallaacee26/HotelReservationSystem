@@ -69,11 +69,13 @@ public class OperationsModule {
                     // create new room
                     doCreateNewRoom();
                 } else if (response == 5) {
-                    // view all partners
+                    // update room
+                    doUpdateRoom();
                 } else if (response == 6) {
-                    // view all partners
+                    // delete room
                 } else if (response == 7) {
-                    // view all partners
+                    // view all rooms
+                    doViewAllRooms();
                 } else if (response == 8) {
                     // view all partners
                 } else if (response == 9) {
@@ -174,7 +176,7 @@ public class OperationsModule {
     
     private void doViewAllRoomTypes() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("*** HoRS Management Client :: View All Employees ***\n");
+        System.out.println("*** HoRS Management Client :: View All Room Types ***\n");
         
         List<RoomType> listOfRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
         for (RoomType rt : listOfRoomTypes) {
@@ -216,5 +218,24 @@ public class OperationsModule {
         } catch (RoomTypeDNEException ex) {
             System.out.println("Room Type " + roomTypeName + " does not exist!\n");
         } 
+    }
+    
+    private void doUpdateRoom() {
+        
+    }
+    
+    private void doViewAllRooms() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: View All Rooms ***\n");
+        
+        List<Room> listOfRooms = roomSBRemote.retrieveAllRooms();
+        for (Room r : listOfRooms) {
+            System.out.println("Room Number: " + r.getRoomNumber() +
+                    " | isAvailable: " + r.isAvailable() + 
+                    " | isDisabled: " + r.isDisabled());
+        }
+        
+        System.out.print("Press any key to cotinue> ");
+        sc.nextLine();
     }
 }

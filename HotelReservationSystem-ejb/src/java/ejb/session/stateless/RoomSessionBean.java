@@ -56,7 +56,8 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }
     }
     
-    public Room updateRoomRate(String roomNumber, Room newRoom) throws RoomDNEException, RoomExistsException {
+    @Override
+    public Room updateRoom(String roomNumber, Room newRoom) throws RoomDNEException, RoomExistsException {
         try {
             Room room = retrieveRoomByRoomNumber(roomNumber);
             
