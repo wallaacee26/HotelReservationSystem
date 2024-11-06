@@ -12,37 +12,54 @@ import javax.persistence.Entity;
 public class Guest extends Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    
     @Column(nullable = false)
-    private int phoneNumber; // uniquely identifiable?
+    private String phoneNumber; // uniquely identifiable?
+    @Column(nullable = false, unique = true)
+    private String username;
     @Column(nullable = false)
-    private int password;
+    private String password;
     
     // default no-argument constructor for JPA
     public Guest() {
-        
+        super();
     }
-
-    public int getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(int phoneNumber) {
+    
+    public Guest(String username, String password, String phoneNumber) {
+        this();
+        this.username = username;
+        this.password = password;
         this.phoneNumber = phoneNumber;
     }
 
-    public int getPassword() {
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(int password) {
+    public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (guestId != null ? guestId.hashCode() : 0);
+        hash += (customerId != null ? customerId.hashCode() : 0);
         return hash;
     }
 
@@ -53,7 +70,7 @@ public class Guest extends Customer implements Serializable {
             return false;
         }
         Guest other = (Guest) object;
-        if ((this.guestId == null && other.guestId != null) || (this.guestId != null && !this.guestId.equals(other.guestId))) {
+        if ((this.customerId == null && other.customerId != null) || (this.customerId != null && !this.customerId.equals(other.customerId))) {
             return false;
         }
         return true;
@@ -61,7 +78,7 @@ public class Guest extends Customer implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Guest[ id=" + guestId + " ]";
+        return "entity.Guest[ id=" + customerId + " ]";
     }
     
 }

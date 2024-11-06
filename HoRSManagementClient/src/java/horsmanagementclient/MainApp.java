@@ -5,6 +5,8 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.RoomSessionBeanRemote;
+import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import ejb.session.stateless.StaffSessionBeanRemote;
 import entity.Staff;
 import java.util.Scanner;
@@ -19,15 +21,22 @@ public class MainApp {
     private Staff currentStaff;
     private StaffSessionBeanRemote staffSBRemote;
     private PartnerSessionBeanRemote partnerSBRemote;
+    private RoomTypeSessionBeanRemote roomTypeSBRemote;
+    private RoomSessionBeanRemote roomSBRemote;
     
     private AdministratorModule adminModule;
+    private OperationsModule operationsModule;
 
     public MainApp() {
         currentStaff = null;
     }
     
-    public MainApp(StaffSessionBeanRemote staffSBRemote, PartnerSessionBeanRemote partnerSBRemote) {
+    public MainApp(StaffSessionBeanRemote staffSBRemote, PartnerSessionBeanRemote partnerSBRemote,
+            RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote) {
         this.staffSBRemote = staffSBRemote;
+        this.partnerSBRemote = partnerSBRemote;
+        this.roomTypeSBRemote = roomTypeSBRemote;
+        this.roomSBRemote = roomSBRemote; 
     }
     
     public void runApp() {
@@ -52,6 +61,10 @@ public class MainApp {
                             // do administrator things
                             adminModule = new AdministratorModule(staffSBRemote, currentStaff);
                             adminModule.adminMenu();
+                        } else if (currentStaff.getAccessRights().equals(AccessRightEnum.OPERATIONS)) {
+                            // do operation manager things
+                            operationsModule = new OperationsModule(roomTypeSBRemote, roomSBRemote, currentStaff);
+                            operationsModule.adminMenu();
                         }
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
