@@ -77,7 +77,7 @@ public class OperationsModule {
                     // view all rooms
                     doViewAllRooms();
                 } else if (response == 8) {
-                    // view all partners
+                    // view room allocation exception report
                 } else if (response == 9) {
                     break;
                 } else {
@@ -189,7 +189,7 @@ public class OperationsModule {
                     " | isDisabled: " + rt.isDisabled());
         }
         
-        System.out.print("Press any key to cotinue> ");
+        System.out.print("Press ENTER to cotinue> ");
         sc.nextLine();
     }
     

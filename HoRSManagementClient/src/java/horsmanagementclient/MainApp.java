@@ -59,7 +59,7 @@ public class MainApp {
                         // separate modules by accessRights
                         if (currentStaff.getAccessRights().equals(AccessRightEnum.ADMINISTRATOR)) {
                             // do administrator things
-                            adminModule = new AdministratorModule(staffSBRemote, currentStaff);
+                            adminModule = new AdministratorModule(staffSBRemote, partnerSBRemote, currentStaff);
                             adminModule.adminMenu();
                         } else if (currentStaff.getAccessRights().equals(AccessRightEnum.OPERATIONS)) {
                             // do operation manager things

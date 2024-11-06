@@ -4,11 +4,14 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.StaffSessionBeanRemote;
+import entity.Partner;
 import entity.Staff;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.AccessRightEnum;
+import util.exception.PartnerExistsException;
 import util.exception.StaffUsernameExistsException;
 
 /**
@@ -17,14 +20,16 @@ import util.exception.StaffUsernameExistsException;
  */
 public class AdministratorModule {
     private StaffSessionBeanRemote staffSBRemote;
+    private PartnerSessionBeanRemote partnerSBRemote;
     private Staff currentStaff;
 
     public AdministratorModule() {
     }
     
 
-    public AdministratorModule(StaffSessionBeanRemote staffSBRemote, Staff currentStaff) {
+    public AdministratorModule(StaffSessionBeanRemote staffSBRemote, PartnerSessionBeanRemote partnerSBRemote, Staff currentStaff) {
         this.staffSBRemote = staffSBRemote;
+        this.partnerSBRemote = partnerSBRemote;
         this.currentStaff = currentStaff;
     }
     
@@ -54,8 +59,10 @@ public class AdministratorModule {
                     doViewAllEmployees();
                 } else if (response == 3) {
                     // create new partner
+                    doCreateNewPartner();
                 } else if (response == 4) {
                     // view all partners
+                    doViewAllPartners();
                 } else if (response == 5) {
                     break;
                 } else {
@@ -116,7 +123,40 @@ public class AdministratorModule {
                     " | AccessRights: " + s.getAccessRights().toString());
         }
         
-        System.out.print("Press any key to cotinue> ");
+        System.out.print("Press ENTER key to cotinue> ");
+        sc.nextLine();
+    }
+    
+    private void doCreateNewPartner() {
+        Scanner sc = new Scanner(System.in);
+        Partner newPartner = new Partner();
+        
+        System.out.println("*** HoRS Management Client :: Create New Partner ***\n");
+        System.out.print("Enter Username> ");
+        newPartner.setUsername(sc.nextLine().trim());
+        System.out.print("Enter Password> ");
+        newPartner.setPassword(sc.nextLine().trim());
+        
+        try {
+            Long newPartnerId = partnerSBRemote.createNewPartner(newPartner);
+            System.out.println("New partner created: " + newPartnerId + "\n");
+        } catch (PartnerExistsException ex) {
+            System.out.println("Error when creating new partner. Username already exists!\n");
+        }
+    }
+    
+    private void doViewAllPartners() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: View All Partners ***\n");
+        
+        List<Partner> listOfPartners = partnerSBRemote.retrieveAllPartners();
+        for (Partner p : listOfPartners) {
+            System.out.println("ID: " + p.getPartnerId()+
+                    " | Username: " + p.getUsername() +
+                    " | Password: " + p.getPassword());
+        }
+        
+        System.out.print("Press ENTER key to cotinue> ");
         sc.nextLine();
     }
 }
