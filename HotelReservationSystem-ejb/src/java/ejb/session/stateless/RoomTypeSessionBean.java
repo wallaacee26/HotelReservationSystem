@@ -49,8 +49,11 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         Query query = em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = :roomTypeName");
         query.setParameter("roomTypeName", roomTypeName);
         
+        
         try {
-            return (RoomType) query.getSingleResult();
+            RoomType rt = (RoomType) query.getSingleResult();
+            rt.getRooms().size(); //lazy loaded data
+            return rt;
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");
         }

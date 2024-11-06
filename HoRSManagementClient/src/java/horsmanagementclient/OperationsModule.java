@@ -6,10 +6,12 @@ package horsmanagementclient;
 
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
+import entity.Room;
 import entity.RoomType;
 import entity.Staff;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.RoomExistsException;
 import util.exception.RoomTypeDNEException;
 import util.exception.RoomTypeExistsException;
 
@@ -64,7 +66,8 @@ public class OperationsModule {
                     // view all room types
                     doViewAllRoomTypes();
                 } else if (response == 4) {
-                    // view all partners
+                    // create new room
+                    doCreateNewRoom();
                 } else if (response == 5) {
                     // view all partners
                 } else if (response == 6) {
@@ -156,7 +159,7 @@ public class OperationsModule {
                 }
             }
         } catch (RoomTypeDNEException ex) {
-            System.out.println("Error while viewing room type details. Room Type " + rtName + " does not exist!");
+            System.out.println("Error while viewing room type details. Room Type " + rtName + " does not exist!\n");
         }
         
     }
@@ -186,5 +189,32 @@ public class OperationsModule {
         
         System.out.print("Press any key to cotinue> ");
         sc.nextLine();
+    }
+    
+    private void doCreateNewRoom() {
+        Scanner sc = new Scanner(System.in);
+        Room newRoom = new Room();
+        String roomTypeName;
+        
+        System.out.println("*** HoRS Management Client :: Create New Room ***\n");
+        System.out.print("Enter Room Number> ");
+        newRoom.setRoomNumber(sc.nextLine().trim());
+        System.out.print("Enter Room Type> ");
+        roomTypeName = sc.nextLine().trim();
+        newRoom.setAvailable(true);
+        
+        try {
+            RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
+            newRoom.setRoomType(rt);
+            rt.getRooms().add(newRoom);
+            try {
+                Long newRoomId = roomSBRemote.createNewRoom(newRoom);
+                System.out.println("New Room Type created: " + newRoomId + "\n");
+            } catch (RoomExistsException ex) {
+                System.out.println("Error when creating new room. Room already exists!\n");
+            }
+        } catch (RoomTypeDNEException ex) {
+            System.out.println("Room Type " + roomTypeName + " does not exist!\n");
+        } 
     }
 }
