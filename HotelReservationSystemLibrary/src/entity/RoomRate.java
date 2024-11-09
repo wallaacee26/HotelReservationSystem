@@ -143,7 +143,7 @@ public class RoomRate implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.RoomRate[ id=" + roomRateId + " ]";
+        return this.roomRateName;
     }
     
 }

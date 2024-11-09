@@ -13,8 +13,10 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import util.enumeration.RateTypeEnum;
+import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
 import util.exception.RoomTypeDNEException;
 
@@ -136,7 +138,51 @@ public class SalesModule {
     }
     
     public void doViewRoomRateDetails() {
+        Scanner sc = new Scanner(System.in);
+        String roomRateName;
+        Integer response = 0;
         
+        System.out.println("*** HoRS Management Client :: View Room Rate Details ***\n");
+        System.out.print("Enter Room Rate Name> ");
+        roomRateName = sc.nextLine().trim();
+        try {
+            RoomRate rr = roomRateSessionBeanRemote.retrieveRoomRateByRoomRateName(roomRateName);
+            System.out.println(":: Details for Room Rate " + roomRateName + " ::");
+            System.out.println("Name: " + rr.getRoomRateName());
+            System.out.println("Rate Type: " + rr.getRateType().toString());
+            System.out.println("Rate Per Night: " + rr.getRatePerNight().toString());
+            if (rr.getRateType().equals(RateTypeEnum.PROMOTION) || rr.getRateType().equals(RateTypeEnum.PEAK)) {
+                System.out.println("Rate Start Date: " + rr.getStartDate());
+                System.out.println("Rate End Date: " + rr.getEndDate());
+            }
+            while (true) {
+                System.out.println("\nFurther actions: ");
+                System.out.println("1: Update Room Rate");
+                System.out.println("2: Delete Room Rate");
+                System.out.println("3: Go back");
+                response = 0;
+                while(response < 1 || response > 3) {
+                    System.out.print("> ");
+                    response = sc.nextInt();
+                    
+                    if (response == 1) {
+                        //doUpdateRoomRate();
+                    } else if (response == 2) {
+                        // delete room type
+                        //doDeleteRoomRate();
+                    } else if (response == 3) {
+                        break;
+                    } else {
+                    System.out.println("Invalid option, please try again!\n");
+                    }
+                }
+                if (response == 3) {
+                    break;
+                }
+            }
+        } catch (RoomRateDNEException ex) {
+            System.out.println("Error while viewing room rate details. Room Rate " + roomRateName + " does not exist!\n");
+        }
     }
     
     public void doUpdateRoomRate() {
@@ -148,6 +194,20 @@ public class SalesModule {
     }
     
     public void doViewAllRoomRates() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: View All Room Rates ***\n");
         
+        List<RoomRate> roomRates = roomRateSessionBeanRemote.retrieveAllRoomRates(); 
+        for (RoomRate rr : roomRates) {
+            String rateStartDate = rr.getStartDate() == null ? "" : " | Rate Start Date: " + rr.getStartDate();
+            String rateEndDate = rr.getEndDate() == null ? "" : " | Rate End Date: " + rr.getEndDate();
+            System.out.println("Name :" + rr.getRoomRateName() +
+                    " | Rate Type:" + rr.getRateType().toString() +
+                    " | Rate Per Night: " + rr.getRatePerNight().toString() + 
+                    " | Rate Start Date: " + rr.getStartDate() + 
+                    " | Rate End Date: " + rr.getEndDate());
+        }
+        System.out.print("Press ENTER to cotinue> ");
+        sc.nextLine();
     }
 }

@@ -135,8 +135,6 @@ public class OperationsModule {
             System.out.println("Number of beds: " + roomType.getBeds());
             System.out.println("Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: " + roomType.getAmenities());
-            System.out.println(roomType.getRooms().get(0));
-            System.out.println(roomType.getRoomRates().get(0));
             while (true) {
                 System.out.println("\nFurther actions: ");
                 System.out.println("1: Update Room Type");
