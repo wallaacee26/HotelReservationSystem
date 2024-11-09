@@ -53,6 +53,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         try {
             RoomType rt = (RoomType) query.getSingleResult();
             rt.getRooms().size(); //lazy loaded data
+            rt.getRoomRates().size();
             return rt;
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");

@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import entity.RoomType;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -11,6 +13,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.RoomDNEException;
 import util.exception.RoomExistsException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -22,8 +25,14 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-    public Long createNewRoom(Room room) throws RoomExistsException {
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+    
+    public Long createNewRoom(Room room, String roomTypeName) throws RoomExistsException, RoomTypeDNEException {
         try {
+            // associate Room Rate to the room type
+            RoomType rt = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
+            rt.getRooms().add(room);
             em.persist(room);
             em.flush();
             return room.getRoomId();
@@ -37,12 +46,15 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
             } else {
                throw new RoomExistsException(ex.getMessage());
             }
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException();
         }
     }
     
     public List<Room> retrieveAllRooms() {
         Query query = em.createQuery("SELECT r from Room r");
         List<Room> rooms = query.getResultList();
+        // lazy load the data to get room type details
         for (Room r : rooms) {
             r.getRoomType();
         }

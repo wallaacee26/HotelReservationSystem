@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -11,6 +13,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -22,8 +25,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-    public Long createNewRoomRate(RoomRate roomRate) throws RoomRateExistsException {
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+    
+    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException {
         try {
+            // associate Room Rate to the room type
+            RoomType rt = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
+            rt.getRoomRates().add(roomRate);
             em.persist(roomRate);
             em.flush();
             return roomRate.getRoomRateId();
@@ -37,6 +46,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             } else {
                throw new RoomRateExistsException(ex.getMessage());
            }
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException(ex.getMessage());
         }
     }
     

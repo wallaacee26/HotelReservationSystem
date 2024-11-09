@@ -1,6 +1,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import ejb.session.stateless.StaffSessionBeanRemote;
@@ -24,9 +25,12 @@ public class Main {
     private static RoomTypeSessionBeanRemote roomTypeSBRemote;
     @EJB
     private static RoomSessionBeanRemote roomSBRemote;
+    @EJB
+    private static RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     
     public static void main(String[] args) {
-        MainApp mainApp = new MainApp(staffSBRemote, partnerSBRemote, roomTypeSBRemote, roomSBRemote);
+        MainApp mainApp = new MainApp(staffSBRemote, partnerSBRemote, 
+                roomTypeSBRemote, roomSBRemote, roomRateSessionBeanRemote);
         mainApp.runApp();
     }
     

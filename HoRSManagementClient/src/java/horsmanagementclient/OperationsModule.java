@@ -135,6 +135,8 @@ public class OperationsModule {
             System.out.println("Number of beds: " + roomType.getBeds());
             System.out.println("Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: " + roomType.getAmenities());
+            System.out.println(roomType.getRooms().get(0));
+            System.out.println(roomType.getRoomRates().get(0));
             while (true) {
                 System.out.println("\nFurther actions: ");
                 System.out.println("1: Update Room Type");
@@ -216,9 +218,10 @@ public class OperationsModule {
         try {
             RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
             newRoom.setRoomType(rt);
-            rt.getRooms().add(newRoom);
+            // already put into create new room SB
+            // rt.getRooms().add(newRoom);
             try {
-                Long newRoomId = roomSBRemote.createNewRoom(newRoom);
+                Long newRoomId = roomSBRemote.createNewRoom(newRoom, rt.getRoomTypeName());
                 System.out.println("New Room created: " + newRoomId + "\n");
             } catch (RoomExistsException ex) {
                 System.out.println("Error when creating new room. Room already exists!\n");

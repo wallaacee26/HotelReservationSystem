@@ -5,6 +5,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.exception.RoomDNEException;
 import util.exception.RoomExistsException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -12,7 +13,7 @@ import util.exception.RoomExistsException;
  */
 @Remote
 public interface RoomSessionBeanRemote {
-    public Long createNewRoom(Room room) throws RoomExistsException;
+    public Long createNewRoom(Room room, String roomTypeName) throws RoomExistsException, RoomTypeDNEException;
     
     public List<Room> retrieveAllRooms();
     
