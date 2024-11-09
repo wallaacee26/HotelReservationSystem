@@ -11,9 +11,12 @@ import entity.RoomType;
 import entity.Staff;
 import java.util.List;
 import java.util.Scanner;
+import util.exception.RoomDNEException;
 import util.exception.RoomExistsException;
 import util.exception.RoomTypeDNEException;
+import util.exception.RoomTypeDisabledException;
 import util.exception.RoomTypeExistsException;
+import util.exception.UpdateRoomException;
 
 /**
  *
@@ -73,6 +76,7 @@ public class OperationsModule {
                     doUpdateRoom();
                 } else if (response == 6) {
                     // delete room
+                    doDeleteRoom();
                 } else if (response == 7) {
                     // view all rooms
                     doViewAllRooms();
@@ -135,6 +139,9 @@ public class OperationsModule {
             System.out.println("Number of beds: " + roomType.getBeds());
             System.out.println("Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: " + roomType.getAmenities());
+            for (Room r : roomType.getRooms()) {
+                System.out.println(r.toString());
+            }
             while (true) {
                 System.out.println("\nFurther actions: ");
                 System.out.println("1: Update Room Type");
@@ -223,6 +230,8 @@ public class OperationsModule {
                 System.out.println("New Room created: " + newRoomId + "\n");
             } catch (RoomExistsException ex) {
                 System.out.println("Error when creating new room. Room already exists!\n");
+            } catch (RoomTypeDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
         } catch (RoomTypeDNEException ex) {
             System.out.println("Room Type " + roomTypeName + " does not exist!\n");
@@ -230,7 +239,43 @@ public class OperationsModule {
     }
     
     private void doUpdateRoom() {
+        Scanner sc = new Scanner(System.in);
+        Room newRoom = new Room();
+        String roomNumber = "";
         
+        System.out.println("*** HoRS Management Client :: Update Existing Room ***\n");
+        System.out.print("Enter Room Number to Update> ");
+        roomNumber = sc.nextLine().trim();
+        newRoom.setRoomNumber(roomNumber);
+        System.out.print("Enter Room Availability: y/n> ");
+        String availability = sc.nextLine().trim();
+        if (availability.equals("y")) {
+            newRoom.setAvailable(true);
+        } else {
+            newRoom.setAvailable(false);
+        }
+        
+        try {
+            roomSBRemote.updateRoom(roomNumber, newRoom);
+            System.out.println("Room " + roomNumber + " successfully updated!\n");
+        } catch (RoomDNEException | UpdateRoomException ex) {
+            System.out.println(ex.getMessage());
+        } 
+    }
+    
+    private void doDeleteRoom() {
+        Scanner sc = new Scanner(System.in);
+        String roomNumber = "";
+        
+        System.out.println("*** HoRS Management Client :: Delete Existing Room ***\n");
+        System.out.print("Enter Room Number to Delete> ");
+        roomNumber = sc.nextLine().trim();
+        try {
+            roomSBRemote.deleteRoom(roomNumber);
+            System.out.println("Room Number " + roomNumber + " successfully removed!");
+        } catch (RoomDNEException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
     
     private void doViewAllRooms() {

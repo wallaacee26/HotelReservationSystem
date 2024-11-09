@@ -14,6 +14,8 @@ import javax.persistence.Query;
 import util.exception.RoomDNEException;
 import util.exception.RoomExistsException;
 import util.exception.RoomTypeDNEException;
+import util.exception.RoomTypeDisabledException;
+import util.exception.UpdateRoomException;
 
 /**
  *
@@ -28,14 +30,20 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
     
-    public Long createNewRoom(Room room, String roomTypeName) throws RoomExistsException, RoomTypeDNEException {
+    @Override
+    public Long createNewRoom(Room room, String roomTypeName) throws RoomExistsException, RoomTypeDNEException, RoomTypeDisabledException {
         try {
             // associate Room Rate to the room type
             RoomType rt = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
-            rt.getRooms().add(room);
-            em.persist(room);
-            em.flush();
-            return room.getRoomId();
+            if (!rt.isDisabled()) {
+                rt.getRooms().add(room);
+                em.persist(room);
+                em.flush();
+                return room.getRoomId();
+            } else {
+                throw new RoomTypeDisabledException("Room type: " + roomTypeName + " has been disabled! Unable to create a new Room with this Room Type!");
+            }
+            
         } catch(PersistenceException ex) {
            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
@@ -73,24 +81,39 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public Room updateRoom(String roomNumber, Room newRoom) throws RoomDNEException, RoomExistsException {
+    public Room updateRoom(String roomNumber, Room newRoom) throws RoomDNEException, UpdateRoomException {
         try {
             Room room = retrieveRoomByRoomNumber(roomNumber);
-            
-            room.setRoomNumber(newRoom.getRoomNumber());
-            room.setAvailable(newRoom.isAvailable());
-            room.setDisabled(newRoom.isDisabled());
-            
-            room.setRoomType(newRoom.getRoomType()); // see how
-            
-            em.flush();
-            
-            return room;
-            
+            if (roomNumber.equals(room.getRoomNumber())) {
+                room.setRoomNumber(newRoom.getRoomNumber());
+                room.setAvailable(newRoom.isAvailable());
+                //room.setDisabled(newRoom.isDisabled());
+
+                //room.setRoomType(newRoom.getRoomType()); // see how
+
+                em.flush();
+
+                return room;
+            } else {
+                throw new UpdateRoomException("Room number of room record to be updated does not match the existing Room record!");
+            }
+    
         } catch (NoResultException ex) {
             throw new RoomDNEException("Room Number " + roomNumber + " does not exist!");
-        } catch (NonUniqueResultException ex) {
-            throw new RoomExistsException("Room Number " + roomNumber + " already exists!");
         } 
+    }
+    
+    public void deleteRoom(String roomNumber) throws RoomDNEException {
+        Room roomToRemove = retrieveRoomByRoomNumber(roomNumber);
+        
+        if (roomToRemove.isAvailable()) { //need to check if there are future reserved rooms???
+            RoomType rt = roomToRemove.getRoomType();
+            rt.getRooms().remove(roomToRemove);
+            em.remove(roomToRemove);
+        } else {
+            RoomType rt = roomToRemove.getRoomType();
+            rt.getRooms().remove(roomToRemove);
+            roomToRemove.setDisabled(true);
+        }
     }
 }

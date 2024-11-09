@@ -199,10 +199,8 @@ public class SalesModule {
         
         List<RoomRate> roomRates = roomRateSessionBeanRemote.retrieveAllRoomRates(); 
         for (RoomRate rr : roomRates) {
-            String rateStartDate = rr.getStartDate() == null ? "" : " | Rate Start Date: " + rr.getStartDate();
-            String rateEndDate = rr.getEndDate() == null ? "" : " | Rate End Date: " + rr.getEndDate();
-            System.out.println("Name :" + rr.getRoomRateName() +
-                    " | Rate Type:" + rr.getRateType().toString() +
+            System.out.println("Name:" + rr.getRoomRateName() +
+                    " | Rate Type: " + rr.getRateType().toString() +
                     " | Rate Per Night: " + rr.getRatePerNight().toString() + 
                     " | Rate Start Date: " + rr.getStartDate() + 
                     " | Rate End Date: " + rr.getEndDate());
