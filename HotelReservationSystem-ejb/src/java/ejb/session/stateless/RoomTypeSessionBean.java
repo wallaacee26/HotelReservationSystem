@@ -46,8 +46,8 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     public RoomType retrieveRoomTypeByRoomTypeName(String roomTypeName) throws RoomTypeDNEException {
-        Query query = em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = :roomTypeName");
-        query.setParameter("roomTypeName", roomTypeName);
+        Query query = em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = :inRoomTypeName");
+        query.setParameter("inRoomTypeName", roomTypeName);
         
         
         try {

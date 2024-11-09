@@ -197,13 +197,21 @@ public class OperationsModule {
         Scanner sc = new Scanner(System.in);
         Room newRoom = new Room();
         String roomTypeName;
+        String response = "";
         
         System.out.println("*** HoRS Management Client :: Create New Room ***\n");
         System.out.print("Enter Room Number> ");
         newRoom.setRoomNumber(sc.nextLine().trim());
         System.out.print("Enter Room Type> ");
         roomTypeName = sc.nextLine().trim();
-        newRoom.setAvailable(true);
+        System.out.print("Enter Room Availability: y/n> ");
+        response = sc.nextLine().trim();
+        
+        if (response.equals("y")) {
+            newRoom.setAvailable(true);
+        } else {
+            newRoom.setAvailable(false);
+        }     
         
         try {
             RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
@@ -211,7 +219,7 @@ public class OperationsModule {
             rt.getRooms().add(newRoom);
             try {
                 Long newRoomId = roomSBRemote.createNewRoom(newRoom);
-                System.out.println("New Room Type created: " + newRoomId + "\n");
+                System.out.println("New Room created: " + newRoomId + "\n");
             } catch (RoomExistsException ex) {
                 System.out.println("Error when creating new room. Room already exists!\n");
             }
@@ -232,7 +240,8 @@ public class OperationsModule {
         for (Room r : listOfRooms) {
             System.out.println("Room Number: " + r.getRoomNumber() +
                     " | isAvailable: " + r.isAvailable() + 
-                    " | isDisabled: " + r.isDisabled());
+                    " | isDisabled: " + r.isDisabled() + 
+                    " | Room Type: " + r.getRoomType().getRoomTypeName());
         }
         
         System.out.print("Press any key to cotinue> ");

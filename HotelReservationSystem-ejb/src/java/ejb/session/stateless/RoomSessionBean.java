@@ -42,7 +42,11 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     
     public List<Room> retrieveAllRooms() {
         Query query = em.createQuery("SELECT r from Room r");
-        return query.getResultList();
+        List<Room> rooms = query.getResultList();
+        for (Room r : rooms) {
+            r.getRoomType();
+        }
+        return rooms;
     }
     
     public Room retrieveRoomByRoomNumber(String roomNumber) throws RoomDNEException {
