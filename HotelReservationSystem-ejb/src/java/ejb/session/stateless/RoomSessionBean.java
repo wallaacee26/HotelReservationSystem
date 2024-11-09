@@ -87,7 +87,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
             if (roomNumber.equals(room.getRoomNumber())) {
                 room.setRoomNumber(newRoom.getRoomNumber());
                 room.setAvailable(newRoom.isAvailable());
-                //room.setDisabled(newRoom.isDisabled());
+                //room.setDisabled(newRoom.isDisabled()); 
 
                 //room.setRoomType(newRoom.getRoomType()); // see how
 
@@ -103,6 +103,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         } 
     }
     
+    @Override
     public void deleteRoom(String roomNumber) throws RoomDNEException {
         Room roomToRemove = retrieveRoomByRoomNumber(roomNumber);
         

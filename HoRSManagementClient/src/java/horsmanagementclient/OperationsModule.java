@@ -17,6 +17,7 @@ import util.exception.RoomTypeDNEException;
 import util.exception.RoomTypeDisabledException;
 import util.exception.RoomTypeExistsException;
 import util.exception.UpdateRoomException;
+import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -174,11 +175,48 @@ public class OperationsModule {
     }
     
     private void doUpdateRoomType() { // under view room type details
+        Scanner sc = new Scanner(System.in);
+        RoomType newRoomType = new RoomType();
+        String roomTypeName = "";
         
+        System.out.println("*** HoRS Management Client :: Update Existing Room Type ***\n");
+        System.out.print("Enter RoomType Name to Update> ");
+        roomTypeName = sc.nextLine().trim();
+        newRoomType.setRoomTypeName(roomTypeName);
+        System.out.print("Enter Description> ");
+        newRoomType.setDescription(sc.nextLine().trim());
+        System.out.print("Enter size> ");
+        newRoomType.setRoomSize(sc.nextDouble());
+        System.out.print("Enter number of beds> ");
+        newRoomType.setBeds(sc.nextInt());
+        System.out.print("Enter capacity> ");
+        newRoomType.setCapacity(sc.nextInt());
+        sc.nextLine();
+        System.out.print("Enter amenities> ");
+        newRoomType.setAmenities(sc.nextLine().trim());
+        
+        try {
+            roomTypeSBRemote.updateRoomType(roomTypeName, newRoomType);
+            System.out.println("Room Type " + roomTypeName + " successfully updated!\n");
+        } catch (RoomTypeDNEException | UpdateRoomTypeException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
     }
     
     private void doDeleteRoomType() { // under view room type details
+        Scanner sc = new Scanner(System.in);
+        String roomTypeName = "";
         
+        System.out.println("*** HoRS Management Client :: Delete Existing RoomType ***\n");
+        System.out.print("Enter Name of RoomType to Delete> ");
+        roomTypeName = sc.nextLine().trim();
+        
+        try {
+            roomTypeSBRemote.deleteRoomType(roomTypeName);
+            System.out.println("RoomType: " + roomTypeName + " successfully deleted!");
+        } catch (RoomTypeDNEException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
     
     private void doViewAllRoomTypes() {
