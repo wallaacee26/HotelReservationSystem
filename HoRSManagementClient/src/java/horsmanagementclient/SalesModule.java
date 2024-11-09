@@ -94,7 +94,7 @@ public class SalesModule {
             RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
             newRoomRate.getRoomTypes().add(rt);
             // how to associate???
-            rt.getRoomRates().add(newRoomRate);
+            //rt.getRoomRates().add(newRoomRate);
             
             while(true) {
                 System.out.println("Select Rate Type:\n"
@@ -156,7 +156,7 @@ public class SalesModule {
                 System.out.println("Rate End Date: " + rr.getEndDate());
             }
             while (true) {
-                System.out.println("\nFurther actions: ");
+                System.out.println("\nFurther actions for Room Rate: " + roomRateName);
                 System.out.println("1: Update Room Rate");
                 System.out.println("2: Delete Room Rate");
                 System.out.println("3: Go back");
@@ -166,9 +166,8 @@ public class SalesModule {
                     response = sc.nextInt();
                     
                     if (response == 1) {
-                        //doUpdateRoomRate();
+                        doUpdateRoomRate(rr.getRoomRateName());
                     } else if (response == 2) {
-                        // delete room type
                         //doDeleteRoomRate();
                     } else if (response == 3) {
                         break;
@@ -185,8 +184,60 @@ public class SalesModule {
         }
     }
     
-    public void doUpdateRoomRate() {
+    public void doUpdateRoomRate(String roomRateName) {
+        Scanner sc = new Scanner(System.in);
+        RoomRate newRoomRate = new RoomRate();
+        try {
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+            Date startDate;
+            Date endDate;
         
+            System.out.println("*** HoRS Management Client :: Update Existing Room Rate ***\n");
+            System.out.println(":: Editing information for Room Rate: " + roomRateName);
+            newRoomRate.setRoomRateName(roomRateName);
+            System.out.print("Enter Rate Per Night> $");
+            newRoomRate.setRatePerNight(BigDecimal.valueOf(sc.nextDouble()));
+            sc.nextLine();
+            
+            while(true) {
+                System.out.println("Select Rate Type:\n"
+                        + "1: Published Rate\n"
+                        + "2: Normal Rate\n"
+                        + "3: Peak Rate\n"
+                        + "4: Promotion Rate\n");
+                System.out.print("> ");
+                Integer rateTypeNum = sc.nextInt();
+
+                if (rateTypeNum >= 1 && rateTypeNum <= 4) { //if within enum range
+                    newRoomRate.setRateType(RateTypeEnum.values()[rateTypeNum - 1]);
+                    sc.nextLine();
+                    // if peak or promotion rate
+                    if (rateTypeNum == 3 || rateTypeNum == 4) {
+                        // set start and end date of rates
+                        System.out.print("Enter Rate Start Date (dd/mm//yy): ");
+                        startDate = inputDateFormat.parse(sc.nextLine().trim());
+                        System.out.print("Enter Rate End Date (dd/mm//yy): ");
+                        endDate = inputDateFormat.parse(sc.nextLine().trim()); 
+                        newRoomRate.setStartDate(startDate);
+                        newRoomRate.setEndDate(endDate);
+                    }
+                    break;
+                } else {
+                    System.out.println("Invalid option, please try again!\n");
+                }
+            }
+            
+            try {
+                roomRateSessionBeanRemote.updateRoomRate(roomRateName, newRoomRate);
+                System.out.println("RoomRate " + roomRateName + " successfully updated!");
+            } catch (RoomRateDNEException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+            
+        } catch (ParseException ex) {
+            System.out.println(ex.getMessage());
+        }
+   
     }
     
     public void doDeleteRoomRate() {

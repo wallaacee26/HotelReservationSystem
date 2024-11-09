@@ -67,18 +67,18 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         }
     }
     
-    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException, RoomRateExistsException {
+    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException {
         try {
             RoomRate roomRate = retrieveRoomRateByRoomRateName(roomRateName);
-            
+
             roomRate.setRoomRateName(newRoomRate.getRoomRateName());
             roomRate.setRateType(newRoomRate.getRateType());
             roomRate.setRatePerNight(newRoomRate.getRatePerNight());
             roomRate.setStartDate(newRoomRate.getStartDate());
             roomRate.setEndDate(newRoomRate.getEndDate());
-            roomRate.setDisabled(newRoomRate.isDisabled());
+            //roomRate.setDisabled(newRoomRate.isDisabled());
             
-            roomRate.setRoomTypes(newRoomRate.getRoomTypes()); // see how
+            // roomRate.setRoomTypes(newRoomRate.getRoomTypes()); // see how
             
             em.flush();
             
@@ -86,8 +86,6 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             
         } catch (NoResultException ex) {
             throw new RoomRateDNEException("Room Rate " + roomRateName + " does not exist!");
-        } catch (NonUniqueResultException ex) {
-            throw new RoomRateExistsException("Room Rate " + roomRateName + " already exists!");
         } 
     }
     

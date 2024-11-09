@@ -7,6 +7,7 @@ package horsmanagementclient;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
 import entity.Staff;
 import java.util.List;
@@ -140,9 +141,13 @@ public class OperationsModule {
             System.out.println("Number of beds: " + roomType.getBeds());
             System.out.println("Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: " + roomType.getAmenities());
-            for (Room r : roomType.getRooms()) {
-                System.out.println(r.toString());
-            }
+            // for testing
+//            for (Room r : roomType.getRooms()) {
+//                System.out.println(r.toString());
+//            }
+//            for (RoomRate rt : roomType.getRoomRates()) {
+//                System.out.println(rt.toString());
+//            }
             while (true) {
                 System.out.println("\nFurther actions: ");
                 System.out.println("1: Update Room Type");
