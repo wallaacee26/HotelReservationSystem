@@ -90,7 +90,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     // TO CHECK ---------------------------------
-    /*
+    
     public void deleteRoomRate(String roomRateName) throws RoomRateDNEException {
         try {
             RoomRate roomRate = retrieveRoomRateByRoomRateName(roomRateName);
@@ -103,11 +103,13 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             if (count > 0) {
                 roomRate.setDisabled(true); // set as disabled, do not delete yet
             } else { // count == 0, not in use
+                // need to remove room rate entry from the associated room types?
                 em.remove(roomRate);  // delete completely
+                
             }
         } catch (RoomRateDNEException ex) {
             throw new RoomRateDNEException("Room Rate " + roomRateName + " does not exist!");
         }
     }
-    */
+    
 }

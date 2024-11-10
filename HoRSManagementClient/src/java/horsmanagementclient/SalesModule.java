@@ -93,8 +93,7 @@ public class SalesModule {
             roomTypeName = sc.nextLine().trim();
             RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
             newRoomRate.getRoomTypes().add(rt);
-            // how to associate???
-            //rt.getRoomRates().add(newRoomRate);
+            // how to associate??? -> associated in Session bean's create method
             
             while(true) {
                 System.out.println("Select Rate Type:\n"
@@ -168,7 +167,7 @@ public class SalesModule {
                     if (response == 1) {
                         doUpdateRoomRate(rr.getRoomRateName());
                     } else if (response == 2) {
-                        //doDeleteRoomRate();
+                        doDeleteRoomRate(rr.getRoomRateName());
                     } else if (response == 3) {
                         break;
                     } else {
@@ -240,7 +239,22 @@ public class SalesModule {
    
     }
     
-    public void doDeleteRoomRate() {
+    public void doDeleteRoomRate(String roomRateName) {
+        String confirmation = "";
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: Delete Existing RoomRate ***\n");
+        System.out.print("Enter Name of RoomRate to Confirm Deletion> ");
+        confirmation = sc.nextLine().trim();        
+        if (confirmation.equals(roomRateName)) {
+            try {
+                roomRateSessionBeanRemote.deleteRoomRate(roomRateName);
+                System.out.println("RoomRate: " + roomRateName + " successfully deleted!");
+            } catch (RoomRateDNEException ex) {
+                System.out.println(ex.getMessage());
+            }
+        } else {
+            System.out.println("Invalid input! Name does not match RoomRate name to delete!");
+        }
         
     }
     

@@ -20,4 +20,6 @@ public interface RoomRateSessionBeanRemote {
     public RoomRate retrieveRoomRateByRoomRateName(String roomRateName) throws RoomRateDNEException;
     
     public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException;
+
+    public void deleteRoomRate(String roomRateName) throws RoomRateDNEException;
 }
