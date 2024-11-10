@@ -79,7 +79,7 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
                 s.getStaffId();
                 return s;
             } else {
-                throw new InvalidLoginCredentialException("Staff username or password is incorrect!");
+                throw new InvalidLoginCredentialException("Staff password is incorrect!");
             }
         } catch (StaffDNEException ex) {
             throw new InvalidLoginCredentialException("Staff username does not exist!");

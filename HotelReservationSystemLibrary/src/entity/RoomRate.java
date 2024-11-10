@@ -39,11 +39,9 @@ public class RoomRate implements Serializable {
     private BigDecimal ratePerNight;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true) // only for peak and promotion rates
-    @NotNull
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true) // only for peak and promotion rates
-    @NotNull
     private Date endDate; 
     @Column(nullable = false)
     private boolean disabled;
@@ -145,7 +143,7 @@ public class RoomRate implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.RoomRate[ id=" + roomRateId + " ]";
+        return this.roomRateName;
     }
     
 }

@@ -158,7 +158,7 @@ public class RoomType implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.RoomType[ id=" + roomTypeId + " ]";
+        return this.roomTypeName;
     }
     
 }

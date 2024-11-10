@@ -9,6 +9,7 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -16,11 +17,11 @@ import util.exception.RoomRateExistsException;
  */
 @Local
 public interface RoomRateSessionBeanLocal {
-    public Long createNewRoomRate(RoomRate roomRate) throws RoomRateExistsException;
+    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException;
     
     public List<RoomRate> retrieveAllRoomRates();
     
     public RoomRate retrieveRoomRateByRoomRateName(String roomRateName) throws RoomRateDNEException;
     
-    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException, RoomRateExistsException;
+    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException;
 }

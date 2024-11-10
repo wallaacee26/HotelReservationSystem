@@ -11,6 +11,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.RoomTypeDNEException;
 import util.exception.RoomTypeExistsException;
+import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -46,39 +47,54 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     public RoomType retrieveRoomTypeByRoomTypeName(String roomTypeName) throws RoomTypeDNEException {
-        Query query = em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = :roomTypeName");
-        query.setParameter("roomTypeName", roomTypeName);
+        Query query = em.createQuery("SELECT r from RoomType r WHERE r.roomTypeName = :inRoomTypeName");
+        query.setParameter("inRoomTypeName", roomTypeName);
+        
         
         try {
-            return (RoomType) query.getSingleResult();
+            RoomType rt = (RoomType) query.getSingleResult();
+            rt.getRooms().size(); //lazy loaded data
+            rt.getRoomRates().size();
+            return rt;
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");
         }
     }
     
-    public RoomType updateRoomType(String roomTypeName, RoomType newRoomType) throws RoomTypeDNEException, RoomTypeExistsException {
+    @Override
+    public RoomType updateRoomType(String roomTypeName, RoomType newRoomType) throws RoomTypeDNEException, UpdateRoomTypeException {
         try {
             RoomType roomType = retrieveRoomTypeByRoomTypeName(roomTypeName);
-            
-            roomType.setRoomTypeName(newRoomType.getRoomTypeName());
-            roomType.setDescription(newRoomType.getDescription());
-            roomType.setRoomSize(newRoomType.getRoomSize());
-            roomType.setBeds(newRoomType.getBeds());
-            roomType.setCapacity(newRoomType.getCapacity());
-            roomType.setAmenities(newRoomType.getAmenities());
-            roomType.setDisabled(newRoomType.isDisabled());
-            
-            roomType.setRoomRates(newRoomType.getRoomRates()); // see how
-            roomType.setRooms(newRoomType.getRooms()); // see how
-            
-            em.flush();
-            
-            return roomType;
-            
+            if (roomTypeName.equals(roomType.getRoomTypeName())) {
+                roomType.setRoomTypeName(newRoomType.getRoomTypeName());
+                roomType.setDescription(newRoomType.getDescription());
+                roomType.setRoomSize(newRoomType.getRoomSize());
+                roomType.setBeds(newRoomType.getBeds());
+                roomType.setCapacity(newRoomType.getCapacity());
+                roomType.setAmenities(newRoomType.getAmenities());
+                roomType.setDisabled(newRoomType.isDisabled());
+
+                //roomType.setRoomRates(newRoomType.getRoomRates()); // see how
+                //roomType.setRooms(newRoomType.getRooms()); // see how
+
+                em.flush();
+
+                return roomType;
+            } else {
+                throw new UpdateRoomTypeException("RoomType name of room type record to be updated does not match the existing RoomType record!");
+            }
         } catch (NoResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");
-        } catch (NonUniqueResultException ex) {
-            throw new RoomTypeExistsException("Room Type " + roomTypeName + " already exists!");
         } 
+    }
+    
+    public void deleteRoomType(String roomTypeName) throws RoomTypeDNEException {
+        RoomType rtToRemove = retrieveRoomTypeByRoomTypeName(roomTypeName);
+        
+        if (rtToRemove.getRooms().isEmpty() && rtToRemove.getRoomRates().isEmpty()) { // if no rooms and room rates are using this room type
+            em.remove(rtToRemove);
+        } else {
+            rtToRemove.setDisabled(true);
+        }
     }
 }

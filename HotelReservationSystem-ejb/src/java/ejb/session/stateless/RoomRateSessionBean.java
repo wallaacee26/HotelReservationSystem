@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -11,6 +13,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -22,8 +25,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-    public Long createNewRoomRate(RoomRate roomRate) throws RoomRateExistsException {
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+    
+    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException {
         try {
+            // associate Room Rate to the room type
+            RoomType rt = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
+            rt.getRoomRates().add(roomRate);
             em.persist(roomRate);
             em.flush();
             return roomRate.getRoomRateId();
@@ -37,6 +46,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             } else {
                throw new RoomRateExistsException(ex.getMessage());
            }
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException(ex.getMessage());
         }
     }
     
@@ -56,18 +67,18 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         }
     }
     
-    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException, RoomRateExistsException {
+    public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException {
         try {
             RoomRate roomRate = retrieveRoomRateByRoomRateName(roomRateName);
-            
+
             roomRate.setRoomRateName(newRoomRate.getRoomRateName());
             roomRate.setRateType(newRoomRate.getRateType());
             roomRate.setRatePerNight(newRoomRate.getRatePerNight());
             roomRate.setStartDate(newRoomRate.getStartDate());
             roomRate.setEndDate(newRoomRate.getEndDate());
-            roomRate.setDisabled(newRoomRate.isDisabled());
+            //roomRate.setDisabled(newRoomRate.isDisabled());
             
-            roomRate.setRoomTypes(newRoomRate.getRoomTypes()); // see how
+            // roomRate.setRoomTypes(newRoomRate.getRoomTypes()); // see how
             
             em.flush();
             
@@ -75,13 +86,11 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             
         } catch (NoResultException ex) {
             throw new RoomRateDNEException("Room Rate " + roomRateName + " does not exist!");
-        } catch (NonUniqueResultException ex) {
-            throw new RoomRateExistsException("Room Rate " + roomRateName + " already exists!");
         } 
     }
     
     // TO CHECK ---------------------------------
-    /*
+    
     public void deleteRoomRate(String roomRateName) throws RoomRateDNEException {
         try {
             RoomRate roomRate = retrieveRoomRateByRoomRateName(roomRateName);
@@ -94,11 +103,13 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             if (count > 0) {
                 roomRate.setDisabled(true); // set as disabled, do not delete yet
             } else { // count == 0, not in use
+                // need to remove room rate entry from the associated room types?
                 em.remove(roomRate);  // delete completely
+                
             }
         } catch (RoomRateDNEException ex) {
             throw new RoomRateDNEException("Room Rate " + roomRateName + " does not exist!");
         }
     }
-    */
+    
 }

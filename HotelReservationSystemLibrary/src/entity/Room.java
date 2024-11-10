@@ -99,7 +99,7 @@ public class Room implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Room[ id=" + roomId + " ]";
+        return this.roomNumber;
     }
     
 }
