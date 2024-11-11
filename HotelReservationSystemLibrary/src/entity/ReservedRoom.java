@@ -5,6 +5,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,13 +29,10 @@ public class ReservedRoom implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservedRoomId;
 
-    // not sure if needed
-    @Column(nullable = false, unique = true)
-    private String roomNumber;
     @Column(nullable = false)
-    private boolean available;
+    private boolean isUpgraded;
     @Column(nullable = false)
-    private boolean disabled;
+    private Date checkInDate;
     
     // mappings:
     @ManyToOne(optional = false)
@@ -52,6 +50,14 @@ public class ReservedRoom implements Serializable {
     public ReservedRoom() {
         
     }
+
+    public Date getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(Date checkInDate) {
+        this.checkInDate = checkInDate;
+    }
     
     public Long getReservedRoomId() {
         return reservedRoomId;
@@ -61,28 +67,12 @@ public class ReservedRoom implements Serializable {
         this.reservedRoomId = reservedRoomId;
     }
 
-    public String getRoomNumber() {
-        return roomNumber;
+    public boolean isIsUpgraded() {
+        return isUpgraded;
     }
 
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
-    public boolean isDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
+    public void setIsUpgraded(boolean isUpgraded) {
+        this.isUpgraded = isUpgraded;
     }
 
     public Room getRoom() {

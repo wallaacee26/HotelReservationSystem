@@ -168,6 +168,7 @@ public class SalesModule {
                         doUpdateRoomRate(rr.getRoomRateName());
                     } else if (response == 2) {
                         doDeleteRoomRate(rr.getRoomRateName());
+                        return;
                     } else if (response == 3) {
                         break;
                     } else {
