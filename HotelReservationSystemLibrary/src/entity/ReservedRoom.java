@@ -33,14 +33,16 @@ public class ReservedRoom implements Serializable {
     private boolean isUpgraded;
     @Column(nullable = false)
     private Date checkInDate;
+    @Column(nullable = false)
+    private Date checkOutDate;
     
     // mappings:
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = true) // optional
     private Room room; // the room used for booking
     
     @ManyToOne
-    @JoinColumn(nullable = true) // optional
+    @JoinColumn(nullable = false) 
     private RoomType roomType; // similar to room
     
     @ManyToOne(optional = false)
