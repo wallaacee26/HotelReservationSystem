@@ -50,7 +50,6 @@ public class RoomRate implements Serializable {
     @ManyToMany(mappedBy = "roomRates")
     private List<RoomType> roomTypes;
     
-        
     // default no-argument constructor for JPA
     public RoomRate() {
         this.roomTypes = new ArrayList<RoomType>();

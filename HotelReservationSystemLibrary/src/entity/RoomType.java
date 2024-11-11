@@ -8,9 +8,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -46,14 +48,20 @@ public class RoomType implements Serializable {
 
     @OneToMany (mappedBy = "roomType")
     private List<Room> rooms;
-
+    
+    @OneToMany (mappedBy = "roomType")
+    private List<ReservedRoom> reservedRooms;
+    
+    @OneToOne
+    @JoinColumn(nullable = true)
+    private ReservedRoom higherRoomType; // optional (highest room dont have)
     
     // default no-argument constructor for JPA
     public RoomType() {
         this.roomRates = new ArrayList<RoomRate>();
         this.rooms = new ArrayList<Room>();
+        this.reservedRooms = new ArrayList<ReservedRoom>();
     }
-    
     
     public Long getRoomTypeId() {
         return roomTypeId;
@@ -134,8 +142,23 @@ public class RoomType implements Serializable {
     public void setRooms(List<Room> rooms) {
         this.rooms = rooms;
     }
-    
 
+    public List<ReservedRoom> getReservedRooms() {
+        return reservedRooms;
+    }
+
+    public void setReservedRooms(List<ReservedRoom> reservedRooms) {
+        this.reservedRooms = reservedRooms;
+    }
+
+    public ReservedRoom getHigherRoomType() {
+        return higherRoomType;
+    }
+
+    public void setHigherRoomType(ReservedRoom higherRoomType) {
+        this.higherRoomType = higherRoomType;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 0;

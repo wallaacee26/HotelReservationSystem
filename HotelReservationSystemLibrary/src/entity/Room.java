@@ -1,13 +1,17 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -28,9 +32,13 @@ public class Room implements Serializable {
     @Column(nullable = false)
     private boolean disabled;
 
-    
-    @ManyToOne(fetch = FetchType.LAZY)
+    // mappings:
+    @ManyToOne
+    @JoinColumn(nullable = true) // optional
     private RoomType roomType;
+    
+    @OneToMany(mappedBy = "room")
+    private List<ReservedRoom> reservedRooms; // keep list of old reserved rooms
         
     // default no-argument constructor for JPA
     public Room() {
@@ -75,6 +83,14 @@ public class Room implements Serializable {
 
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    public List<ReservedRoom> getReservedRooms() {
+        return reservedRooms;
+    }
+
+    public void setReservedRooms(List<ReservedRoom> reservedRooms) {
+        this.reservedRooms = reservedRooms;
     }
 
     @Override

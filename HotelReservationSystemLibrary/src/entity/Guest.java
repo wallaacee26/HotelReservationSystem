@@ -1,8 +1,11 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -20,9 +23,14 @@ public class Guest extends Customer implements Serializable {
     @Column(nullable = false)
     private String password;
     
+    // mappings:
+    @OneToMany (mappedBy = "guest")
+    private List<Reservation> reservations;
+    
     // default no-argument constructor for JPA
     public Guest() {
         super();
+        this.reservations = new ArrayList<Reservation>();
     }
     
     public Guest(String username, String password, String phoneNumber) {
@@ -54,6 +62,14 @@ public class Guest extends Customer implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 
     @Override

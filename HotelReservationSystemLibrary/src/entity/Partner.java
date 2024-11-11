@@ -1,11 +1,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -22,10 +25,14 @@ public class Partner implements Serializable {
     private String username;
     @Column(nullable = false)
     private String password;
+    
+    // mappings:
+    @OneToMany (mappedBy = "partner")
+    private List<Reservation> reservations;
 
     // default no-argument constructor for JPA
     public Partner() {
-        
+        this.reservations = new ArrayList<Reservation>();
     }
 
     // Getters and Setters //
@@ -52,6 +59,14 @@ public class Partner implements Serializable {
 
     public void setPartnerId(Long partnerId) {
         this.partnerId = partnerId;
+    }
+
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 
     @Override
