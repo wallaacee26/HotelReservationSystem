@@ -7,6 +7,7 @@ package ejb.session.stateless;
 import entity.ReservedRoom;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,6 +19,9 @@ import javax.persistence.Query;
  */
 @Stateless
 public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, ReservedRoomSessionBeanLocal {
+    
+    @EJB
+    private RoomSessionBeanLocal roomSessionBeanLocal;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -41,13 +45,20 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     }
     
     public void allocateRooms(Date today) {
-        List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate LIKE :today")
+        List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")
                 .setParameter("today", today)
                 .getResultList();
-        // get available rooms of the reserved room's type
-        // loop through available rooms, assign to reservedRoomsToAllocate one by one
-        // if reservedRoomsToAllocate has larger size than available rooms,
-        // get the first reserved room that cannot be allocated and try to search for the next available room type
+        for (ReservedRoom reserveRoom : reservedRoomsToAllocate) {
+            // get available rooms of the reserved room's type
+            // loop through available rooms, assign to reservedRoomsToAllocate one by one. Do associations
+            // if availableRooms returns an empty list
+            // while current room type still has a nextRoomType, 
+            // get the reserved room that cannot be allocated and try to search for the next available room type
+            // if can get, do allocation to the reserved room and update isUpgraded to true
+            // if cannot get, do nothing (assigned room will be null and isUpgraded = false)
+            // go to the next reservedRoom 
+        }
+
     }
     
     public void generateExceptionReport() {
