@@ -10,6 +10,7 @@ import javax.ejb.Local;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
 import util.exception.RoomTypeDNEException;
+import util.exception.RoomTypeDisabledException;
 
 /**
  *
@@ -17,7 +18,7 @@ import util.exception.RoomTypeDNEException;
  */
 @Local
 public interface RoomRateSessionBeanLocal {
-    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException;
+    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException, RoomTypeDisabledException;
     
     public List<RoomRate> retrieveAllRoomRates();
     

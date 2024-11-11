@@ -19,6 +19,7 @@ import util.enumeration.RateTypeEnum;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
 import util.exception.RoomTypeDNEException;
+import util.exception.RoomTypeDisabledException;
 
 /**
  *
@@ -128,6 +129,8 @@ public class SalesModule {
                 System.out.println("New Room Rate Created: " + roomRateId + "\n");
             } catch (RoomRateExistsException ex) {
                 System.out.println("Room rate already exists!");
+            } catch (RoomTypeDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
@@ -168,6 +171,7 @@ public class SalesModule {
                         doUpdateRoomRate(rr.getRoomRateName());
                     } else if (response == 2) {
                         doDeleteRoomRate(rr.getRoomRateName());
+                        return;
                     } else if (response == 3) {
                         break;
                     } else {

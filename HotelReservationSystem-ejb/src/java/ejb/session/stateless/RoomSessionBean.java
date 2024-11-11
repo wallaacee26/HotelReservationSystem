@@ -2,6 +2,7 @@ package ejb.session.stateless;
 
 import entity.Room;
 import entity.RoomType;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -78,6 +79,16 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomDNEException("Room Number " + roomNumber + " does not exist!");
         }
+    }
+    
+    public List<Room> retrieveAvailableRoomsTodayByRoomType(Date today, String roomTypeName) {
+        Query query = em.createQuery("SELECT r FROM Room r JOIN r.roomType rt"
+                + "WHERE (r.available = TRUE OR rt.checkOutDate = :today) "
+                + "AND rt.roomTypeName = :roomTypeName");
+        query.setParameter("today", today);
+        query.setParameter("roomTypeName", roomTypeName);
+        
+        return query.getResultList();
     }
     
     @Override

@@ -28,11 +28,11 @@ public class Reservation implements Serializable {
     @OneToMany(mappedBy = "reservation")
     private List<ReservedRoom> reservedRooms;
     
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(nullable = true) // might have a partner that reserve instead of guest
     private Guest guest;
     
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(nullable = true) // might have a guest that reserve instead of partner
     private Partner partner;
     

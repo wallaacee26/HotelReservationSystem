@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
 import util.exception.RoomTypeDNEException;
+import util.exception.RoomTypeDisabledException;
 
 /**
  *
@@ -28,14 +29,19 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
     
-    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException {
+    public Long createNewRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistsException, RoomTypeDNEException, RoomTypeDisabledException {
         try {
             // associate Room Rate to the room type
             RoomType rt = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
-            rt.getRoomRates().add(roomRate);
-            em.persist(roomRate);
-            em.flush();
-            return roomRate.getRoomRateId();
+            if (!rt.isDisabled()) {
+                rt.getRoomRates().add(roomRate);
+                em.persist(roomRate);
+                em.flush();
+                return roomRate.getRoomRateId();
+            } else {
+                throw new RoomTypeDisabledException("Room type: " + roomTypeName + " has been disabled! Unable to create a new Room Rate with this Room Type!");
+            }
+            
         } catch(PersistenceException ex) {
            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
