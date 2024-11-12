@@ -4,6 +4,7 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.ReservedRoomSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Room;
@@ -27,16 +28,19 @@ import util.exception.UpdateRoomTypeException;
 public class OperationsModule {
     private RoomTypeSessionBeanRemote roomTypeSBRemote;
     private RoomSessionBeanRemote roomSBRemote;
+    private ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote;
     private Staff currentStaff;
 
     public OperationsModule() {
     }
     
 
-    public OperationsModule(RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote, Staff currentStaff) {
+    public OperationsModule(RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote, 
+            ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote, Staff currentStaff) {
         this.roomTypeSBRemote = roomTypeSBRemote;
         this.roomSBRemote = roomSBRemote;
         this.currentStaff = currentStaff;
+        this.reservedRoomSessionBeanRemote = reservedRoomSessionBeanRemote;
     }
     
     public void adminMenu() {
@@ -84,6 +88,7 @@ public class OperationsModule {
                     doViewAllRooms();
                 } else if (response == 8) {
                     // view room allocation exception report
+                    doViewAllocationExceptionReport();
                 } else if (response == 9) {
                     break;
                 } else {
@@ -335,5 +340,9 @@ public class OperationsModule {
         
         System.out.print("Press any key to cotinue> ");
         sc.nextLine();
+    }
+    
+    private void doViewAllocationExceptionReport() {
+        
     }
 }

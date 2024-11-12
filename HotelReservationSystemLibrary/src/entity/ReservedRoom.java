@@ -53,6 +53,14 @@ public class ReservedRoom implements Serializable {
         
     }
 
+    public Date getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(Date checkOutDate) {
+        this.checkOutDate = checkOutDate;
+    }
+
     public Date getCheckInDate() {
         return checkInDate;
     }

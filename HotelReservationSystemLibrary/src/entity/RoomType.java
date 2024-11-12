@@ -54,7 +54,7 @@ public class RoomType implements Serializable {
     
     @OneToOne
     @JoinColumn(nullable = true)
-    private ReservedRoom higherRoomType; // optional (highest room dont have)
+    private RoomType higherRoomType; // optional (highest room dont have)
     
     // default no-argument constructor for JPA
     public RoomType() {
@@ -151,11 +151,11 @@ public class RoomType implements Serializable {
         this.reservedRooms = reservedRooms;
     }
 
-    public ReservedRoom getHigherRoomType() {
+    public RoomType getHigherRoomType() {
         return higherRoomType;
     }
 
-    public void setHigherRoomType(ReservedRoom higherRoomType) {
+    public void setHigherRoomType(RoomType higherRoomType) {
         this.higherRoomType = higherRoomType;
     }
     
