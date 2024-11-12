@@ -343,6 +343,12 @@ public class OperationsModule {
     }
     
     private void doViewAllocationExceptionReport() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** HoRS Management Client :: View Room Allocation Exception Report ***\n");
         
+        String report = reservedRoomSessionBeanRemote.generateExceptionReport();
+        System.out.println(report);
+        System.out.print("Press ENTER key to cotinue> ");
+        sc.nextLine();
     }
 }
