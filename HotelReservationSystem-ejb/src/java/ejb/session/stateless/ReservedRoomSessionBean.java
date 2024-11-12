@@ -7,6 +7,9 @@ package ejb.session.stateless;
 import entity.ReservedRoom;
 import entity.Room;
 import entity.RoomType;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -15,6 +18,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -48,7 +52,8 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     }
     
     @Schedule(hour = "2", minute = "0", second = "0", persistent = false)
-    public void allocateRooms(Date today) {
+    public void allocateRooms() {
+        LocalDate today = LocalDate.now();
         List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")
                 .setParameter("today", today)
                 .getResultList();
@@ -88,6 +93,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
 
     }
     
+    @Override
     public String generateExceptionReport() {
         // get ReservedRooms where isUpgraded = true OR rr.room = null
         List<ReservedRoom> exceptions = em.createQuery("SELECT rr FROM ReservedRoom rr "

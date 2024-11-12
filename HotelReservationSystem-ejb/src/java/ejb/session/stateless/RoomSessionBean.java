@@ -2,7 +2,7 @@ package ejb.session.stateless;
 
 import entity.Room;
 import entity.RoomType;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -81,7 +81,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }
     }
     
-    public List<Room> retrieveAvailableRoomsTodayByRoomType(Date today, String roomTypeName) {
+    public List<Room> retrieveAvailableRoomsTodayByRoomType(LocalDate today, String roomTypeName) {
         // get rooms that are isAvailable OR have their checkout day as today, and have the desired room type
         Query query = em.createQuery("SELECT r FROM Room r JOIN r.roomType rt JOIN r.reservedRooms rr"
                 + "WHERE (r.available = TRUE OR rr.checkOutDate = :today) "
