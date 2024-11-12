@@ -5,13 +5,20 @@
 package ejb.session.stateless;
 
 import entity.ReservedRoom;
+import entity.Room;
+import entity.RoomType;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -44,13 +51,38 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         return rooms;
     }
     
-    public void allocateRooms(Date today) {
+    @Schedule(hour = "2", minute = "0", second = "0", persistent = false)
+    public void allocateRooms() {
+        LocalDate today = LocalDate.now();
         List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")
                 .setParameter("today", today)
                 .getResultList();
         for (ReservedRoom reserveRoom : reservedRoomsToAllocate) {
+            RoomType roomType = reserveRoom.getRoomType();
             // get available rooms of the reserved room's type
-            // loop through available rooms, assign to reservedRoomsToAllocate one by one. Do associations
+            List<Room> availableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, roomType.getRoomTypeName());
+            // if have available rooms, assign to reservedRoomsToAllocate one by one. Do associations
+            if (availableRooms.size() > 0) {
+                Room roomToAssign = availableRooms.get(0);
+                // assign Room to Reserve Room
+                reserveRoom.setRoom(roomToAssign);
+                // add Reserve Room to the Room
+                roomToAssign.getReservedRooms().add(reserveRoom);
+            } else { // no Rooms with desired RoomType
+                // get next higher room type
+                RoomType nextHigherRoomType = roomType.getHigherRoomType();
+                if (nextHigherRoomType != null) { // if have higher room type
+                    List<Room> nextTierAvailableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, nextHigherRoomType.getRoomTypeName());
+                    if (nextTierAvailableRooms.size() > 0) {
+                        Room upgradedRoom = nextTierAvailableRooms.get(0);
+                        reserveRoom.setRoom(upgradedRoom);
+                        reserveRoom.setIsUpgraded(true);
+                        upgradedRoom.getReservedRooms().add(reserveRoom);
+                    }
+                }
+                
+                // else cannot upgrade anymore, do nothing
+            }
             // if availableRooms returns an empty list
             // while current room type still has a nextRoomType, 
             // get the reserved room that cannot be allocated and try to search for the next available room type
@@ -61,8 +93,24 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
 
     }
     
-    public void generateExceptionReport() {
-        
+    @Override
+    public String generateExceptionReport() {
+        // get ReservedRooms where isUpgraded = true OR rr.room = null
+        List<ReservedRoom> exceptions = em.createQuery("SELECT rr FROM ReservedRoom rr "
+                + "WHERE rr.room IS NULL OR rr.isUpgraded = TRUE").getResultList();
+        String exceptionReport = "Exception Report: \n";
+        for (ReservedRoom rr : exceptions) {
+            if(rr.isIsUpgraded()) {
+                exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + " upgraded from " +
+                        rr.getRoomType() + " to " + rr.getRoomType().getHigherRoomType() + 
+                        ". Allocated Room Number " + rr.getRoom().getRoomNumber() + "\n";
+            }
+            if (rr.getRoom().equals(null)) {
+                exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + 
+                        " has no next higher room type available. Room was not allocated! \n";
+            }
+        }
+        return exceptionReport;
     }
 
 }

@@ -12,5 +12,5 @@ import javax.ejb.Local;
  */
 @Local
 public interface ReservedRoomSessionBeanLocal {
-    
+    public String generateExceptionReport();
 }

@@ -5,6 +5,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.ReservedRoomSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
@@ -25,6 +26,7 @@ public class MainApp {
     private RoomTypeSessionBeanRemote roomTypeSBRemote;
     private RoomSessionBeanRemote roomSBRemote;
     private RoomRateSessionBeanRemote roomRateSBRemote; 
+    private ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote;
     
     private AdministratorModule adminModule;
     private OperationsModule operationsModule;
@@ -36,12 +38,13 @@ public class MainApp {
     
     public MainApp(StaffSessionBeanRemote staffSBRemote, PartnerSessionBeanRemote partnerSBRemote,
             RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote,
-            RoomRateSessionBeanRemote roomRateSBRemote) {
+            RoomRateSessionBeanRemote roomRateSBRemote, ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote) {
         this.staffSBRemote = staffSBRemote;
         this.partnerSBRemote = partnerSBRemote;
         this.roomTypeSBRemote = roomTypeSBRemote;
         this.roomSBRemote = roomSBRemote; 
         this.roomRateSBRemote = roomRateSBRemote;
+        this.reservedRoomSessionBeanRemote = reservedRoomSessionBeanRemote;
     }
     
     public void runApp() {
@@ -68,7 +71,7 @@ public class MainApp {
                             adminModule.adminMenu();
                         } else if (currentStaff.getAccessRights().equals(AccessRightEnum.OPERATIONS)) {
                             // do operation manager things
-                            operationsModule = new OperationsModule(roomTypeSBRemote, roomSBRemote, currentStaff);
+                            operationsModule = new OperationsModule(roomTypeSBRemote, roomSBRemote, reservedRoomSessionBeanRemote, currentStaff);
                             operationsModule.adminMenu();
                         } else if (currentStaff.getAccessRights().equals(AccessRightEnum.SALES)) {
                             // do sales manager things

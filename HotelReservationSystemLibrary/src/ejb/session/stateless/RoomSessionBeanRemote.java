@@ -1,6 +1,8 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.RoomDNEException;
@@ -24,4 +26,6 @@ public interface RoomSessionBeanRemote {
     public Room updateRoom(String roomNumber, Room newRoom) throws RoomDNEException, UpdateRoomException;
 
     public void deleteRoom(String roomNumber) throws RoomDNEException;
+    
+    public List<Room> retrieveAvailableRoomsTodayByRoomType(LocalDate today, String roomTypeName);
 }
