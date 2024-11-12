@@ -272,7 +272,8 @@ public class SalesModule {
                     " | Rate Type: " + rr.getRateType().toString() +
                     " | Rate Per Night: " + rr.getRatePerNight().toString() + 
                     " | Rate Start Date: " + rr.getStartDate() + 
-                    " | Rate End Date: " + rr.getEndDate());
+                    " | Rate End Date: " + rr.getEndDate() + 
+                    " | isDisabled: " + rr.isDisabled());
         }
         System.out.print("Press ENTER to cotinue> ");
         sc.nextLine();
