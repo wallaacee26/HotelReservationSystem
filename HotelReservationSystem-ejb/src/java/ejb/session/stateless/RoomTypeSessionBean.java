@@ -1,6 +1,7 @@
 package ejb.session.stateless;
 
 import entity.RoomType;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -55,6 +56,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             RoomType rt = (RoomType) query.getSingleResult();
             rt.getRooms().size(); //lazy loaded data
             rt.getRoomRates().size();
+            rt.getReservedRooms().size();
             return rt;
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");
@@ -95,6 +97,42 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             em.remove(rtToRemove);
         } else {
             rtToRemove.setDisabled(true);
+        }
+    }
+    
+    @Override
+    public List<RoomType> searchAvailableRoomTypes(LocalDate checkInDate, LocalDate checkOutDate) {
+        Query query = em.createQuery(
+            // first line: room type is not disabled, and found in all rooms that are available and not disabled.
+            // second line: additional constraint, where only the available rooms are chosen (i.e. not reserved within the check-in/check-out duration)
+            "SELECT DISTINCT rt FROM RoomType rt JOIN rt.rooms r WHERE rt.disabled = false AND r.available = true AND r.disabled = false AND NOT EXISTS (" 
+                + "SELECT rr FROM ReservedRoom rr WHERE rr.room = r AND ((rr.checkInDate <= :inCheckOutDate) AND (rr.checkOutDate >= :inCheckInDate))"
+            + ")")
+                .setParameter("inCheckInDate", checkInDate).setParameter("inCheckOutDate", checkOutDate);
+
+        List<RoomType> availableRoomTypes = query.getResultList();
+        return availableRoomTypes;
+    }
+    
+    @Override
+    public int findNumberOfAvailableRoomsForRoomType(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
+        try {
+            RoomType roomType = retrieveRoomTypeByRoomTypeName(roomTypeName);
+
+            Query query = em.createQuery(
+                // first line: count the total number of rooms, which are available and not disabed.
+                // second line: additional constraint, where only the available rooms are counted (i.e. not reserved within the check-in/check-out duration)
+                "SELECT COUNT(r) FROM Room r WHERE r.roomType = :inRoomType AND r.available = true AND r.disabled = false AND NOT EXISTS ("
+                    + "SELECT rr FROM ReservedRoom rr WHERE rr.room = r AND ((rr.checkInDate <= :inCheckOutDate) AND (rr.checkOutDate >= :inCheckInDate))" +
+                ")")
+                    .setParameter("inRoomType", roomType)
+                    .setParameter("inCheckInDate", checkInDate)
+                    .setParameter("inCheckOutDate", checkOutDate);
+
+            Long count = (long) query.getSingleResult();
+            return count.intValue();
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException(ex.getMessage());
         }
     }
 }
