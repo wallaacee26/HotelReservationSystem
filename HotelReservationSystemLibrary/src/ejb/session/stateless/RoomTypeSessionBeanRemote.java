@@ -20,11 +20,15 @@ public interface RoomTypeSessionBeanRemote {
     
     public RoomType retrieveRoomTypeByRoomTypeName(String roomTypeName) throws RoomTypeDNEException;
     
+    public RoomType retrieveRoomTypeByRoomTypeId(Long roomTypeId) throws RoomTypeDNEException;
+    
     public RoomType updateRoomType(String roomTypeName, RoomType newRoomType) throws RoomTypeDNEException, UpdateRoomTypeException;
 
     public void deleteRoomType(String roomTypeName) throws RoomTypeDNEException;
     
-    public List<RoomType> searchAvailableRoomTypes(LocalDate checkInDate, LocalDate checkOutDate);
+    public List<Integer> searchAvailableRoomTypesWithNumberOfRooms(LocalDate checkInDate, LocalDate checkOutDate);
     
     public int findNumberOfAvailableRoomsForRoomType(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
+    
+    public boolean checkAvailabilityForRoomType(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
 }

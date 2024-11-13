@@ -17,11 +17,13 @@ import util.exception.ReservationExistsException;
  */
 @Remote
 public interface ReservationSessionBeanRemote {
-        public Long createNewReservation(Reservation reservation) throws ReservationExistsException;
+    public Long createNewReservation(Reservation reservation) throws ReservationExistsException;
     
     public List<Reservation> retrieveAllReservations();
     
     public Reservation retrieveReservationByReservationId(Long reservationId) throws ReservationDNEException;
     
     public List<Reservation> retrieveAllReservationsOfGuestId(Long guestId) throws GuestDNEException;
+    
+    public void deleteReservationByReservationId(Long reservationId) throws ReservationDNEException;
 }
