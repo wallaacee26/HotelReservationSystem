@@ -15,6 +15,7 @@ import entity.ReservedRoom;
 import entity.RoomType;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -74,7 +75,7 @@ public class GuestOperationsModule {
                     
                 } else if (response == 2) {
                     // view my reservation details for specific reservation
-                    System.out.println("Enter your Reservation ID> ");
+                    System.out.print("Enter your Reservation ID> ");
                     try {
                         Long reservationId = sc.nextLong();
                         sc.nextLine();
@@ -109,6 +110,7 @@ public class GuestOperationsModule {
         String[] checkInInput = sc.nextLine().split("/");
         System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
         String[] checkOutInput = sc.nextLine().split("/");
+        System.out.println();
         
         if (checkInInput.length != 3 || checkOutInput.length != 3) {
             System.out.println("Invalid date input(s)! Please try again.");
@@ -119,18 +121,30 @@ public class GuestOperationsModule {
             LocalDate checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
             LocalDate checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
             
-            List<RoomType> listOfRoomTypes = roomTypeSBRemote.searchAvailableRoomTypes(checkInDate, checkOutDate);
+            List<Integer> listOfAllRoomTypes = roomTypeSBRemote.searchAvailableRoomTypesWithNumberOfRooms(checkInDate, checkOutDate);
             
-            if (listOfRoomTypes.size() == 0) {
+            List<RoomType> availableRoomTypes = new ArrayList<>();
+            List<Integer> availableRoomsPerRoomType = new ArrayList<>();
+            
+            for (int i = 0; i < listOfAllRoomTypes.size(); i++) {
+                if (listOfAllRoomTypes.get(i) > 0) { // i == 0 will never be > 0, so never triggered
+                    availableRoomTypes.add(roomTypeSBRemote.retrieveRoomTypeByRoomTypeId((long) i));
+                    availableRoomsPerRoomType.add(listOfAllRoomTypes.get(i));
+                }
+            }
+            
+            if (availableRoomTypes.size() == 0) {
                 System.out.println("There are no available rooms!");
             } else {
                 System.out.println("Available Room Types:");
-                for (int i = 1; i <= listOfRoomTypes.size(); i++) {
-                    String roomTypeName = listOfRoomTypes.get(i - 1).getRoomTypeName();
-                    int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
+                for (int i = 1; i <= availableRoomTypes.size(); i++) {
+                    String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
+                    int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
+                    // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
                     System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
+            System.out.println();
             
             int response = 1;
             while(response == 1) {
@@ -143,6 +157,7 @@ public class GuestOperationsModule {
                 if (response == 1) {
                     // reserve a hotel
                     doReserveHotelRoom(checkInDate, checkOutDate);
+                    break; // dont repeat same UI
                     
                 } else if (response == 2) {
                     break;
@@ -157,25 +172,70 @@ public class GuestOperationsModule {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         } catch (ReservationExistsException ex) {
             System.out.println("Reservation already exists!"); // will likely never come here anyways
+        } catch (ReservationDNEException ex) {
+            System.out.println("Reservation does not exist!"); // will likely never come here anyways
         }
     }
     
-    private void doReserveHotelRoom(LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException, ReservationExistsException {
+    private void doReserveHotelRoom(LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException, ReservationExistsException, ReservationDNEException {
         try {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
-            
+               
             // guest - reservation association
-            currentGuest.getReservations().add(reservation);
             reservation.setGuest(currentGuest);
-            reservationSBRemote.createNewReservation(reservation); // create new reservation first
-            
+            boolean hasReservationBeenCreated = false;
+                
             String response = "Y";
             while (response.equals("Y")) {
                 System.out.println("*** HoRS Reservation Client :: Reserve Hotel Room ***\n");
                 System.out.print("Enter Room Type to reserve (e.g. Deluxe Room)> ");
-                String roomTypeName = sc.nextLine().trim();
+                String roomTypeName = "";
+                roomTypeName = sc.nextLine().trim();
+                System.out.println("");
+                
+                boolean inputFlag = false;
+                while (inputFlag == false) {
+                    while (roomTypeName.length() == 0) {
+                        System.out.print("No input detected. Please enter a room type> ");
+                        roomTypeName = sc.nextLine().trim();
+                    }
+
+                    List<RoomType> allRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
+                    boolean isValid = false;
+                    while (!isValid) {
+                        for (RoomType roomType : allRoomTypes) {
+                            if (roomTypeName.equals(roomType.getRoomTypeName())) {
+                                isValid = true;
+                                break;
+                            }
+                        }
+                        if (!isValid) {
+                            // if input room type is not valid, then prompt for re-input
+                            System.out.println("Error in getting room type, please enter a valid room type.\n");
+                            // roomTypeName = sc.nextLine().trim();
+                            return;
+                        }
+                    }
+
+                    // if available, return true (move on), else if not available, this method returns false and returns
+                    if (!roomTypeSBRemote.checkAvailabilityForRoomType(roomTypeName, checkInDate, checkOutDate)) {
+                        System.out.print("There are no available rooms for this Room Type! Please try again> ");
+                        roomTypeName = sc.nextLine().trim();
+                    } else {
+                        break;
+                    }
+                }
+                
                 RoomType roomType = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
+                
+                // creates the reservation if not already created before (to link reserved rooms to the same reservation object)
+                if (!hasReservationBeenCreated) {
+                    Long reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
+                    reservation = reservationSBRemote.retrieveReservationByReservationId(reservationId); // get back a managed instance of reservation
+                    currentGuest.getReservations().add(reservation);
+                    hasReservationBeenCreated = true;
+                }
 
                 ReservedRoom reservedRoom = new ReservedRoom();
                 reservedRoom.setCheckInDate(checkInDate);
@@ -191,8 +251,9 @@ public class GuestOperationsModule {
                 
                 reservedRoomSBRemote.createNewReservedRoom(reservedRoom);
                 
-                System.out.println("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
+                System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
+                System.out.println("");
                 
                 if (!response.equals("Y")) {
                     break;
@@ -203,6 +264,8 @@ public class GuestOperationsModule {
             throw new RoomTypeDNEException(ex.getMessage());
         } catch (ReservationExistsException ex) {
             throw new ReservationExistsException(ex.getMessage());
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
         }
         
     }
@@ -216,15 +279,16 @@ public class GuestOperationsModule {
         
         try {
             Reservation reservation = reservationSBRemote.retrieveReservationByReservationId(reservationId);
-//            System.out.println(
-//                    "Reservation ID: " + reservation.getReservationId() +
-//                    " | Description: " + reservation.getDescription() +
+            System.out.println(
+                    "Reservation ID: " + reservation.getReservationId() +
+                    " | Number of Reserved Rooms: " + reservation.getReservedRooms().size()
 //                    " | Room Size: " + reservation.getRoomSize() +
 //                    " | Capacity: " + rt.getCapacity() +
 //                    " | Beds: " + rt.getBeds() + 
 //                    " | Amenities: " + rt.getAmenities() + 
 //                    " | isDisabled: " + rt.isDisabled()
-//            ); // to check what to print for reservations
+            ); // to check what to print for reservations
+            System.out.println("");
         } catch (ReservationDNEException ex) {
             System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
         }
@@ -241,19 +305,20 @@ public class GuestOperationsModule {
             List<Reservation> listOfReservations = reservationSBRemote.retrieveAllReservationsOfGuestId(currentGuest.getCustomerId());
             if (listOfReservations.size() > 0) {
                 for (Reservation reservation : listOfReservations) {
-        //            System.out.println(
-        //                    "Reservation ID: " + reservation.getReservationId() +
-        //                    " | Description: " + reservation.getDescription() +
+                    System.out.println(
+                            "Reservation ID: " + reservation.getReservationId() +
+                            " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size()
         //                    " | Room Size: " + reservation.getRoomSize() +
         //                    " | Capacity: " + rt.getCapacity() +
         //                    " | Beds: " + rt.getBeds() + 
         //                    " | Amenities: " + rt.getAmenities() + 
         //                    " | isDisabled: " + rt.isDisabled()
-        //            ); // to check what to print for reservations
+                    ); // to check what to print for reservations
                 }
             } else { // if listOfReservations.size() == 0
                 System.out.println("You have no outstanding reservations!");
             }
+            System.out.println("");
         } catch (GuestDNEException ex) {
             System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
         }

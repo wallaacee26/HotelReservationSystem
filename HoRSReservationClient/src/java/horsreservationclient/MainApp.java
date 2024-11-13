@@ -13,6 +13,7 @@ import entity.Guest;
 import entity.RoomType;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import util.exception.GuestDNEException;
@@ -154,8 +155,9 @@ public class MainApp {
         String[] checkInInput = sc.nextLine().split("/");
         System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
         String[] checkOutInput = sc.nextLine().split("/");
+        System.out.println();
         
-        if (checkInInput.length != 3 && checkOutInput.length != 3) {
+        if (checkInInput.length != 3 || checkOutInput.length != 3) {
             System.out.println("Invalid date input(s)! Please try again.");
             return;
         }
@@ -164,18 +166,30 @@ public class MainApp {
             LocalDate checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
             LocalDate checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
             
-            List<RoomType> listOfRoomTypes = roomTypeSBRemote.searchAvailableRoomTypes(checkInDate, checkOutDate);
+            List<Integer> listOfAllRoomTypes = roomTypeSBRemote.searchAvailableRoomTypesWithNumberOfRooms(checkInDate, checkOutDate);
             
-            if (listOfRoomTypes.size() == 0) {
+            List<RoomType> availableRoomTypes = new ArrayList<>();
+            List<Integer> availableRoomsPerRoomType = new ArrayList<>();
+            
+            for (int i = 0; i < listOfAllRoomTypes.size(); i++) {
+                if (listOfAllRoomTypes.get(i) > 0) { // i == 0 will never be > 0, so never triggered
+                    availableRoomTypes.add(roomTypeSBRemote.retrieveRoomTypeByRoomTypeId((long) i));
+                    availableRoomsPerRoomType.add(listOfAllRoomTypes.get(i));
+                }
+            }
+            
+            if (availableRoomTypes.size() == 0) {
                 System.out.println("There are no available rooms!");
             } else {
                 System.out.println("Available Room Types:");
-                for (int i = 1; i <= listOfRoomTypes.size(); i++) {
-                    String roomTypeName = listOfRoomTypes.get(i - 1).getRoomTypeName();
-                    int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
+                for (int i = 1; i <= availableRoomTypes.size(); i++) {
+                    String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
+                    int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
+                    // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
                     System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
+            System.out.println();
             
         } catch (DateTimeException ex) {
             System.out.println("Invalid date input(s)! Please try again.");
