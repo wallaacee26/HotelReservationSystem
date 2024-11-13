@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -26,10 +27,13 @@ public class Room implements Serializable {
     private Long roomId;
 
     @Column(nullable = false, unique = true)
+    @NotNull
     private String roomNumber;
     @Column(nullable = false)
+    @NotNull
     private boolean available;
     @Column(nullable = false)
+    @NotNull
     private boolean disabled;
 
     // mappings:

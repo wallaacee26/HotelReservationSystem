@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import util.enumeration.AccessRightEnum;
 
 /**
@@ -23,9 +24,12 @@ public class Staff implements Serializable {
     private Long StaffId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private AccessRightEnum accessRights;
     @Column(nullable = false, unique = true)
+    @NotNull
     private String username;
+    @NotNull
     @Column(nullable = false)
     private String password;
 
