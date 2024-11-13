@@ -84,4 +84,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new GuestDNEException(ex.getMessage());
         }
     }
+    
+    @Override
+    public void deleteReservationByReservationId(Long reservationId) throws ReservationDNEException {
+        try {
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            
+            em.remove(reservation);
+            
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException("Reservation " + reservationId + " does not exist!");
+        }
+    }
 }
