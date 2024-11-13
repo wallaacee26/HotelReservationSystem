@@ -34,8 +34,8 @@ public class Room implements Serializable {
 
     // mappings:
     @ManyToOne
-    @JoinColumn(nullable = true) // optional
-    private RoomType roomType;
+    @JoinColumn(nullable = false)
+    private RoomType roomType; // assign at creation
     
     @OneToMany(mappedBy = "room")
     private List<ReservedRoom> reservedRooms; // keep list of old reserved rooms

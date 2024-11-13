@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -28,11 +27,11 @@ public class Reservation implements Serializable {
     @OneToMany(mappedBy = "reservation")
     private List<ReservedRoom> reservedRooms;
     
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // might have a partner that reserve instead of guest
     private Guest guest;
     
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // might have a guest that reserve instead of partner
     private Partner partner;
     
