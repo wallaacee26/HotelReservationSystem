@@ -275,7 +275,7 @@ public class SalesModule {
                     " | Rate End Date: " + rr.getEndDate() + 
                     " | isDisabled: " + rr.isDisabled());
         }
-        System.out.print("Press ENTER to cotinue> ");
+        System.out.print("Press ENTER to continue> ");
         sc.nextLine();
     }
 }

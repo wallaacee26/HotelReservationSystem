@@ -244,7 +244,7 @@ public class OperationsModule {
                     " | isDisabled: " + rt.isDisabled());
         }
         
-        System.out.print("Press ENTER to cotinue> ");
+        System.out.print("Press ENTER to continue> ");
         sc.nextLine();
     }
     
@@ -338,7 +338,7 @@ public class OperationsModule {
                     " | Room Type: " + r.getRoomType().getRoomTypeName());
         }
         
-        System.out.print("Press any key to cotinue> ");
+        System.out.print("Press any key to continue> ");
         sc.nextLine();
     }
     
@@ -348,7 +348,7 @@ public class OperationsModule {
         
         String report = reservedRoomSessionBeanRemote.generateExceptionReport();
         System.out.println(report);
-        System.out.print("Press ENTER key to cotinue> ");
+        System.out.print("Press ENTER key to continue> ");
         sc.nextLine();
     }
 }
