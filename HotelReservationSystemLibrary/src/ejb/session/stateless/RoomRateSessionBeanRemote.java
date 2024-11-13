@@ -1,6 +1,9 @@
 package ejb.session.stateless;
 
 import entity.RoomRate;
+import entity.RoomType;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.RoomRateDNEException;
@@ -23,4 +26,6 @@ public interface RoomRateSessionBeanRemote {
     public RoomRate updateRoomRate(String roomRateName, RoomRate newRoomRate) throws RoomRateDNEException;
 
     public void deleteRoomRate(String roomRateName) throws RoomRateDNEException;
+    
+    public BigDecimal calculateTotalRoomRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
 }
