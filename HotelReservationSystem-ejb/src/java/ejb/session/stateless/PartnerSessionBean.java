@@ -63,18 +63,19 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         }
     }
     
-    public Partner partnerLogin(String username, String password) throws InvalidLoginCredentialException {
+    public Partner partnerLogin(String username, String password) throws InvalidLoginCredentialException, PartnerDNEException {
         try {
             Partner p = retrievePartnerByUsername(username);
             
             if (p.getPassword().equals(password)) {
                 // preload any lazy data if needed
+                p.getReservations().size(); // trigger lazy fetching
                 return p;
             } else {
                 throw new InvalidLoginCredentialException("Partner username or password is incorrect!");
             }
         } catch (PartnerDNEException ex) {
-            throw new InvalidLoginCredentialException("Partner username does not exist!");
+            throw new PartnerDNEException("Partner username does not exist!");
         }
     }
 }
