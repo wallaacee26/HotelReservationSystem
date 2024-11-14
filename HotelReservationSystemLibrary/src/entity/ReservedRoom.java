@@ -6,6 +6,7 @@ package entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ import javax.persistence.TemporalType;
  * @author yewkhang
  */
 @Entity
+@Cacheable(false)
 public class ReservedRoom implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -213,9 +213,43 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     // only in web service method
     @Override
     public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate) {
+
+        if (reservedRoom == null) {
+            reservedRoom = new ReservedRoom();
+        }
         reservedRoom.setCheckInDate(checkInDate);
         reservedRoom.setCheckOutDate(checkOutDate);
-        
+
         return reservedRoom;
+
+        // reservedRoom.setCheckInDate(checkInDate);
+        // reservedRoom.setCheckOutDate(checkOutDate);
+        
+        // return reservedRoom;
+    }
+    
+    @Override
+    public Long createNewReservedRoomWebService(ReservedRoom reservedRoom, Long reservationId, Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws ReservationDNEException, RoomTypeDNEException {
+        try {
+            Reservation reservation = reservationSessionBeanLocal.retrieveReservationByReservationId(reservationId);
+            RoomType roomType = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
+            reservedRoom.setCheckInDate(checkInDate);
+            reservedRoom.setCheckOutDate(checkOutDate);
+            
+            // associations
+            reservedRoom.setReservation(reservation);
+            reservation.getReservedRooms().add(reservedRoom);
+            
+            reservedRoom.setRoomType(roomType);
+            roomType.getReservedRooms().add(reservedRoom);
+            
+            em.persist(reservedRoom);
+            em.flush();
+        return reservedRoom.getReservedRoomId();
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException(ex.getMessage());
+        }
     }
 }

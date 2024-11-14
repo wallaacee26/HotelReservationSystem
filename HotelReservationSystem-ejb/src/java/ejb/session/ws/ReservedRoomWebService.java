@@ -117,4 +117,19 @@ public class ReservedRoomWebService {
     public void allocateRooms() {
         reservedRoomSessionBeanLocal.allocateRooms();
     }
+    
+    @WebMethod(operationName = "createNewReservedRoomWebService")
+    public Long createNewReservedRoomWebService(
+            @WebParam(name = "reservedRoom") ReservedRoom reservedRoom,
+            @WebParam(name = "reservationId") Long reservationId,
+            @WebParam(name = "roomTypeId") Long roomTypeId,
+            @WebParam(name = "checkInDate") XMLGregorianCalendar checkInDate,
+            @WebParam(name = "checkOutDate") XMLGregorianCalendar checkOutDate)
+            throws ReservationDNEException, RoomTypeDNEException {
+        //convert XMLGregorianCalender to localdate
+        LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        LocalDate checkOutLocalDate = checkOutDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        
+        return reservedRoomSessionBeanLocal.createNewReservedRoomWebService(reservedRoom, reservationId, roomTypeId, checkInLocalDate, checkOutLocalDate);
+    }
 }

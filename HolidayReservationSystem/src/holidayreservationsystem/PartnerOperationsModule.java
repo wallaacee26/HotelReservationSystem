@@ -270,10 +270,11 @@ public class PartnerOperationsModule {
                 }
             
                 ws.reservedroom.ReservedRoom reservedRoom = new ws.reservedroom.ReservedRoom();
-                reservedRoom = reservedRoomService.getReservedRoomWebServicePort().associateReservedRoomWithDatesWebService(reservedRoom, checkInDate, checkOutDate);
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
                 
-                reservedRoomService.getReservedRoomWebServicePort().createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                reservedRoomService.getReservedRoomWebServicePort().createNewReservedRoomWebService(reservedRoom, 
+                    reservationId, roomType.getRoomTypeId(), checkInDate, checkOutDate);
+                
                 LocalDate today = LocalDate.now();
                 //convert XMLGregorianCalender to localdate
                 LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();

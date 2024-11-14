@@ -98,7 +98,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         try {
             Partner partner = partnerSBLocal.retrievePartnerByPartnerId(partnerId);
             List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.partner = :inPartner")
-                .setParameter("inCustomer", partner) //
+                .setParameter("inPartner", partner) //
                 .getResultList();
             for (Reservation reservation : reservations) {
                 reservation.getReservedRooms().size(); // trigger lazy fetching

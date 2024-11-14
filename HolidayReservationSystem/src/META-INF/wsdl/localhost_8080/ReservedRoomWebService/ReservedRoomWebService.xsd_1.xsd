@@ -16,6 +16,10 @@
 
 <xs:element name="createNewReservedRoomResponse" type="tns:createNewReservedRoomResponse"/>
 
+<xs:element name="createNewReservedRoomWebService" type="tns:createNewReservedRoomWebService"/>
+
+<xs:element name="createNewReservedRoomWebServiceResponse" type="tns:createNewReservedRoomWebServiceResponse"/>
+
 <xs:element name="retrieveAllReservedRooms" type="tns:retrieveAllReservedRooms"/>
 
 <xs:element name="retrieveAllReservedRoomsResponse" type="tns:retrieveAllReservedRoomsResponse"/>
@@ -24,19 +28,13 @@
 
 <xs:element name="retrieveReservedRoomsByReservationIdResponse" type="tns:retrieveReservedRoomsByReservationIdResponse"/>
 
-<xs:complexType name="allocateRooms">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="allocateRoomsResponse">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="createNewReservedRoom">
+<xs:complexType name="createNewReservedRoomWebService">
 <xs:sequence>
 <xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
 <xs:element name="roomTypeId" type="xs:long" minOccurs="0"/>
+<xs:element name="checkInDate" type="xs:anySimpleType" minOccurs="0"/>
+<xs:element name="checkOutDate" type="xs:anySimpleType" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -122,7 +120,7 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="createNewReservedRoomResponse">
+<xs:complexType name="createNewReservedRoomWebServiceResponse">
 <xs:sequence>
 <xs:element name="return" type="xs:long" minOccurs="0"/>
 </xs:sequence>
@@ -137,6 +135,28 @@
 <xs:complexType name="RoomTypeDNEException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="allocateRooms">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="allocateRoomsResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="createNewReservedRoom">
+<xs:sequence>
+<xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
+<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+<xs:element name="roomTypeId" type="xs:long" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewReservedRoomResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:long" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

@@ -4,6 +4,18 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="createNewReservedRoomWebService">
+<part name="parameters" element="tns:createNewReservedRoomWebService"/>
+</message>
+<message name="createNewReservedRoomWebServiceResponse">
+<part name="parameters" element="tns:createNewReservedRoomWebServiceResponse"/>
+</message>
+<message name="ReservationDNEException">
+<part name="fault" element="tns:ReservationDNEException"/>
+</message>
+<message name="RoomTypeDNEException">
+<part name="fault" element="tns:RoomTypeDNEException"/>
+</message>
 <message name="associateReservedRoomWithDatesWebService">
 <part name="parameters" element="tns:associateReservedRoomWithDatesWebService"/>
 </message>
@@ -16,17 +28,11 @@
 <message name="retrieveReservedRoomsByReservationIdResponse">
 <part name="parameters" element="tns:retrieveReservedRoomsByReservationIdResponse"/>
 </message>
-<message name="ReservationDNEException">
-<part name="fault" element="tns:ReservationDNEException"/>
-</message>
 <message name="createNewReservedRoom">
 <part name="parameters" element="tns:createNewReservedRoom"/>
 </message>
 <message name="createNewReservedRoomResponse">
 <part name="parameters" element="tns:createNewReservedRoomResponse"/>
-</message>
-<message name="RoomTypeDNEException">
-<part name="fault" element="tns:RoomTypeDNEException"/>
 </message>
 <message name="retrieveAllReservedRooms">
 <part name="parameters" element="tns:retrieveAllReservedRooms"/>
@@ -41,6 +47,12 @@
 <part name="parameters" element="tns:allocateRoomsResponse"/>
 </message>
 <portType name="ReservedRoomWebService">
+<operation name="createNewReservedRoomWebService">
+<input wsam:Action="http://ws.session.ejb/ReservedRoomWebService/createNewReservedRoomWebServiceRequest" message="tns:createNewReservedRoomWebService"/>
+<output wsam:Action="http://ws.session.ejb/ReservedRoomWebService/createNewReservedRoomWebServiceResponse" message="tns:createNewReservedRoomWebServiceResponse"/>
+<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservedRoomWebService/createNewReservedRoomWebService/Fault/ReservationDNEException"/>
+<fault message="tns:RoomTypeDNEException" name="RoomTypeDNEException" wsam:Action="http://ws.session.ejb/ReservedRoomWebService/createNewReservedRoomWebService/Fault/RoomTypeDNEException"/>
+</operation>
 <operation name="associateReservedRoomWithDatesWebService">
 <input wsam:Action="http://ws.session.ejb/ReservedRoomWebService/associateReservedRoomWithDatesWebServiceRequest" message="tns:associateReservedRoomWithDatesWebService"/>
 <output wsam:Action="http://ws.session.ejb/ReservedRoomWebService/associateReservedRoomWithDatesWebServiceResponse" message="tns:associateReservedRoomWithDatesWebServiceResponse"/>
@@ -67,6 +79,21 @@
 </portType>
 <binding name="ReservedRoomWebServicePortBinding" type="tns:ReservedRoomWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="createNewReservedRoomWebService">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationDNEException">
+<soap:fault name="ReservationDNEException" use="literal"/>
+</fault>
+<fault name="RoomTypeDNEException">
+<soap:fault name="RoomTypeDNEException" use="literal"/>
+</fault>
+</operation>
 <operation name="associateReservedRoomWithDatesWebService">
 <soap:operation soapAction=""/>
 <input>
