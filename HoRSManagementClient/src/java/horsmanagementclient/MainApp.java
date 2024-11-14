@@ -84,7 +84,7 @@ public class MainApp {
                             salesModule.adminMenu();
                         } else if (currentStaff.getAccessRights().equals(AccessRightEnum.RELATIONS)) {
                             // do guest relation things
-                            relationsModule = new RelationsModule(reservedRoomSessionBeanRemote, roomSBRemote, reservationSessionBeanRemote, currentStaff);
+                            relationsModule = new RelationsModule(reservedRoomSessionBeanRemote, roomSBRemote, reservationSessionBeanRemote, roomTypeSBRemote, roomRateSBRemote, currentStaff);
                             relationsModule.adminMenu();
                         }
                     } catch (InvalidLoginCredentialException ex) {
