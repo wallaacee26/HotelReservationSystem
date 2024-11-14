@@ -106,6 +106,7 @@ public class OperationsModule {
         Scanner sc = new Scanner(System.in);
         RoomType roomType = new RoomType();
         
+        
         System.out.println("*** HoRS Management Client :: Create New Room Type ***\n");
         System.out.print("Enter name> ");
         roomType.setRoomTypeName(sc.nextLine().trim());
@@ -120,6 +121,23 @@ public class OperationsModule {
         sc.nextLine();
         System.out.print("Enter amenities> ");
         roomType.setAmenities(sc.nextLine().trim());
+        
+        List<RoomType> listOfRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
+        while(true) {
+            System.out.print("Select Next Higher Tier Room Type: \n");
+            for (int i = 0; i < listOfRoomTypes.size(); i++) {
+                System.out.println((i+1) + ": " + listOfRoomTypes.get(i).getRoomTypeName());
+            }
+            System.out.print("> ");
+            int roomTypeNumber = sc.nextInt();
+            
+            if (roomTypeNumber >= 1 && roomTypeNumber <= listOfRoomTypes.size()) { //if within range
+                roomType.setHigherRoomType(listOfRoomTypes.get(roomTypeNumber - 1));
+                break;
+            } else {
+                System.out.println("Invalid option, please try again!\n");
+            }
+        }
         
         try {
             Long newRoomTypeId = roomTypeSBRemote.createNewRoomType(roomType);
