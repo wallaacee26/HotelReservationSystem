@@ -5,6 +5,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.ReservedRoomSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
@@ -27,10 +28,12 @@ public class MainApp {
     private RoomSessionBeanRemote roomSBRemote;
     private RoomRateSessionBeanRemote roomRateSBRemote; 
     private ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote;
+    private ReservationSessionBeanRemote reservationSessionBeanRemote;
     
     private AdministratorModule adminModule;
     private OperationsModule operationsModule;
     private SalesModule salesModule;
+    private RelationsModule relationsModule;
 
     public MainApp() {
         currentStaff = null;
@@ -38,13 +41,15 @@ public class MainApp {
     
     public MainApp(StaffSessionBeanRemote staffSBRemote, PartnerSessionBeanRemote partnerSBRemote,
             RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote,
-            RoomRateSessionBeanRemote roomRateSBRemote, ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote) {
+            RoomRateSessionBeanRemote roomRateSBRemote, ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote, 
+            ReservationSessionBeanRemote reservationSessionBeanRemote) {
         this.staffSBRemote = staffSBRemote;
         this.partnerSBRemote = partnerSBRemote;
         this.roomTypeSBRemote = roomTypeSBRemote;
         this.roomSBRemote = roomSBRemote; 
         this.roomRateSBRemote = roomRateSBRemote;
         this.reservedRoomSessionBeanRemote = reservedRoomSessionBeanRemote;
+        this.reservationSessionBeanRemote = reservationSessionBeanRemote;
     }
     
     public void runApp() {
@@ -77,6 +82,10 @@ public class MainApp {
                             // do sales manager things
                             salesModule = new SalesModule(roomRateSBRemote, roomTypeSBRemote, currentStaff);
                             salesModule.adminMenu();
+                        } else if (currentStaff.getAccessRights().equals(AccessRightEnum.RELATIONS)) {
+                            // do guest relation things
+                            relationsModule = new RelationsModule(reservedRoomSessionBeanRemote, roomSBRemote, reservationSessionBeanRemote, currentStaff);
+                            relationsModule.adminMenu();
                         }
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
