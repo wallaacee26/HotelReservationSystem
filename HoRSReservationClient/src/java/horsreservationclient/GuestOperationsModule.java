@@ -249,6 +249,11 @@ public class GuestOperationsModule {
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
                 
                 reservedRoomSBRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                LocalDate today = LocalDate.now();
+                if (checkInDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
+                    reservedRoomSBRemote.allocateRooms();
+                }
+                
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
