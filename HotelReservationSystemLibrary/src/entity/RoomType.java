@@ -62,6 +62,17 @@ public class RoomType implements Serializable {
         this.rooms = new ArrayList<Room>();
         this.reservedRooms = new ArrayList<ReservedRoom>();
     }
+
+    public RoomType(String roomTypeName, String description, double roomSize, int beds, int capacity, String amenities, boolean disabled) {
+        this();
+        this.roomTypeName = roomTypeName;
+        this.description = description;
+        this.roomSize = roomSize;
+        this.beds = beds;
+        this.capacity = capacity;
+        this.amenities = amenities;
+        this.disabled = disabled;
+    }
     
     public Long getRoomTypeId() {
         return roomTypeId;

@@ -66,6 +66,18 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
+    public void setNextHigherRoomType(String currentTypeName, String nextHigherTypeName) {
+        try {
+            RoomType currentRoomType = retrieveRoomTypeByRoomTypeName(currentTypeName);
+            RoomType nextHigherRoomType = retrieveRoomTypeByRoomTypeName(nextHigherTypeName);
+            currentRoomType.setHigherRoomType(nextHigherRoomType);
+        } catch (RoomTypeDNEException ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+    
+    @Override
     public RoomType retrieveRoomTypeByRoomTypeId(Long roomTypeId) throws RoomTypeDNEException {
         RoomType roomType = em.find(RoomType.class, roomTypeId); 
         

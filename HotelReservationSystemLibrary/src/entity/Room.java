@@ -44,6 +44,12 @@ public class Room implements Serializable {
     public Room() {
         
     }
+
+    public Room(String roomNumber, boolean available) {
+        this();
+        this.roomNumber = roomNumber;
+        this.available = available;
+    }
     
     public Long getRoomId() {
         return roomId;

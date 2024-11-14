@@ -54,7 +54,14 @@ public class RoomRate implements Serializable {
     public RoomRate() {
         this.roomTypes = new ArrayList<RoomType>();
     }
-    
+
+    public RoomRate(String roomRateName, RateTypeEnum rateType, BigDecimal ratePerNight, boolean disabled) {
+        this();
+        this.roomRateName = roomRateName;
+        this.rateType = rateType;
+        this.ratePerNight = ratePerNight;
+        this.disabled = disabled;
+    }
     
     public Long getRoomRateId() {
         return roomRateId;

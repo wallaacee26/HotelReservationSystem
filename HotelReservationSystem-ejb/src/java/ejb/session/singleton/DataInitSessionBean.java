@@ -21,7 +21,7 @@ import util.exception.StaffUsernameExistsException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class DataInitSessionBean {
     @EJB
     private StaffSessionBeanLocal staffSBLocal;
