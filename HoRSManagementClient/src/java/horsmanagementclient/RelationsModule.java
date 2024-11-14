@@ -132,7 +132,7 @@ public class RelationsModule {
                     String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
                     int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
                     // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
-                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRate(roomTypeName, checkInDate, checkOutDate));
+                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRateWithPublishedRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
             System.out.println();
@@ -172,6 +172,7 @@ public class RelationsModule {
         try {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
+            Long reservationId = (long) -1;
                
 //            // guest - reservation association
 //            reservation.setGuest(currentGuest);
@@ -179,7 +180,7 @@ public class RelationsModule {
                 
             String response = "Y";
             while (response.equals("Y")) {
-                System.out.println("*** HoRS Management Client :: Reserve Hotel Room ***\n");
+                System.out.println("*** HoRS Reservation Client :: Reserve Hotel Room ***\n");
                 System.out.print("Enter Room Type to reserve (e.g. Deluxe Room)> ");
                 String roomTypeName = "";
                 roomTypeName = sc.nextLine().trim();
@@ -222,7 +223,7 @@ public class RelationsModule {
                 
                 // creates the reservation if not already created before (to link reserved rooms to the same reservation object)
                 if (!hasReservationBeenCreated) {
-                    Long reservationId = reservationSessionBeanRemote.createNewReservation(reservation); // create new reservation first
+                    reservationId = reservationSessionBeanRemote.createNewReservation(reservation); // create new reservation first
                     reservation = reservationSessionBeanRemote.retrieveReservationByReservationId(reservationId); // get back a managed instance of reservation
                     //currentGuest.getReservations().add(reservation);
                     hasReservationBeenCreated = true;
@@ -232,22 +233,15 @@ public class RelationsModule {
                 reservedRoom.setCheckInDate(checkInDate);
                 reservedRoom.setCheckOutDate(checkOutDate);
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
-
-                // associations
-                reservedRoom.setReservation(reservation);
-                reservation.getReservedRooms().add(reservedRoom);
                 
-                reservedRoom.setRoomType(roomType);
-                roomType.getReservedRooms().add(reservedRoom);
-                
-                reservedRoomSessionBeanRemote.createNewReservedRoom(reservedRoom);
+                reservedRoomSessionBeanRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
                 System.out.println("");
                 
                 if (!response.equals("Y")) {
-                    System.out.println("Successful reservation made! Reservation ID: ");
+                    System.out.println("Successful reservation made! Reservation ID: " + reservationId);
                     break;
                 }
             }
