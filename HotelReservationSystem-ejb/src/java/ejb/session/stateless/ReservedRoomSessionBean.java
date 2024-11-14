@@ -86,7 +86,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         }
     }
     
-    @Schedule(hour = "2", minute = "0", second = "0", persistent = false)
+    @Schedule(hour = "2", minute = "0", second = "0", info = "roomAllocationTimer")
     public void allocateRooms() {
         LocalDate today = LocalDate.now();
         List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")

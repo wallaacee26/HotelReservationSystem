@@ -13,7 +13,7 @@
     <target name="wsimport-init" depends="init">
         <mkdir dir="${build.generated.sources.dir}/jax-ws"/>
         <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
-            <classpath path="${libs.metro.classpath}"/>
+            <classpath path="${libs.jaxws21.classpath}"/>
         </taskdef>
     </target>
     <target name="wsimport-client-ReservedRoomWebService" depends="wsimport-init">
