@@ -7,6 +7,7 @@ package ejb.session.ws;
 import ejb.session.stateless.ReservedRoomSessionBeanLocal;
 import entity.Reservation;
 import entity.ReservedRoom;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -16,6 +17,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.xml.datatype.XMLGregorianCalendar;
 import util.exception.ReservationDNEException;
 import util.exception.RoomTypeDNEException;
 
@@ -51,15 +53,63 @@ public class ReservedRoomWebService {
     
     @WebMethod(operationName = "retrieveAllReservedRooms")
     public List<ReservedRoom> retrieveAllReservedRooms() {
-        return reservedRoomSessionBeanLocal.retrieveAllReservedRooms();
+        List<ReservedRoom> reservedRooms = reservedRoomSessionBeanLocal.retrieveAllReservedRooms();
+        for (ReservedRoom reservedRoom : reservedRooms) {
+            em.detach(reservedRoom);
+            
+            em.detach(reservedRoom.getReservation());
+            reservedRoom.getReservation().setCustomerOrGuest(null);
+            reservedRoom.getReservation().setPartner(null);
+            reservedRoom.getReservation().getReservedRooms().clear();
+            
+            em.detach(reservedRoom.getRoom());
+            reservedRoom.getRoom().getReservedRooms().clear();
+            reservedRoom.getRoom().setRoomType(null);
+            
+            em.detach(reservedRoom.getRoomType());
+            reservedRoom.getRoomType().getReservedRooms().clear();
+            reservedRoom.getRoomType().getRoomRates().clear();
+            reservedRoom.getRoomType().getRooms().clear();
+        }
+        return reservedRooms;
     }
     
     @WebMethod(operationName = "retrieveReservedRoomsByReservationId")
     public List<ReservedRoom> retrieveReservedRoomsByReservationId(@WebParam(name = "reservationId") Long reservationId) throws ReservationDNEException {
         try {
-            return reservedRoomSessionBeanLocal.retrieveReservedRoomsByReservationId(reservationId);
+            List<ReservedRoom> reservedRooms = reservedRoomSessionBeanLocal.retrieveReservedRoomsByReservationId(reservationId);
+            for (ReservedRoom reservedRoom : reservedRooms) {
+                em.detach(reservedRoom);
+
+                em.detach(reservedRoom.getReservation());
+                reservedRoom.getReservation().setCustomerOrGuest(null);
+                reservedRoom.getReservation().setPartner(null);
+                reservedRoom.getReservation().getReservedRooms().clear();
+
+                em.detach(reservedRoom.getRoom());
+                reservedRoom.getRoom().getReservedRooms().clear();
+                reservedRoom.getRoom().setRoomType(null);
+
+                em.detach(reservedRoom.getRoomType());
+                reservedRoom.getRoomType().getReservedRooms().clear();
+                reservedRoom.getRoomType().getRoomRates().clear();
+                reservedRoom.getRoomType().getRooms().clear();
+            }
+            return reservedRooms;
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException(ex.getMessage());
         }
+    }
+    
+    @WebMethod(operationName = "associateReservedRoomWithDatesWebService")
+    public ReservedRoom associateReservedRoomWithDatesWebService(
+            @WebParam(name = "reservedRoom") ReservedRoom reservedRoom,
+            @WebParam(name = "checkInDate") XMLGregorianCalendar checkInDate,
+            @WebParam(name = "checkOutDate") XMLGregorianCalendar checkOutDate) {
+        
+        //convert XMLGregorianCalender to localdate
+        LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        LocalDate checkOutLocalDate = checkOutDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        return reservedRoomSessionBeanLocal.associateReservedRoomWithDatesWebService(reservedRoom, checkInLocalDate, checkOutLocalDate);
     }
 }

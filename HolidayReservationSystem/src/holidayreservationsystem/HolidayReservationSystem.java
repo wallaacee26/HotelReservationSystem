@@ -4,8 +4,11 @@
  */
 package holidayreservationsystem;
 
+import ws.partner.PartnerWebService_Service;
 import ws.reservation.ReservationWebService_Service;
 import ws.reservedroom.ReservedRoomWebService_Service;
+import ws.roomrate.RoomRateWebService_Service;
+import ws.roomtype.RoomTypeWebService_Service;
 
 /**
  *
@@ -17,12 +20,14 @@ public class HolidayReservationSystem {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        PartnerWebService_Service partnerService = new PartnerWebService_Service();
         ReservationWebService_Service reservationService = new ReservationWebService_Service();
+        RoomTypeWebService_Service roomTypeService = new RoomTypeWebService_Service();
+        RoomRateWebService_Service roomRateService = new RoomRateWebService_Service();
         ReservedRoomWebService_Service reservedRoomService = new ReservedRoomWebService_Service();
         
-        // must get port to invoke methods
-        // reservationService.getReservationWebServicePort()...
-        // reservedRoomService.getReservedRoomWebServicePort()...
+        MainApp mainApp = new MainApp(partnerService, reservationService, roomTypeService, roomRateService, reservedRoomService);
+        mainApp.runApp();
     }
     
 }

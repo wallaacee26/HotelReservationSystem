@@ -94,6 +94,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
+    public List<Reservation> retrieveAllReservationsOfPartnerId(Long partnerId) throws PartnerDNEException {
+        try {
+            Partner partner = partnerSBLocal.retrievePartnerByPartnerId(partnerId);
+            List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.partner = :inPartner")
+                .setParameter("inCustomer", partner) //
+                .getResultList();
+            for (Reservation reservation : reservations) {
+                reservation.getReservedRooms().size(); // trigger lazy fetching
+            }
+            return reservations;
+        } catch (PartnerDNEException ex) {
+            throw new PartnerDNEException(ex.getMessage());
+        }
+    }
+    
+    @Override
     public void deleteReservationByReservationId(Long reservationId) throws ReservationDNEException {
         try {
             Reservation reservation = retrieveReservationByReservationId(reservationId);

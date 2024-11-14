@@ -2,8 +2,10 @@ package ejb.session.stateless;
 
 import entity.RoomType;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -241,5 +243,45 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         } catch (RoomTypeDNEException ex) {
             throw new RoomTypeDNEException(ex.getMessage());
         }
+    }
+    
+    @Override
+    public List<Integer> searchAvailableRoomTypesWithNumberOfRoomsWebService(Date checkInDate, Date checkOutDate) {
+        //convert date to localdate
+        LocalDate checkInLocalDate = checkInDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate checkOutLocalDate = checkOutDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        
+        int maxRoomTypeId = ((Long) em.createQuery("SELECT MAX(r.roomType.roomTypeId) FROM Room r").getSingleResult()).intValue();
+        List<Integer> availableRoomsByRoomType = new ArrayList<>(Collections.nCopies(maxRoomTypeId + 1, 0));
+
+        // get the total number of rooms with the associated roomtype (that are available and not disabled)
+        Query roomCountQuery = em.createQuery(
+            "SELECT r.roomType.roomTypeId, COUNT(r) FROM Room r "
+                + "WHERE r.available = true AND r.disabled = false "
+                + "GROUP BY r.roomType.roomTypeId");
+
+        List<Object[]> roomCounts = roomCountQuery.getResultList();
+        for (Object[] count : roomCounts) {
+            Integer roomTypeId = ((Long) count[0]).intValue();
+            Integer totalRooms = ((Long) count[1]).intValue();
+            availableRoomsByRoomType.set(roomTypeId, totalRooms);
+        }
+
+        // get the number of reserved rooms with the associated roomtype
+        Query reservedRoomQuery = em.createQuery(
+            "SELECT rr.roomType.roomTypeId, COUNT(rr) FROM ReservedRoom rr "
+                + "WHERE (rr.checkInDate < :inCheckOutDate) AND (rr.checkOutDate > :inCheckInDate) "
+                + "GROUP BY rr.roomType.roomTypeId")
+                .setParameter("inCheckInDate", checkInLocalDate)
+                .setParameter("inCheckOutDate", checkOutLocalDate);
+
+        List<Object[]> reservedRoomCounts = reservedRoomQuery.getResultList();
+        for (Object[] count : reservedRoomCounts) {
+            Integer roomTypeId = ((Long) count[0]).intValue();
+            Integer reservedCount = ((Long) count[1]).intValue();
+            availableRoomsByRoomType.set(roomTypeId, availableRoomsByRoomType.get(roomTypeId) - reservedCount);
+        }
+
+        return availableRoomsByRoomType; // index is roomTypeId, value is number of available rooms
     }
 }

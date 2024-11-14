@@ -26,6 +26,8 @@ public interface ReservationSessionBeanLocal {
     
     public List<Reservation> retrieveAllReservationsOfGuestId(Long guestId) throws GuestDNEException;
     
+    public List<Reservation> retrieveAllReservationsOfPartnerId(Long partnerId) throws PartnerDNEException;
+    
     public void deleteReservationByReservationId(Long reservationId) throws ReservationDNEException;
     
     public void associateReservationWithGuest(Long reservationId, Long guestId) throws ReservationDNEException, GuestDNEException;

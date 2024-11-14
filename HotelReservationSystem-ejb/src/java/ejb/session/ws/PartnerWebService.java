@@ -6,6 +6,7 @@ package ejb.session.ws;
 
 import ejb.session.stateless.PartnerSessionBeanLocal;
 import entity.Partner;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -54,22 +55,57 @@ public class PartnerWebService {
     
     @WebMethod(operationName = "retrieveAllPartners")
     public List<Partner> retrieveAllPartners() {
-        return partnerSessionBeanLocal.retrieveAllPartners();
+        
+        List<Partner> partners = partnerSessionBeanLocal.retrieveAllPartners();
+        for (Partner partner : partners) {
+            em.detach(partner);
+            for (Reservation reservation : partner.getReservations()) {
+                em.detach(reservation);
+                reservation.setCustomerOrGuest(null);
+                reservation.setPartner(null);
+                reservation.getReservedRooms().clear();
+            }
+        }
+        return partners;
     }
     
     @WebMethod(operationName = "retrievePartnerByPartnerId")
     public Partner retrievePartnerByPartnerId(@WebParam(name = "partnerId") Long partnerId) throws PartnerDNEException {
-        return partnerSessionBeanLocal.retrievePartnerByPartnerId(partnerId);
+        Partner partner = partnerSessionBeanLocal.retrievePartnerByPartnerId(partnerId);
+        em.detach(partner);
+        for (Reservation reservation : partner.getReservations()) {
+            em.detach(reservation);
+            reservation.setCustomerOrGuest(null);
+            reservation.setPartner(null);
+            reservation.getReservedRooms().clear();
+        }
+        return partner;
     }
     
     @WebMethod(operationName = "retrievePartnerByUsername")
     public Partner retrievePartnerByUsername(@WebParam(name = "username") String username) throws PartnerDNEException {
-        return partnerSessionBeanLocal.retrievePartnerByUsername(username);
+        Partner partner = partnerSessionBeanLocal.retrievePartnerByUsername(username);
+        em.detach(partner);
+        for (Reservation reservation : partner.getReservations()) {
+            em.detach(reservation);
+            reservation.setCustomerOrGuest(null);
+            reservation.setPartner(null);
+            reservation.getReservedRooms().clear();
+        }
+        return partner;
     }
     
-    @WebMethod(operationName = "retrievePartnerByPartnerLogin")
+    @WebMethod(operationName = "partnerLogin")
     public Partner partnerLogin(@WebParam(name = "username") String username, @WebParam(name = "password") String password)
             throws InvalidLoginCredentialException, PartnerDNEException {
-        return partnerSessionBeanLocal.partnerLogin(username, password);
+        Partner partner = partnerSessionBeanLocal.partnerLogin(username, password);
+        em.detach(partner);
+        for (Reservation reservation : partner.getReservations()) {
+            em.detach(reservation);
+            reservation.setCustomerOrGuest(null);
+            reservation.setPartner(null);
+            reservation.getReservedRooms().clear();
+        }
+        return partner;
     }
 }

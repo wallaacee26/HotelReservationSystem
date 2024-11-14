@@ -4,4 +4,10 @@
     <system systemId="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?xsd=1" uri="wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.xsd_1.xsd"/>
     <system systemId="http://localhost:8080/ReservationWebService/ReservationWebService?wsdl" uri="wsdl/localhost_8080/ReservationWebService/ReservationWebService.wsdl"/>
     <system systemId="http://localhost:8080/ReservationWebService/ReservationWebService?xsd=1" uri="wsdl/localhost_8080/ReservationWebService/ReservationWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/RoomRateWebService/RoomRateWebService?wsdl" uri="wsdl/localhost_8080/RoomRateWebService/RoomRateWebService.wsdl"/>
+    <system systemId="http://localhost:8080/RoomRateWebService/RoomRateWebService?xsd=1" uri="wsdl/localhost_8080/RoomRateWebService/RoomRateWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerWebService?wsdl" uri="wsdl/localhost_8080/PartnerWebService/PartnerWebService.wsdl"/>
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1" uri="wsdl/localhost_8080/PartnerWebService/PartnerWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?wsdl" uri="wsdl/localhost_8080/RoomTypeWebService/RoomTypeWebService.wsdl"/>
+    <system systemId="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?xsd=1" uri="wsdl/localhost_8080/RoomTypeWebService/RoomTypeWebService.xsd_1.xsd"/>
 </catalog>

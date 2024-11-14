@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is Metro/2.4.3 (RELEASE-2.4.3-ad3323c; 2019-01-21T17:46:06+0000) JAXWS-RI/2.3.2 JAXWS-API/2.3.2 JAXB-RI/2.3.2 JAXB-API/2.3.2 git-revision#unknown. --><xs:schema xmlns:tns="http://ws.session.ejb/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://ws.session.ejb/">
+
+<xs:element name="RoomTypeDNEException" type="tns:RoomTypeDNEException"/>
+
+<xs:element name="calculateTotalRoomRateWithNormalRate" type="tns:calculateTotalRoomRateWithNormalRate"/>
+
+<xs:element name="calculateTotalRoomRateWithNormalRateResponse" type="tns:calculateTotalRoomRateWithNormalRateResponse"/>
+
+<xs:complexType name="calculateTotalRoomRateWithNormalRate">
+<xs:sequence>
+<xs:element name="roomTypeName " type="xs:string" minOccurs="0"/>
+<xs:element name="checkInDate" type="xs:anySimpleType" minOccurs="0"/>
+<xs:element name="checkOutDate" type="xs:anySimpleType" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="calculateTotalRoomRateWithNormalRateResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:decimal" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="RoomTypeDNEException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

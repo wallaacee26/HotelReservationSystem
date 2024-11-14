@@ -2,6 +2,12 @@
 
 <xs:element name="ReservationDNEException" type="tns:ReservationDNEException"/>
 
+<xs:element name="RoomTypeDNEException" type="tns:RoomTypeDNEException"/>
+
+<xs:element name="associateReservedRoomWithDatesWebService" type="tns:associateReservedRoomWithDatesWebService"/>
+
+<xs:element name="associateReservedRoomWithDatesWebServiceResponse" type="tns:associateReservedRoomWithDatesWebServiceResponse"/>
+
 <xs:element name="createNewReservedRoom" type="tns:createNewReservedRoom"/>
 
 <xs:element name="createNewReservedRoomResponse" type="tns:createNewReservedRoomResponse"/>
@@ -17,6 +23,8 @@
 <xs:complexType name="createNewReservedRoom">
 <xs:sequence>
 <xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
+<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+<xs:element name="roomTypeId" type="xs:long" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -38,28 +46,17 @@
 
 <xs:complexType name="reservation">
 <xs:sequence>
-<xs:element name="guest" type="tns:guest" minOccurs="0"/>
+<xs:element name="customerOrGuest" type="tns:customer" minOccurs="0"/>
 <xs:element name="partner" type="tns:partner" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
 <xs:element name="reservedRooms" type="tns:reservedRoom" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="guest">
-<xs:complexContent>
-<xs:extension base="tns:customer">
-<xs:sequence>
-<xs:element name="email" type="xs:string" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
-<xs:element name="reservations" type="tns:reservation" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-</xs:sequence>
-</xs:extension>
-</xs:complexContent>
-</xs:complexType>
-
 <xs:complexType name="customer">
 <xs:sequence>
 <xs:element name="customerId" type="xs:long" minOccurs="0"/>
+<xs:element name="reservations" type="tns:reservation" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -119,6 +116,18 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="ReservationDNEException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="RoomTypeDNEException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
 <xs:complexType name="retrieveAllReservedRooms">
 <xs:sequence/>
 </xs:complexType>
@@ -141,9 +150,17 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="ReservationDNEException">
+<xs:complexType name="associateReservedRoomWithDatesWebService">
 <xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
+<xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
+<xs:element name="checkInDate" type="xs:anySimpleType" minOccurs="0"/>
+<xs:element name="checkOutDate" type="xs:anySimpleType" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="associateReservedRoomWithDatesWebServiceResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:reservedRoom" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
