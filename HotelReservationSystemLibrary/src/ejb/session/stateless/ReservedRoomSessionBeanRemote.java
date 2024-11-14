@@ -23,4 +23,6 @@ public interface ReservedRoomSessionBeanRemote {
     public List<ReservedRoom> retrieveReservedRoomsByReservationId(Long reservationId) throws ReservationDNEException;
     
     public String generateExceptionReport();
+
+    public void allocateRooms();
 }
