@@ -93,22 +93,27 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")
                 .setParameter("today", today)
                 .getResultList();
-        int roomNumberToAllocate;
-        for (roomNumberToAllocate = 0; roomNumberToAllocate < reservedRoomsToAllocate.size(); roomNumberToAllocate++) {
-            ReservedRoom reserveRoom = reservedRoomsToAllocate.get(roomNumberToAllocate);
+        
+        for (int i = 0; i < reservedRoomsToAllocate.size(); i++) {
+            ReservedRoom currentReservedRoom = reservedRoomsToAllocate.get(i);
             // if the reservation room has not been allocated to a room yet
-            if (reserveRoom.getRoom() == null) {
-                RoomType roomType = reserveRoom.getRoomType();
+            if (currentReservedRoom.getRoom() == null) {
+                RoomType roomType = currentReservedRoom.getRoomType();
                 // get available rooms of the reserved room's type
                 List<Room> availableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, roomType.getRoomTypeName());
                 // if have available rooms, assign to reservedRoomsToAllocate one by one. Do associations
-                if (availableRooms.size() > roomNumberToAllocate) {
-                    Room roomToAssign = availableRooms.get(roomNumberToAllocate);
-                    // assign Room to Reserve Room
-                    reserveRoom.setRoom(roomToAssign);
-                    // add Reserve Room to the Room
-                    roomToAssign.getReservedRooms().add(reserveRoom);
-                    System.out.println("room allocated");
+                
+                if (availableRooms.size() > 0) { // meaning there is enough rooms for that roomtype, but may have been reserved
+                    for (Room room : availableRooms) { // loop through to check from 0 to n, whether the room is actually free for usage
+                        int lastIndex = room.getReservedRooms().size() - 1;
+                        ReservedRoom mostRecentReservedRoom = room.getReservedRooms().get(lastIndex);
+                        if (mostRecentReservedRoom.getCheckOutDate().isBefore(today)) { // means previously allocated room already checked-out
+                            // assign this room and the reservedRoom
+                            room.getReservedRooms().add(currentReservedRoom);
+                            currentReservedRoom.setRoom(room);
+                            System.out.println("Room allocated!");
+                        }
+                    }
                 } else { // no Rooms with desired RoomType
                     // get next higher room type
                     RoomType nextHigherRoomType = roomType.getHigherRoomType();
@@ -116,10 +121,10 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
                         List<Room> nextTierAvailableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, nextHigherRoomType.getRoomTypeName());
                         if (nextTierAvailableRooms.size() > 0) {
                                 Room upgradedRoom = nextTierAvailableRooms.get(0);
-                                reserveRoom.setRoom(upgradedRoom);
-                                reserveRoom.setIsUpgraded(true);
-                                upgradedRoom.getReservedRooms().add(reserveRoom);
-                        System.out.println("room allocated");
+                                currentReservedRoom.setRoom(upgradedRoom);
+                                currentReservedRoom.setIsUpgraded(true);
+                                upgradedRoom.getReservedRooms().add(currentReservedRoom);
+                        System.out.println("Room allocated!");
                         }
                     } else {
                         System.out.println("No room allocated! No higher room type available!");

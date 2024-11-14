@@ -240,6 +240,7 @@ public class GuestOperationsModule {
                     reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
                     reservationSBRemote.associateReservationWithGuest(reservationId, currentGuest.getCustomerId());
                     hasReservationBeenCreated = true;
+                    System.out.println("Your Reservation ID is : " + reservationId + "!");
                 }
 
                 ReservedRoom reservedRoom = new ReservedRoom();
@@ -279,14 +280,16 @@ public class GuestOperationsModule {
         try {
             Reservation reservation = reservationSBRemote.retrieveReservationByReservationId(reservationId);
             System.out.println(
-                    "Reservation ID: " + reservation.getReservationId() +
-                    " | Number of Reserved Rooms: " + reservation.getReservedRooms().size()
-//                    " | Room Size: " + reservation.getRoomSize() +
-//                    " | Capacity: " + rt.getCapacity() +
-//                    " | Beds: " + rt.getBeds() + 
-//                    " | Amenities: " + rt.getAmenities() + 
-//                    " | isDisabled: " + rt.isDisabled()
-            ); // to check what to print for reservations
+                "Reservation ID: " + reservation.getReservationId() +
+                " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
+                " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
+                " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+            );
+            for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
+                if (reservedRoom.getRoom() != null) {
+                    System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                }
+            }
             System.out.println("");
         } catch (ReservationDNEException ex) {
             System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
@@ -306,13 +309,15 @@ public class GuestOperationsModule {
                 for (Reservation reservation : listOfReservations) {
                     System.out.println(
                             "Reservation ID: " + reservation.getReservationId() +
-                            " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size()
-        //                    " | Room Size: " + reservation.getRoomSize() +
-        //                    " | Capacity: " + rt.getCapacity() +
-        //                    " | Beds: " + rt.getBeds() + 
-        //                    " | Amenities: " + rt.getAmenities() + 
-        //                    " | isDisabled: " + rt.isDisabled()
-                    ); // to check what to print for reservations
+                            " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
+                            " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
+                            " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+                    );
+                    for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
+                        if (reservedRoom.getRoom() != null) {
+                            System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                        }
+                    }
                 }
             } else { // if listOfReservations.size() == 0
                 System.out.println("You have no outstanding reservations!");
