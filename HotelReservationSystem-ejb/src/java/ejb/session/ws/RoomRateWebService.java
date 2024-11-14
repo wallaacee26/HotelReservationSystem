@@ -14,6 +14,7 @@ import javax.jws.WebParam;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.xml.datatype.XMLGregorianCalendar;
 import util.exception.RoomTypeDNEException;
 
 /**
@@ -30,12 +31,15 @@ public class RoomRateWebService {
     @EJB
     private RoomRateSessionBeanLocal roomRateSessionBeanLocal;
     
-    @WebMethod(operationName = "calculateTotalRoomRate")
-    public BigDecimal calculateTotalRoomRate(
+    @WebMethod(operationName = "calculateTotalRoomRateWithNormalRate")
+    public BigDecimal calculateTotalRoomRateWithNormalRate(
             @WebParam(name = "roomTypeName ") String roomTypeName,
-            @WebParam(name = "checkInDate") LocalDate checkInDate,
-            @WebParam(name = "checkOutDate") LocalDate checkOutDate)
+            @WebParam(name = "checkInDate") XMLGregorianCalendar checkInDate,
+            @WebParam(name = "checkOutDate") XMLGregorianCalendar checkOutDate)
             throws RoomTypeDNEException {
-        return roomRateSessionBeanLocal.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate);
+        //convert XMLGregorianCalender to localdate
+        LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        LocalDate checkOutLocalDate = checkOutDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+        return roomRateSessionBeanLocal.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInLocalDate, checkOutLocalDate);
     }
 }

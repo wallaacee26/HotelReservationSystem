@@ -44,6 +44,14 @@ public class Customer implements Serializable {
         this.customerId = customerId;
     }
 
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;

@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.ReservedRoom;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.ReservationDNEException;
@@ -23,4 +24,6 @@ public interface ReservedRoomSessionBeanLocal {
     public List<ReservedRoom> retrieveReservedRoomsByReservationId(Long reservationId) throws ReservationDNEException;
     
     public String generateExceptionReport();
+    
+    public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate);
 }

@@ -13,7 +13,7 @@
     <target name="wsimport-init" depends="init">
         <mkdir dir="${build.generated.sources.dir}/jax-ws"/>
         <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
-            <classpath path="${libs.jaxws21.classpath}"/>
+            <classpath path="${libs.metro.classpath}"/>
         </taskdef>
     </target>
     <target name="wsimport-client-ReservedRoomWebService" depends="wsimport-init">
@@ -50,5 +50,56 @@
         <delete dir="${build.generated.dir}/jax-wsCache/ReservationWebService"/>
         <delete dir="${build.generated.sources.dir}/jax-ws/ws/reservation"/>
     </target>
-    <target name="wsimport-client-generate" depends="wsimport-client-ReservedRoomWebService, wsimport-client-ReservationWebService"/>
+    <target name="wsimport-client-RoomRateWebService" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/RoomRateWebService"/>
+        <property name="wsdl-RoomRateWebService" location="xml-resources/web-service-references/RoomRateWebService/wsdl/localhost_8080/RoomRateWebService/RoomRateWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/RoomRateWebService" destdir="${build.generated.dir}/jax-wsCache/RoomRateWebService" wsdl="${wsdl-RoomRateWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/RoomRateWebService/RoomRateWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.roomrate">
+            <depends file="${wsdl-RoomRateWebService}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/RoomRateWebService"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/RoomRateWebService">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-RoomRateWebService" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/RoomRateWebService"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/ws/roomrate"/>
+    </target>
+    <target name="wsimport-client-PartnerWebService" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/PartnerWebService"/>
+        <property name="wsdl-PartnerWebService" location="xml-resources/web-service-references/PartnerWebService/wsdl/localhost_8080/PartnerWebService/PartnerWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/PartnerWebService" destdir="${build.generated.dir}/jax-wsCache/PartnerWebService" wsdl="${wsdl-PartnerWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/PartnerWebService/PartnerWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.partner">
+            <depends file="${wsdl-PartnerWebService}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/PartnerWebService"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/PartnerWebService">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-PartnerWebService" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/PartnerWebService"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/ws/partner"/>
+    </target>
+    <target name="wsimport-client-RoomTypeWebService" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/RoomTypeWebService"/>
+        <property name="wsdl-RoomTypeWebService" location="xml-resources/web-service-references/RoomTypeWebService/wsdl/localhost_8080/RoomTypeWebService/RoomTypeWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/RoomTypeWebService" destdir="${build.generated.dir}/jax-wsCache/RoomTypeWebService" wsdl="${wsdl-RoomTypeWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.roomtype">
+            <depends file="${wsdl-RoomTypeWebService}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/RoomTypeWebService"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/RoomTypeWebService">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-RoomTypeWebService" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/RoomTypeWebService"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/ws/roomtype"/>
+    </target>
+    <target name="wsimport-client-generate" depends="wsimport-client-ReservedRoomWebService, wsimport-client-ReservationWebService, wsimport-client-RoomRateWebService, wsimport-client-PartnerWebService, wsimport-client-RoomTypeWebService"/>
 </project>

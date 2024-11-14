@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Partner;
 import entity.Reservation;
 import entity.ReservedRoom;
 import entity.Room;
@@ -22,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import util.exception.PartnerDNEException;
 import util.exception.ReservationDNEException;
 import util.exception.RoomTypeDNEException;
 
@@ -207,4 +209,12 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         timerService.createSingleActionTimer(userDefinedDate, timerConfig); // Timer created here
     }
 
+    // only in web service method
+    @Override
+    public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate) {
+        reservedRoom.setCheckInDate(checkInDate);
+        reservedRoom.setCheckOutDate(checkOutDate);
+        
+        return reservedRoom;
+    }
 }

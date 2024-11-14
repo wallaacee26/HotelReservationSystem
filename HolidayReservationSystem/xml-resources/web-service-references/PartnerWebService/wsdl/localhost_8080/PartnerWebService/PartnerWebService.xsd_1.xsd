@@ -1,67 +1,49 @@
 <?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is Metro/2.4.3 (RELEASE-2.4.3-ad3323c; 2019-01-21T17:46:06+0000) JAXWS-RI/2.3.2 JAXWS-API/2.3.2 JAXB-RI/2.3.2 JAXB-API/2.3.2 git-revision#unknown. --><xs:schema xmlns:tns="http://ws.session.ejb/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://ws.session.ejb/">
 
-<xs:element name="GuestDNEException" type="tns:GuestDNEException"/>
+<xs:element name="InvalidLoginCredentialException" type="tns:InvalidLoginCredentialException"/>
 
 <xs:element name="PartnerDNEException" type="tns:PartnerDNEException"/>
 
-<xs:element name="ReservationDNEException" type="tns:ReservationDNEException"/>
+<xs:element name="PartnerExistsException" type="tns:PartnerExistsException"/>
 
-<xs:element name="ReservationExistsException" type="tns:ReservationExistsException"/>
+<xs:element name="createNewPartner" type="tns:createNewPartner"/>
 
-<xs:element name="associateReservationWithPartner" type="tns:associateReservationWithPartner"/>
+<xs:element name="createNewPartnerResponse" type="tns:createNewPartnerResponse"/>
 
-<xs:element name="associateReservationWithPartnerResponse" type="tns:associateReservationWithPartnerResponse"/>
+<xs:element name="partnerLogin" type="tns:partnerLogin"/>
 
-<xs:element name="createNewReservation" type="tns:createNewReservation"/>
+<xs:element name="partnerLoginResponse" type="tns:partnerLoginResponse"/>
 
-<xs:element name="createNewReservationResponse" type="tns:createNewReservationResponse"/>
+<xs:element name="retrieveAllPartners" type="tns:retrieveAllPartners"/>
 
-<xs:element name="retrieveAllReservations" type="tns:retrieveAllReservations"/>
+<xs:element name="retrieveAllPartnersResponse" type="tns:retrieveAllPartnersResponse"/>
 
-<xs:element name="retrieveAllReservationsOfGuestId" type="tns:retrieveAllReservationsOfGuestId"/>
+<xs:element name="retrievePartnerByPartnerId" type="tns:retrievePartnerByPartnerId"/>
 
-<xs:element name="retrieveAllReservationsOfGuestIdResponse" type="tns:retrieveAllReservationsOfGuestIdResponse"/>
+<xs:element name="retrievePartnerByPartnerIdResponse" type="tns:retrievePartnerByPartnerIdResponse"/>
 
-<xs:element name="retrieveAllReservationsOfPartnerId" type="tns:retrieveAllReservationsOfPartnerId"/>
+<xs:element name="retrievePartnerByUsername" type="tns:retrievePartnerByUsername"/>
 
-<xs:element name="retrieveAllReservationsOfPartnerIdResponse" type="tns:retrieveAllReservationsOfPartnerIdResponse"/>
+<xs:element name="retrievePartnerByUsernameResponse" type="tns:retrievePartnerByUsernameResponse"/>
 
-<xs:element name="retrieveAllReservationsResponse" type="tns:retrieveAllReservationsResponse"/>
-
-<xs:element name="retrieveReservationByReservationId" type="tns:retrieveReservationByReservationId"/>
-
-<xs:element name="retrieveReservationByReservationIdResponse" type="tns:retrieveReservationByReservationIdResponse"/>
-
-<xs:complexType name="associateReservationWithPartner">
+<xs:complexType name="retrievePartnerByUsername">
 <xs:sequence>
-<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrievePartnerByUsernameResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:partner" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="partner">
+<xs:sequence>
 <xs:element name="partnerId" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="associateReservationWithPartnerResponse">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="ReservationDNEException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="PartnerDNEException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservations">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservationsResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservation" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+<xs:element name="reservations" type="tns:reservation" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -78,15 +60,6 @@
 <xs:sequence>
 <xs:element name="customerId" type="xs:long" minOccurs="0"/>
 <xs:element name="reservations" type="tns:reservation" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="partner">
-<xs:sequence>
-<xs:element name="partnerId" type="xs:long" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
-<xs:element name="reservations" type="tns:reservation" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
-<xs:element name="username" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -147,63 +120,68 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveReservationByReservationId">
-<xs:sequence>
-<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveReservationByReservationIdResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservation" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="createNewReservation">
-<xs:sequence>
-<xs:element name="reservation" type="tns:reservation" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="createNewReservationResponse">
-<xs:sequence>
-<xs:element name="return" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="ReservationExistsException">
+<xs:complexType name="PartnerDNEException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveAllReservationsOfGuestId">
-<xs:sequence>
-<xs:element name="guestId" type="xs:long" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservationsOfGuestIdResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservation" minOccurs="0" maxOccurs="unbounded"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="GuestDNEException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllReservationsOfPartnerId">
+<xs:complexType name="retrievePartnerByPartnerId">
 <xs:sequence>
 <xs:element name="partnerId" type="xs:long" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="retrieveAllReservationsOfPartnerIdResponse">
+<xs:complexType name="retrievePartnerByPartnerIdResponse">
 <xs:sequence>
-<xs:element name="return" type="tns:reservation" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="return" type="tns:partner" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllPartners">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllPartnersResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:partner" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewPartner">
+<xs:sequence>
+<xs:element name="partner" type="tns:partner" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewPartnerResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:long" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PartnerExistsException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="partnerLogin">
+<xs:sequence>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="partnerLoginResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:partner" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="InvalidLoginCredentialException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

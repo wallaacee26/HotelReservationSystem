@@ -6,6 +6,7 @@ package ejb.session.ws;
 
 import ejb.session.stateless.ReservationSessionBeanLocal;
 import entity.Guest;
+import entity.Partner;
 import entity.Reservation;
 import entity.ReservedRoom;
 import java.util.List;
@@ -17,6 +18,9 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import util.exception.GuestDNEException;
+import util.exception.PartnerDNEException;
+import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
 
 /**
@@ -33,29 +37,6 @@ public class ReservationWebService {
 
     @EJB(name = "ReservationSessionBeanLocal")
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
-
-    
-    
-    /**
-     * This is a sample web service operation
-     */
-    @WebMethod(operationName = "hello") // RENAME OPERATIONNAME TO THE METHOD NAME CALLED IN WEB CLIENT
-    public String hello(@WebParam(name = "name") String txt) { // IF NO NEED PARAMETER, LEAVE EMPTY
-        return "Hello " + txt + " !";
-        
-        // List<Record> records = recordSessionBeanLocal.retrieveAllRecords(); --> use local interface to call SB methods
-        /*
-        for (Record record : records) {
-            em.detach(record); // to cut off relationship to prevent changes to database
-            for (RecordVersion recordVersion : record.getRecordVersions()) {
-                em.detach(recordVersion);
-                recordVersion.setRecord(null); // record --- recordVersion : 1 -- *
-            }
-            em.detach(record.getCurrentRecordVersion());
-        }
-        return records;
-        */
-    }
     
     @WebMethod(operationName = "createNewReservation")
     public Long createNewReservation(@WebParam(name = "reservation") Reservation reservation) throws ReservationExistsException { // not sure if need this exception
@@ -76,7 +57,6 @@ public class ReservationWebService {
         }
     }
     
-    /*
     @WebMethod(operationName = "retrieveAllReservations")
     public List<Reservation> retrieveAllReservations() {
         List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservations();
@@ -84,17 +64,17 @@ public class ReservationWebService {
             em.detach(reservation); // to cut off relationship to prevent changes to database
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 em.detach(reservedRoom);
-                reservedRoom.setReservation(null); // impossible, mandatory constraint
+                reservedRoom.setReservation(null);
                 reservedRoom.setRoom(null);
-                reservedRoom.setRoomType(null); // impossible, mandatory constraint
+                reservedRoom.setRoomType(null);
             }
-            if (reservation.getGuest() != null) {
-                em.detach(reservation.getGuest());
-                reservation.setGuest(null);
+            if (reservation.getCustomerOrGuest() != null) {
+                em.detach(reservation.getCustomerOrGuest());
+                reservation.getCustomerOrGuest().getReservations().clear();
             }
             if (reservation.getPartner() != null) {
                 em.detach(reservation.getPartner());
-                reservation.setPartner(null);
+                reservation.getPartner().getReservations().clear();
             }
         }
         
@@ -105,20 +85,20 @@ public class ReservationWebService {
     public Reservation retrieveReservationByReservationId(@WebParam(name = "reservationId") Long reservationId) throws ReservationDNEException {
         try {
             Reservation reservation = reservationSessionBeanLocal.retrieveReservationByReservationId(reservationId);
-            em.detach(reservation);
+            em.detach(reservation); // to cut off relationship to prevent changes to database
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 em.detach(reservedRoom);
-                reservedRoom.setReservation(null); // impossible, mandatory constraint
+                reservedRoom.setReservation(null);
                 reservedRoom.setRoom(null);
-                reservedRoom.setRoomType(null); // impossible, mandatory constraint
+                reservedRoom.setRoomType(null);
             }
-            if (reservation.getGuest() != null) {
-                em.detach(reservation.getGuest());
-                reservation.setGuest(null);
+            if (reservation.getCustomerOrGuest() != null) {
+                em.detach(reservation.getCustomerOrGuest());
+                reservation.getCustomerOrGuest().getReservations().clear();
             }
             if (reservation.getPartner() != null) {
                 em.detach(reservation.getPartner());
-                reservation.setPartner(null);
+                reservation.getPartner().getReservations().clear();
             }
             return reservation;
         } catch (ReservationDNEException ex) {
@@ -134,17 +114,17 @@ public class ReservationWebService {
                 em.detach(reservation); // to cut off relationship to prevent changes to database
                 for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                     em.detach(reservedRoom);
-                    reservedRoom.setReservation(null); // impossible, mandatory constraint
+                    reservedRoom.setReservation(null);
                     reservedRoom.setRoom(null);
-                    reservedRoom.setRoomType(null); // impossible, mandatory constraint
+                    reservedRoom.setRoomType(null);
                 }
-                if (reservation.getGuest() != null) {
-                    em.detach(reservation.getGuest());
-                    reservation.setGuest(null);
+                if (reservation.getCustomerOrGuest() != null) {
+                    em.detach(reservation.getCustomerOrGuest());
+                    reservation.getCustomerOrGuest().getReservations().clear();
                 }
                 if (reservation.getPartner() != null) {
                     em.detach(reservation.getPartner());
-                    reservation.setPartner(null);
+                    reservation.getPartner().getReservations().clear();
                 }
             }
             return reservations;
@@ -152,5 +132,43 @@ public class ReservationWebService {
             throw new GuestDNEException(ex.getMessage());
         }
     }
-    */
+    
+    @WebMethod(operationName = "retrieveAllReservationsOfPartnerId")
+    public List<Reservation> retrieveAllReservationsOfPartnerId(@WebParam(name = "partnerId") Long partnerId) throws PartnerDNEException {
+        try {
+            List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservationsOfPartnerId(partnerId);
+            for (Reservation reservation : reservations) {
+                em.detach(reservation); // to cut off relationship to prevent changes to database
+                for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
+                    em.detach(reservedRoom);
+                    reservedRoom.setReservation(null);
+                    reservedRoom.setRoom(null);
+                    reservedRoom.setRoomType(null);
+                }
+                if (reservation.getCustomerOrGuest() != null) {
+                    em.detach(reservation.getCustomerOrGuest());
+                    reservation.getCustomerOrGuest().getReservations().clear();
+                }
+                if (reservation.getPartner() != null) {
+                    em.detach(reservation.getPartner());
+                    reservation.getPartner().getReservations().clear();
+                }
+            }
+            return reservations;
+        } catch (PartnerDNEException ex) {
+            throw new PartnerDNEException(ex.getMessage());
+        }
+    }
+    
+    @WebMethod(operationName = "associateReservationWithPartner")
+    public void associateReservationWithPartner(@WebParam(name = "reservationId") Long reservationId, @WebParam(name = "partnerId") Long partnerId)
+            throws ReservationDNEException, PartnerDNEException {
+        try {
+            reservationSessionBeanLocal.associateReservationWithPartner(reservationId, partnerId);
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        } catch (PartnerDNEException ex) {
+            throw new PartnerDNEException(ex.getMessage());
+        }
+    }
 }

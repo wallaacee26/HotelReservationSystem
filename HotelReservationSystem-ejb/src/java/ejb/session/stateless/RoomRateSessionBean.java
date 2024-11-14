@@ -183,16 +183,16 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                 // for promotion or peak
                 if (isWithinDateRange(rate, actualDate)) {
                     
-                    if (rate.getRateType() == RateTypeEnum.PROMOTION) {
+                    if (rate.getRateType().equals(RateTypeEnum.PROMOTION)) {
                         prevailingRate = rate;
                         break; // stop the moment we get a promotion rate (highest rate)
-                    } else if (rate.getRateType() == RateTypeEnum.PEAK && prevailingRate.getRateType() != RateTypeEnum.PROMOTION) {
+                    } else if (rate.getRateType().equals(RateTypeEnum.PEAK) && !prevailingRate.getRateType().equals(RateTypeEnum.PROMOTION)) {
                         prevailingRate = rate;
                     }
                     
                 // for published
-                } else if ((rate.getRateType() == RateTypeEnum.PUBLISHED) 
-                    && prevailingRate.getRateType() != RateTypeEnum.PROMOTION && prevailingRate.getRateType() != RateTypeEnum.PEAK) {
+                } else if ((rate.getRateType().equals(RateTypeEnum.PUBLISHED)) 
+                    && !prevailingRate.getRateType().equals(RateTypeEnum.PROMOTION) && !prevailingRate.getRateType().equals(RateTypeEnum.PEAK)) {
                         
                     prevailingRate = rate;
                         
@@ -211,23 +211,25 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         // rate precedence: promotion > peak > normal/published
         // loop through the rates to get the prevailing rate to charge the client
         for (RoomRate rate : roomRates) {
+            System.out.println("rate disabled: " + rate.isDisabled());
+            System.out.println("rate type: " + rate.getRateType());
             if (!rate.isDisabled()) {
                 // for promotion or peak
                 if (isWithinDateRange(rate, actualDate)) {
                     
-                    if (rate.getRateType() == RateTypeEnum.PROMOTION) {
+                    if (rate.getRateType().equals(RateTypeEnum.PROMOTION)) {
                         prevailingRate = rate;
                         break; // stop the moment we get a promotion rate (highest rate)
-                    } else if (rate.getRateType() == RateTypeEnum.PEAK && prevailingRate.getRateType() != RateTypeEnum.PROMOTION) {
+                    } else if (rate.getRateType().equals(RateTypeEnum.PEAK) && !prevailingRate.getRateType().equals(RateTypeEnum.PROMOTION)) {
                         prevailingRate = rate;
                     }
                     
-                // for normal
-                } else if ((rate.getRateType() == RateTypeEnum.NORMAL) 
-                    && prevailingRate.getRateType() != RateTypeEnum.PROMOTION && prevailingRate.getRateType() != RateTypeEnum.PEAK) {
+                // for published
+                } else if ((rate.getRateType().equals(RateTypeEnum.NORMAL)) 
+                    && !prevailingRate.getRateType().equals(RateTypeEnum.PROMOTION) && !prevailingRate.getRateType().equals(RateTypeEnum.PEAK)) {
                         
                     prevailingRate = rate;
-                        
+                    System.out.println("set as: " + "normal");
                 }
             }
         }
@@ -238,9 +240,11 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     // helper method for getPrevailingRoomRateForDate
     private boolean isWithinDateRange(RoomRate rate, Date date) {
         // if current date is not before rate's start date, and current date is not after rate's end date
-        // if there is no start date or end date, means it is published or normal rate --> returns false automatically
         // used only for peak and promotion rates
-        return (rate.getStartDate() == null || !date.before(rate.getStartDate())) &&
-               (rate.getEndDate() == null || !date.after(rate.getEndDate()));
+        if (rate.getRateType().equals(RateTypeEnum.PROMOTION) || rate.getRateType().equals(RateTypeEnum.PEAK)) {
+            return (rate.getStartDate() != null || !date.before(rate.getStartDate())) &&
+               (rate.getEndDate() != null || !date.after(rate.getEndDate()));
+        }
+        return false;
     }
 }
