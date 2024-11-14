@@ -8,6 +8,7 @@ import entity.Reservation;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.GuestDNEException;
+import util.exception.PartnerDNEException;
 import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
 
@@ -26,4 +27,8 @@ public interface ReservationSessionBeanRemote {
     public List<Reservation> retrieveAllReservationsOfGuestId(Long guestId) throws GuestDNEException;
     
     public void deleteReservationByReservationId(Long reservationId) throws ReservationDNEException;
+    
+    public void associateReservationWithGuest(Long reservationId, Long guestId) throws ReservationDNEException, GuestDNEException;
+    
+    public void associateReservationWithPartner(Long reservationId, Long partnerId) throws ReservationDNEException, PartnerDNEException;
 }

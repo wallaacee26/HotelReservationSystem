@@ -27,6 +27,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
+    @Override
     public Long createNewPartner(Partner partner) throws PartnerExistsException {
         try {
             em.persist(partner);
@@ -47,11 +48,29 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         }
     }
     
+    @Override
     public List<Partner> retrieveAllPartners() {
         Query query = em.createQuery("SELECT p from Partner p");
-        return query.getResultList();
+        List<Partner> partners = query.getResultList();
+        for (Partner partner : partners) {
+            partner.getReservations().size();
+        }
+        return partners;
     }
     
+    @Override
+    public Partner retrievePartnerByPartnerId(Long partnerId) throws PartnerDNEException {
+        Partner partner = em.find(Partner.class, partnerId); 
+        
+        if (partner != null) {
+            partner.getReservations().size(); // trigger lazy fetching
+            return partner;
+        } else {
+            throw new PartnerDNEException("Partner does not exist: " + partnerId);
+        }
+    }
+    
+    @Override
     public Partner retrievePartnerByUsername(String username) throws PartnerDNEException {
         Query query = em.createQuery("SELECT p from Partner p WHERE p.username = :inUsername");
         query.setParameter("inUsername", username);
@@ -63,6 +82,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         }
     }
     
+    @Override
     public Partner partnerLogin(String username, String password) throws InvalidLoginCredentialException, PartnerDNEException {
         try {
             Partner p = retrievePartnerByUsername(username);

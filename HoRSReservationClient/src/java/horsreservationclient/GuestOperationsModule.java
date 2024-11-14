@@ -135,16 +135,17 @@ public class GuestOperationsModule {
             
             if (availableRoomTypes.size() == 0) {
                 System.out.println("There are no available rooms!");
+                System.out.println();
+                return;
             } else {
                 System.out.println("Available Room Types:");
                 for (int i = 1; i <= availableRoomTypes.size(); i++) {
                     String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
                     int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
                     // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
-                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRate(roomTypeName, checkInDate, checkOutDate));
+                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
-            System.out.println();
             
             int response = 1;
             while(response == 1) {
@@ -174,16 +175,20 @@ public class GuestOperationsModule {
             System.out.println("Reservation already exists!"); // will likely never come here anyways
         } catch (ReservationDNEException ex) {
             System.out.println("Reservation does not exist!"); // will likely never come here anyways
+        } catch (GuestDNEException ex) {
+            System.out.println("Guest does not exist!"); // will likely never come here anyways
         }
     }
     
-    private void doReserveHotelRoom(LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException, ReservationExistsException, ReservationDNEException {
+    private void doReserveHotelRoom(LocalDate checkInDate, LocalDate checkOutDate)
+            throws RoomTypeDNEException, ReservationExistsException, ReservationDNEException, GuestDNEException {
         try {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
+            Long reservationId = (long) -1; // simply for initialisation
                
             // guest - reservation association
-            reservation.setGuest(currentGuest);
+            reservation.setCustomerOrGuest(currentGuest);
             boolean hasReservationBeenCreated = false;
                 
             String response = "Y";
@@ -230,10 +235,10 @@ public class GuestOperationsModule {
                 RoomType roomType = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
                 
                 // creates the reservation if not already created before (to link reserved rooms to the same reservation object)
+                // will only reach this stage when roomType is valid, so it is safe to link reservationId here
                 if (!hasReservationBeenCreated) {
-                    Long reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
-                    reservation = reservationSBRemote.retrieveReservationByReservationId(reservationId); // get back a managed instance of reservation
-                    currentGuest.getReservations().add(reservation);
+                    reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
+                    reservationSBRemote.associateReservationWithGuest(reservationId, currentGuest.getCustomerId());
                     hasReservationBeenCreated = true;
                 }
 
@@ -241,15 +246,8 @@ public class GuestOperationsModule {
                 reservedRoom.setCheckInDate(checkInDate);
                 reservedRoom.setCheckOutDate(checkOutDate);
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
-
-                // associations
-                reservedRoom.setReservation(reservation);
-                reservation.getReservedRooms().add(reservedRoom);
                 
-                reservedRoom.setRoomType(roomType);
-                roomType.getReservedRooms().add(reservedRoom);
-                
-                reservedRoomSBRemote.createNewReservedRoom(reservedRoom);
+                reservedRoomSBRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
@@ -266,8 +264,9 @@ public class GuestOperationsModule {
             throw new ReservationExistsException(ex.getMessage());
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException(ex.getMessage());
+        } catch (GuestDNEException ex) {
+            throw new GuestDNEException(ex.getMessage());
         }
-        
     }
     
     

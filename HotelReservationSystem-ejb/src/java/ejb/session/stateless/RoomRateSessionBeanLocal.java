@@ -31,5 +31,7 @@ public interface RoomRateSessionBeanLocal {
     
     public void deleteRoomRate(String roomRateName) throws RoomRateDNEException;
     
-    public BigDecimal calculateTotalRoomRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
+    public BigDecimal calculateTotalRoomRateWithPublishedRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
+            
+    public BigDecimal calculateTotalRoomRateWithNormalRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException;
 }

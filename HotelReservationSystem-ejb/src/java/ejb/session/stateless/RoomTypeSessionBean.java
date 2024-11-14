@@ -46,7 +46,13 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     
     public List<RoomType> retrieveAllRoomTypes() {
         Query query = em.createQuery("SELECT r from RoomType r");
-        return query.getResultList();
+        List<RoomType> roomTypes = query.getResultList();
+        for (RoomType roomType : roomTypes) {
+            roomType.getReservedRooms().size();
+            roomType.getRoomRates().size();
+            roomType.getRooms().size();
+        }
+        return roomTypes;
     }
     
     public RoomType retrieveRoomTypeByRoomTypeName(String roomTypeName) throws RoomTypeDNEException {
@@ -71,6 +77,8 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         
         if (roomType != null) {
             roomType.getReservedRooms().size(); // trigger lazy fetching
+            roomType.getRoomRates().size();
+            roomType.getRooms().size();
             return roomType;
         } else {
             throw new RoomTypeDNEException("Room Type ID does not exist: " + roomTypeId);
@@ -136,7 +144,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         // get the number of reserved rooms with the associated roomtype
         Query reservedRoomQuery = em.createQuery(
             "SELECT rr.roomType.roomTypeId, COUNT(rr) FROM ReservedRoom rr "
-                + "WHERE (rr.checkInDate <= :inCheckOutDate) AND (rr.checkOutDate >= :inCheckInDate) "
+                + "WHERE (rr.checkInDate < :inCheckOutDate) AND (rr.checkOutDate > :inCheckInDate) "
                 + "GROUP BY rr.roomType.roomTypeId")
                 .setParameter("inCheckInDate", checkInDate)
                 .setParameter("inCheckOutDate", checkOutDate);

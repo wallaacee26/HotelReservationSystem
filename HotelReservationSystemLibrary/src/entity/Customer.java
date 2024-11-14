@@ -29,13 +29,11 @@ public class Customer implements Serializable {
     protected Long customerId;
     
     // mapping
-    /* remove when needed
     @OneToMany (mappedBy = "customer")
     protected List<Reservation> reservations;
-    */
     
     public Customer() {
-        // this.reservations = new ArrayList<Reservation>();
+        this.reservations = new ArrayList<Reservation>();
     }
 
     public Long getCustomerId() {
