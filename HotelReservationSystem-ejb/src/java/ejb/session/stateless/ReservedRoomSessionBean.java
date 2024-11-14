@@ -8,10 +8,7 @@ import entity.Reservation;
 import entity.ReservedRoom;
 import entity.Room;
 import entity.RoomType;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -106,6 +103,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
                 reserveRoom.setRoom(roomToAssign);
                 // add Reserve Room to the Room
                 roomToAssign.getReservedRooms().add(reserveRoom);
+                System.out.println("room allocated");
             } else { // no Rooms with desired RoomType
                 // get next higher room type
                 RoomType nextHigherRoomType = roomType.getHigherRoomType();
@@ -116,9 +114,10 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
                         reserveRoom.setRoom(upgradedRoom);
                         reserveRoom.setIsUpgraded(true);
                         upgradedRoom.getReservedRooms().add(reserveRoom);
+                        System.out.println("room allocated");
                     }
                 }
-                
+                System.out.println("No room allocated!");
                 // else cannot upgrade anymore, do nothing
             }
             // if availableRooms returns an empty list
@@ -128,24 +127,28 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
             // if cannot get, do nothing (assigned room will be null and isUpgraded = false)
             // go to the next reservedRoom 
         }
-
+        System.out.println("nothing happened!");
     }
     
     @Override
     public String generateExceptionReport() {
-        // get ReservedRooms where isUpgraded = true OR rr.room = null
+        LocalDate today = LocalDate.now();
+        // get ReservedRooms where checkin is today where isUpgraded = true OR rr.room = null
         List<ReservedRoom> exceptions = em.createQuery("SELECT rr FROM ReservedRoom rr "
-                + "WHERE rr.room IS NULL OR rr.isUpgraded = TRUE").getResultList();
-        String exceptionReport = "Exception Report: \n";
-        for (ReservedRoom rr : exceptions) {
-            if(rr.isIsUpgraded()) {
-                exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + " upgraded from " +
-                        rr.getRoomType() + " to " + rr.getRoomType().getHigherRoomType() + 
-                        ". Allocated Room Number " + rr.getRoom().getRoomNumber() + "\n";
-            }
-            if (rr.getRoom().equals(null)) {
-                exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + 
-                        " has no next higher room type available. Room was not allocated! \n";
+                + "WHERE (rr.room IS NULL OR rr.isUpgraded = TRUE) AND rr.checkInDate = :today")
+                .setParameter("today", today)
+                .getResultList();
+        String exceptionReport = "Exception Reports for Today: \n";
+        if (!exceptions.isEmpty()) {
+            for (ReservedRoom rr : exceptions) {
+                if(rr.isIsUpgraded()) {
+                    exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + " upgraded from " +
+                            rr.getRoomType() + " to " + rr.getRoomType().getHigherRoomType() + 
+                            ". Allocated Room Number " + rr.getRoom().getRoomNumber() + "\n";
+                } else {
+                    exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + 
+                            " has no next higher room type available. Room was not allocated! \n";
+                }
             }
         }
         return exceptionReport;
