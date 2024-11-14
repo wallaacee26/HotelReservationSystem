@@ -83,10 +83,9 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     
     public List<Room> retrieveAvailableRoomsTodayByRoomType(LocalDate today, String roomTypeName) {
         // get rooms that are isAvailable OR have their checkout day as today, and have the desired room type
-        Query query = em.createQuery("SELECT r FROM Room r JOIN r.roomType rt JOIN r.reservedRooms rr"
-                + "WHERE (r.available = TRUE OR rr.checkOutDate = :today) "
+        Query query = em.createQuery("SELECT r FROM Room r JOIN r.roomType rt "
+                + "WHERE (r.available = TRUE) AND (r.disabled = FALSE) "
                 + "AND rt.roomTypeName = :roomTypeName");
-        query.setParameter("today", today);
         query.setParameter("roomTypeName", roomTypeName);
                 
         return query.getResultList();
