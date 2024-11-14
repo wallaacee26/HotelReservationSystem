@@ -87,8 +87,12 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                 + "WHERE (r.available = TRUE) AND (r.disabled = FALSE) "
                 + "AND rt.roomTypeName = :roomTypeName");
         query.setParameter("roomTypeName", roomTypeName);
+        List<Room> rooms = query.getResultList();
+        for (Room r : rooms) {
+            r.getReservedRooms();
+        }
                 
-        return query.getResultList();
+        return rooms;
     }
     
     @Override
