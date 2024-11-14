@@ -4,6 +4,8 @@
  */
 package ejb.session.stateless;
 
+import entity.ReservedRoom;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -12,5 +14,9 @@ import javax.ejb.Local;
  */
 @Local
 public interface ReservedRoomSessionBeanLocal {
+    public Long createNewReservedRoom(ReservedRoom room);
+    
+    public List<ReservedRoom> retrieveAllReservedRooms();
+    
     public String generateExceptionReport();
 }

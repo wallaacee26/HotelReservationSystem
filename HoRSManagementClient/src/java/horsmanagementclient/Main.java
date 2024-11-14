@@ -13,10 +13,6 @@ import javax.ejb.EJB;
  * @author wallace
  */
 public class Main {
-
-    /**
-     * @param args the command line arguments
-     */
     
     @EJB
     private static StaffSessionBeanRemote staffSBRemote;
@@ -31,6 +27,9 @@ public class Main {
     @EJB
     private static ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote;
     
+    /**
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         MainApp mainApp = new MainApp(staffSBRemote, partnerSBRemote, 
                 roomTypeSBRemote, roomSBRemote, roomRateSessionBeanRemote, reservedRoomSessionBeanRemote);

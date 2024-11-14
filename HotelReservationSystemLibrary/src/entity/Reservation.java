@@ -3,12 +3,12 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
  * @author wallace
  */
 @Entity
+@Cacheable(false)
 public class Reservation implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,11 +29,11 @@ public class Reservation implements Serializable {
     @OneToMany(mappedBy = "reservation")
     private List<ReservedRoom> reservedRooms;
     
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // might have a partner that reserve instead of guest
     private Guest guest;
     
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // might have a guest that reserve instead of partner
     private Partner partner;
     

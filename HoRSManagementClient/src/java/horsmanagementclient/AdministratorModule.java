@@ -123,7 +123,7 @@ public class AdministratorModule {
                     " | AccessRights: " + s.getAccessRights().toString());
         }
         
-        System.out.print("Press ENTER key to cotinue> ");
+        System.out.print("Press ENTER key to continue> ");
         sc.nextLine();
     }
     
@@ -156,7 +156,7 @@ public class AdministratorModule {
                     " | Password: " + p.getPassword());
         }
         
-        System.out.print("Press ENTER key to cotinue> ");
+        System.out.print("Press ENTER key to continue> ");
         sc.nextLine();
     }
 }

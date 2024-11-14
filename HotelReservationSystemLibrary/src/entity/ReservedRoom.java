@@ -5,7 +5,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -32,14 +31,12 @@ public class ReservedRoom implements Serializable {
     @Column(nullable = false)
     private boolean isUpgraded;
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date checkInDate;
+    private LocalDate checkInDate;
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date checkOutDate;
+    private LocalDate checkOutDate;
     
     // mappings:
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // optional
     private Room room; // the room used for booking
     
@@ -55,19 +52,19 @@ public class ReservedRoom implements Serializable {
         
     }
 
-    public Date getCheckOutDate() {
+    public LocalDate getCheckOutDate() {
         return checkOutDate;
     }
 
-    public void setCheckOutDate(Date checkOutDate) {
+    public void setCheckOutDate(LocalDate checkOutDate) {
         this.checkOutDate = checkOutDate;
     }
 
-    public Date getCheckInDate() {
+    public LocalDate getCheckInDate() {
         return checkInDate;
     }
 
-    public void setCheckInDate(Date checkInDate) {
+    public void setCheckInDate(LocalDate checkInDate) {
         this.checkInDate = checkInDate;
     }
     

@@ -4,6 +4,8 @@
  */
 package ejb.session.stateless;
 
+import entity.ReservedRoom;
+import java.util.List;
 import javax.ejb.Remote;
 
 /**
@@ -12,7 +14,9 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface ReservedRoomSessionBeanRemote {
-
-    public String generateExceptionReport();
+    public Long createNewReservedRoom(ReservedRoom room);
     
+    public List<ReservedRoom> retrieveAllReservedRooms();
+    
+    public String generateExceptionReport();
 }

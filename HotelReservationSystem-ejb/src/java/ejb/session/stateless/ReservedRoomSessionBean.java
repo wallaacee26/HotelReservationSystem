@@ -33,13 +33,15 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
+    @Override
     public Long createNewReservedRoom(ReservedRoom room) {
-        // do association with Reservation?
+        // do association with Reservation? yes, association done as new unmanaged instance in client
         em.persist(room);
         em.flush();
         return room.getReservedRoomId();
     }
     
+    @Override
     public List<ReservedRoom> retrieveAllReservedRooms() {
         Query query = em.createQuery("SELECT r from ReservedRoom r");
         List<ReservedRoom> rooms = query.getResultList();
