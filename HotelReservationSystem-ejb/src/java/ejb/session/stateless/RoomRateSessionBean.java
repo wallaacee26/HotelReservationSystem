@@ -127,8 +127,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         }
     }
     
-    @Override // might need different method for walk-in and online
-    public BigDecimal calculateTotalRoomRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
+    @Override
+    public BigDecimal calculateTotalRoomRateWithPublishedRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
         try {
             BigDecimal totalRate = BigDecimal.ZERO;
             RoomType roomType = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
@@ -137,7 +137,29 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             LocalDate date = checkInDate;
             // is not after the checkoutDate, meaning still during reservation (or booked) period
             while (!date.isAfter(checkOutDate)) {
-                BigDecimal dailyRate = getPrevailingRoomRateForDate(roomRates, date);
+                BigDecimal dailyRate = getPrevailingRoomRateForDateWithPublishedRate(roomRates, date);
+                totalRate = totalRate.add(dailyRate);
+
+                date = date.plusDays(1);
+            }
+
+            return totalRate;
+        } catch (RoomTypeDNEException ex) {
+            throw new RoomTypeDNEException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public BigDecimal calculateTotalRoomRateWithNormalRate(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
+        try {
+            BigDecimal totalRate = BigDecimal.ZERO;
+            RoomType roomType = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeName(roomTypeName);
+            List<RoomRate> roomRates = roomType.getRoomRates();
+
+            LocalDate date = checkInDate;
+            // is not after the checkoutDate, meaning still during reservation (or booked) period
+            while (!date.isAfter(checkOutDate)) {
+                BigDecimal dailyRate = getPrevailingRoomRateForDateWithNormalRate(roomRates, date);
                 totalRate = totalRate.add(dailyRate);
 
                 date = date.plusDays(1);
@@ -150,7 +172,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
 
     // helper method for calculateTotalRoomRate()
-    private BigDecimal getPrevailingRoomRateForDate(List<RoomRate> roomRates, LocalDate date) {
+    private BigDecimal getPrevailingRoomRateForDateWithPublishedRate(List<RoomRate> roomRates, LocalDate date) {
         RoomRate prevailingRate = roomRates.get(0); // set to the first one, then loop as usual
         Date actualDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()); // to convert from LocalDate to Date
 
@@ -168,8 +190,40 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                         prevailingRate = rate;
                     }
                     
-                // for published or normal
-                } else if ((rate.getRateType() == RateTypeEnum.PUBLISHED || rate.getRateType() == RateTypeEnum.NORMAL) 
+                // for published
+                } else if ((rate.getRateType() == RateTypeEnum.PUBLISHED) 
+                    && prevailingRate.getRateType() != RateTypeEnum.PROMOTION && prevailingRate.getRateType() != RateTypeEnum.PEAK) {
+                        
+                    prevailingRate = rate;
+                        
+                }
+            }
+        }
+
+        return prevailingRate.getRatePerNight();
+    }
+    
+        // helper method for calculateTotalRoomRate()
+    private BigDecimal getPrevailingRoomRateForDateWithNormalRate(List<RoomRate> roomRates, LocalDate date) {
+        RoomRate prevailingRate = roomRates.get(0); // set to the first one, then loop as usual
+        Date actualDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()); // to convert from LocalDate to Date
+
+        // rate precedence: promotion > peak > normal/published
+        // loop through the rates to get the prevailing rate to charge the client
+        for (RoomRate rate : roomRates) {
+            if (!rate.isDisabled()) {
+                // for promotion or peak
+                if (isWithinDateRange(rate, actualDate)) {
+                    
+                    if (rate.getRateType() == RateTypeEnum.PROMOTION) {
+                        prevailingRate = rate;
+                        break; // stop the moment we get a promotion rate (highest rate)
+                    } else if (rate.getRateType() == RateTypeEnum.PEAK && prevailingRate.getRateType() != RateTypeEnum.PROMOTION) {
+                        prevailingRate = rate;
+                    }
+                    
+                // for normal
+                } else if ((rate.getRateType() == RateTypeEnum.NORMAL) 
                     && prevailingRate.getRateType() != RateTypeEnum.PROMOTION && prevailingRate.getRateType() != RateTypeEnum.PEAK) {
                         
                     prevailingRate = rate;

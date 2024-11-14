@@ -7,6 +7,8 @@ package ejb.session.stateless;
 import entity.ReservedRoom;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.ReservationDNEException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -14,9 +16,11 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface ReservedRoomSessionBeanRemote {
-    public Long createNewReservedRoom(ReservedRoom room);
+    public Long createNewReservedRoom(ReservedRoom reservedRoom, Long reservationId, Long roomTypeId) throws ReservationDNEException, RoomTypeDNEException;
     
     public List<ReservedRoom> retrieveAllReservedRooms();
+    
+    public List<ReservedRoom> retrieveReservedRoomsByReservationId(Long reservationId) throws ReservationDNEException;
     
     public String generateExceptionReport();
 }

@@ -186,7 +186,7 @@ public class MainApp {
                     String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
                     int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
                     // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
-                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRate(roomTypeName, checkInDate, checkOutDate));
+                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
             System.out.println();

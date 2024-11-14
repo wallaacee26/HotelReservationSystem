@@ -30,8 +30,8 @@ public class Reservation implements Serializable {
     private List<ReservedRoom> reservedRooms;
     
     @ManyToOne(optional = true)
-    @JoinColumn(nullable = true) // might have a partner that reserve instead of guest
-    private Guest guest;
+    @JoinColumn(nullable = true) // might have a partner that reserve instead of customer/guest
+    private Customer customer;
     
     @ManyToOne(optional = true)
     @JoinColumn(nullable = true) // might have a guest that reserve instead of partner
@@ -58,12 +58,12 @@ public class Reservation implements Serializable {
         this.reservedRooms = reservedRooms;
     }
 
-    public Guest getGuest() {
-        return guest;
+    public Customer getCustomerOrGuest() {
+        return customer;
     }
 
-    public void setGuest(Guest guest) {
-        this.guest = guest;
+    public void setCustomerOrGuest(Customer customer) {
+        this.customer = customer;
     }
 
     public Partner getPartner() {

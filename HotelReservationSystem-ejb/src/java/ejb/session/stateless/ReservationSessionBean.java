@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.Guest;
+import entity.Partner;
 import entity.Reservation;
 import java.util.List;
 import javax.ejb.EJB;
@@ -14,6 +15,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import util.exception.GuestDNEException;
+import util.exception.PartnerDNEException;
 import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
 
@@ -29,6 +31,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @EJB
     private GuestSessionBeanLocal guestSBLocal;
+    @EJB
+    private PartnerSessionBeanLocal partnerSBLocal;
     
     @Override
     public Long createNewReservation(Reservation reservation) throws ReservationExistsException { // not sure if need this exception
@@ -54,7 +58,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public List<Reservation> retrieveAllReservations() {
         Query query = em.createQuery("SELECT r from Reservation r");
-        return query.getResultList();
+        List<Reservation> reservations = query.getResultList();
+        for (Reservation reservation : reservations) {
+            reservation.getReservedRooms().size();
+        }
+        return reservations;
     }
     
     @Override
@@ -73,8 +81,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     public List<Reservation> retrieveAllReservationsOfGuestId(Long guestId) throws GuestDNEException {
         try {
             Guest guest = guestSBLocal.retrieveGuestByGuestId(guestId);
-            List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.guest = :inGuest")
-                .setParameter("inGuest", guest)
+            List<Reservation> reservations = em.createQuery("SELECT r from Reservation r WHERE r.customer = :inCustomer")
+                .setParameter("inCustomer", guest) //
                 .getResultList();
             for (Reservation reservation : reservations) {
                 reservation.getReservedRooms().size(); // trigger lazy fetching
@@ -94,6 +102,40 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException("Reservation " + reservationId + " does not exist!");
+        }
+    }
+    
+    @Override
+    public void associateReservationWithGuest(Long reservationId, Long guestId) throws ReservationDNEException, GuestDNEException {
+        try {
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            Guest guest = guestSBLocal.retrieveGuestByGuestId(guestId);
+            
+            // association
+            reservation.setCustomerOrGuest(guest);
+            guest.getReservations().add(reservation);
+            
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        } catch (GuestDNEException ex) {
+            throw new GuestDNEException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void associateReservationWithPartner(Long reservationId, Long partnerId) throws ReservationDNEException, PartnerDNEException {
+        try {
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            Partner partner = partnerSBLocal.retrievePartnerByPartnerId(partnerId);
+            
+            // association
+            reservation.setPartner(partner);
+            partner.getReservations().add(reservation);
+            
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        } catch (PartnerDNEException ex) {
+            throw new PartnerDNEException(ex.getMessage());
         }
     }
 }

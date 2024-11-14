@@ -21,14 +21,9 @@ public class Guest extends Customer implements Serializable {
     @Column(nullable = false)
     private String password;
     
-    // mappings:
-    @OneToMany (mappedBy = "guest")
-    private List<Reservation> reservations;
-    
     // default no-argument constructor for JPA
     public Guest() {
         super();
-        this.reservations = new ArrayList<Reservation>();
     }
     
     public Guest(String password, String email) {

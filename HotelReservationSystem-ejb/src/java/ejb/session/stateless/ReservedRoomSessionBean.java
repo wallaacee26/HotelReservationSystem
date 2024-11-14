@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Reservation;
 import entity.ReservedRoom;
 import entity.Room;
 import entity.RoomType;
@@ -16,6 +17,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import util.exception.ReservationDNEException;
+import util.exception.RoomTypeDNEException;
 
 /**
  *
@@ -26,16 +29,35 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     
     @EJB
     private RoomSessionBeanLocal roomSessionBeanLocal;
+    @EJB
+    private ReservationSessionBeanLocal reservationSessionBeanLocal;
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
     @Override
-    public Long createNewReservedRoom(ReservedRoom room) {
-        // do association with Reservation? yes, association done as new unmanaged instance in client
-        em.persist(room);
-        em.flush();
-        return room.getReservedRoomId();
+    public Long createNewReservedRoom(ReservedRoom reservedRoom, Long reservationId, Long roomTypeId) throws ReservationDNEException, RoomTypeDNEException {
+        try {
+            Reservation reservation = reservationSessionBeanLocal.retrieveReservationByReservationId(reservationId);
+            RoomType roomType = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
+            
+            // associations
+            reservedRoom.setReservation(reservation);
+            reservation.getReservedRooms().add(reservedRoom);
+            
+            reservedRoom.setRoomType(roomType);
+            roomType.getReservedRooms().add(reservedRoom);
+            
+            em.persist(reservedRoom);
+            em.flush();
+        return reservedRoom.getReservedRoomId();
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        } catch (RoomTypeDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
     }
     
     @Override
@@ -50,7 +72,21 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         return rooms;
     }
     
-    @Schedule(hour = "*", minute = "*/1", info = "roomAllocationTimer")
+    @Override // for web service method
+    public List<ReservedRoom> retrieveReservedRoomsByReservationId(Long reservationId) throws ReservationDNEException {
+        try {
+            Reservation reservation = reservationSessionBeanLocal.retrieveReservationByReservationId(reservationId);
+            List<ReservedRoom> reservedRooms = em.createQuery("SELECT rr from ReservedRoom rr WHERE rr.reservation = :inReservation")
+                .setParameter("inReservation", reservation)
+                .getResultList();
+
+            return reservedRooms;
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
+    }
+    
+    @Schedule(hour = "2", minute = "0", second = "0", persistent = false)
     public void allocateRooms() {
         LocalDate today = LocalDate.now();
         List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")

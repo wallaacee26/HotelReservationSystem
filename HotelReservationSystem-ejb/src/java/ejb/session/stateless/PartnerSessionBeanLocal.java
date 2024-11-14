@@ -4,7 +4,12 @@
  */
 package ejb.session.stateless;
 
+import entity.Partner;
+import java.util.List;
 import javax.ejb.Local;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.PartnerDNEException;
+import util.exception.PartnerExistsException;
 
 /**
  *
@@ -12,5 +17,13 @@ import javax.ejb.Local;
  */
 @Local
 public interface PartnerSessionBeanLocal {
+    public Long createNewPartner(Partner partner) throws PartnerExistsException;
+            
+    public List<Partner> retrieveAllPartners();
     
+    public Partner retrievePartnerByPartnerId(Long partnerId) throws PartnerDNEException;
+            
+    public Partner retrievePartnerByUsername(String username) throws PartnerDNEException;
+    
+    public Partner partnerLogin(String username, String password) throws InvalidLoginCredentialException, PartnerDNEException;
 }

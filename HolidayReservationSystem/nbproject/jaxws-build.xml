@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+        *** GENERATED FROM jax-ws.xml - DO NOT EDIT !                             ***
+        *** TO MODIFY wsimport options USE Web Service node -> Edit WS Attributes ***
+        *** TO CHANGE TARGETS GENERATED TO jaxws-build.xml COPY THOSE             ***
+        *** TARGETS TO ../build.xml AND MODIFY THAT FILE INSTEAD                  ***
+
+        --><project xmlns:xalan="http://xml.apache.org/xslt" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxws="http://www.netbeans.org/ns/jax-ws/1">
+    <!--
+                ===================
+                JAX-WS WSIMPORT SECTION
+                ===================
+            -->
+    <target name="wsimport-init" depends="init">
+        <mkdir dir="${build.generated.sources.dir}/jax-ws"/>
+        <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+            <classpath path="${libs.metro.classpath}"/>
+        </taskdef>
+    </target>
+    <target name="wsimport-client-ReservedRoomWebService" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService"/>
+        <property name="wsdl-ReservedRoomWebService" location="xml-resources/web-service-references/ReservedRoomWebService/wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService" destdir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService" wsdl="${wsdl-ReservedRoomWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.reservedroom">
+            <depends file="${wsdl-ReservedRoomWebService}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-ReservedRoomWebService" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/ReservedRoomWebService"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/ws/reservedroom"/>
+    </target>
+    <target name="wsimport-client-ReservationWebService" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/ReservationWebService"/>
+        <property name="wsdl-ReservationWebService" location="xml-resources/web-service-references/ReservationWebService/wsdl/localhost_8080/ReservationWebService/ReservationWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/ReservationWebService" destdir="${build.generated.dir}/jax-wsCache/ReservationWebService" wsdl="${wsdl-ReservationWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/ReservationWebService/ReservationWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.reservation">
+            <depends file="${wsdl-ReservationWebService}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/ReservationWebService"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/ReservationWebService">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-ReservationWebService" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/ReservationWebService"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/ws/reservation"/>
+    </target>
+    <target name="wsimport-client-generate" depends="wsimport-client-ReservedRoomWebService, wsimport-client-ReservationWebService"/>
+</project>
