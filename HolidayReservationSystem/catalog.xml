@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
-    <system systemId="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?wsdl" uri="xml-resources/web-service-references/ReservedRoomWebService/wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.wsdl"/>
-    <system systemId="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?xsd=1" uri="xml-resources/web-service-references/ReservedRoomWebService/wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.xsd_1.xsd"/>
     <system systemId="http://localhost:8080/ReservationWebService/ReservationWebService?wsdl" uri="xml-resources/web-service-references/ReservationWebService/wsdl/localhost_8080/ReservationWebService/ReservationWebService.wsdl"/>
     <system systemId="http://localhost:8080/ReservationWebService/ReservationWebService?xsd=1" uri="xml-resources/web-service-references/ReservationWebService/wsdl/localhost_8080/ReservationWebService/ReservationWebService.xsd_1.xsd"/>
     <system systemId="http://localhost:8080/RoomRateWebService/RoomRateWebService?wsdl" uri="xml-resources/web-service-references/RoomRateWebService/wsdl/localhost_8080/RoomRateWebService/RoomRateWebService.wsdl"/>
@@ -10,4 +8,6 @@
     <system systemId="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1" uri="xml-resources/web-service-references/PartnerWebService/wsdl/localhost_8080/PartnerWebService/PartnerWebService.xsd_1.xsd"/>
     <system systemId="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?wsdl" uri="xml-resources/web-service-references/RoomTypeWebService/wsdl/localhost_8080/RoomTypeWebService/RoomTypeWebService.wsdl"/>
     <system systemId="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?xsd=1" uri="xml-resources/web-service-references/RoomTypeWebService/wsdl/localhost_8080/RoomTypeWebService/RoomTypeWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?wsdl" uri="xml-resources/web-service-references/ReservedRoomWebService/wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.wsdl"/>
+    <system systemId="http://localhost:8080/ReservedRoomWebService/ReservedRoomWebService?xsd=1" uri="xml-resources/web-service-references/ReservedRoomWebService/wsdl/localhost_8080/ReservedRoomWebService/ReservedRoomWebService.xsd_1.xsd"/>
 </catalog>

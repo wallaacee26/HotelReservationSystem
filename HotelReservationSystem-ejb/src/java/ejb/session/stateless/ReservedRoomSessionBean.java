@@ -65,7 +65,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException(ex.getMessage());
         } catch (RoomTypeDNEException ex) {
-            throw new ReservationDNEException(ex.getMessage());
+            throw new RoomTypeDNEException(ex.getMessage());
         }
     }
     
@@ -97,6 +97,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     
     @Schedule(hour = "2", minute = "0", second = "0", info = "roomAllocationTimer") // 2am trigger
     @Timeout
+    @Override
     public void allocateRooms() {
         LocalDate today = LocalDate.now();
         // get reserved rooms that are being checked in today

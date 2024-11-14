@@ -274,6 +274,12 @@ public class PartnerOperationsModule {
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
                 
                 reservedRoomService.getReservedRoomWebServicePort().createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                LocalDate today = LocalDate.now();
+                //convert XMLGregorianCalender to localdate
+                LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
+                if (checkInLocalDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
+                    reservedRoomService.getReservedRoomWebServicePort().allocateRooms();
+                }
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
@@ -284,7 +290,7 @@ public class PartnerOperationsModule {
                 }
             }
  
-        } catch (RoomTypeDNEException_Exception ex) {
+        } catch (ws.reservedroom.RoomTypeDNEException_Exception ex) {
             throw new RoomTypeDNEException_Exception(ex.getMessage(), new RoomTypeDNEException());
         } catch (ReservationExistsException_Exception ex) {
             throw new ReservationExistsException_Exception(ex.getMessage(), new ReservationExistsException());

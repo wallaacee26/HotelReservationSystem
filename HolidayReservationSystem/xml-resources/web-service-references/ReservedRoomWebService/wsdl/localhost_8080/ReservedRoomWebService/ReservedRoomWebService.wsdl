@@ -34,6 +34,12 @@
 <message name="retrieveAllReservedRoomsResponse">
 <part name="parameters" element="tns:retrieveAllReservedRoomsResponse"/>
 </message>
+<message name="allocateRooms">
+<part name="parameters" element="tns:allocateRooms"/>
+</message>
+<message name="allocateRoomsResponse">
+<part name="parameters" element="tns:allocateRoomsResponse"/>
+</message>
 <portType name="ReservedRoomWebService">
 <operation name="associateReservedRoomWithDatesWebService">
 <input wsam:Action="http://ws.session.ejb/ReservedRoomWebService/associateReservedRoomWithDatesWebServiceRequest" message="tns:associateReservedRoomWithDatesWebService"/>
@@ -53,6 +59,10 @@
 <operation name="retrieveAllReservedRooms">
 <input wsam:Action="http://ws.session.ejb/ReservedRoomWebService/retrieveAllReservedRoomsRequest" message="tns:retrieveAllReservedRooms"/>
 <output wsam:Action="http://ws.session.ejb/ReservedRoomWebService/retrieveAllReservedRoomsResponse" message="tns:retrieveAllReservedRoomsResponse"/>
+</operation>
+<operation name="allocateRooms">
+<input wsam:Action="http://ws.session.ejb/ReservedRoomWebService/allocateRoomsRequest" message="tns:allocateRooms"/>
+<output wsam:Action="http://ws.session.ejb/ReservedRoomWebService/allocateRoomsResponse" message="tns:allocateRoomsResponse"/>
 </operation>
 </portType>
 <binding name="ReservedRoomWebServicePortBinding" type="tns:ReservedRoomWebService">
@@ -94,6 +104,15 @@
 </fault>
 </operation>
 <operation name="retrieveAllReservedRooms">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="allocateRooms">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>

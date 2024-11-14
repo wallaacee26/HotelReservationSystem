@@ -47,7 +47,7 @@ public class ReservedRoomWebService {
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException(ex.getMessage());
         } catch (RoomTypeDNEException ex) {
-            throw new ReservationDNEException(ex.getMessage());
+            throw new RoomTypeDNEException(ex.getMessage());
         }
     }
     
@@ -111,5 +111,10 @@ public class ReservedRoomWebService {
         LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
         LocalDate checkOutLocalDate = checkOutDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
         return reservedRoomSessionBeanLocal.associateReservedRoomWithDatesWebService(reservedRoom, checkInLocalDate, checkOutLocalDate);
+    }
+    
+    @WebMethod(operationName = "allocateRooms")
+    public void allocateRooms() {
+        reservedRoomSessionBeanLocal.allocateRooms();
     }
 }

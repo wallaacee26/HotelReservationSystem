@@ -211,8 +211,6 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         // rate precedence: promotion > peak > normal/published
         // loop through the rates to get the prevailing rate to charge the client
         for (RoomRate rate : roomRates) {
-            System.out.println("rate disabled: " + rate.isDisabled());
-            System.out.println("rate type: " + rate.getRateType());
             if (!rate.isDisabled()) {
                 // for promotion or peak
                 if (isWithinDateRange(rate, actualDate)) {
@@ -229,7 +227,6 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                     && !prevailingRate.getRateType().equals(RateTypeEnum.PROMOTION) && !prevailingRate.getRateType().equals(RateTypeEnum.PEAK)) {
                         
                     prevailingRate = rate;
-                    System.out.println("set as: " + "normal");
                 }
             }
         }

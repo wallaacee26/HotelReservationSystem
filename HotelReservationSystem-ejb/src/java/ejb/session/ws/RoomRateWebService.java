@@ -33,7 +33,7 @@ public class RoomRateWebService {
     
     @WebMethod(operationName = "calculateTotalRoomRateWithNormalRate")
     public BigDecimal calculateTotalRoomRateWithNormalRate(
-            @WebParam(name = "roomTypeName ") String roomTypeName,
+            @WebParam(name = "roomTypeName") String roomTypeName,
             @WebParam(name = "checkInDate") XMLGregorianCalendar checkInDate,
             @WebParam(name = "checkOutDate") XMLGregorianCalendar checkOutDate)
             throws RoomTypeDNEException {

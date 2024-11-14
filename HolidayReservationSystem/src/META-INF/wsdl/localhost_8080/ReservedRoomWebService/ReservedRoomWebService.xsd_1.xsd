@@ -4,6 +4,10 @@
 
 <xs:element name="RoomTypeDNEException" type="tns:RoomTypeDNEException"/>
 
+<xs:element name="allocateRooms" type="tns:allocateRooms"/>
+
+<xs:element name="allocateRoomsResponse" type="tns:allocateRoomsResponse"/>
+
 <xs:element name="associateReservedRoomWithDatesWebService" type="tns:associateReservedRoomWithDatesWebService"/>
 
 <xs:element name="associateReservedRoomWithDatesWebServiceResponse" type="tns:associateReservedRoomWithDatesWebServiceResponse"/>
@@ -19,6 +23,14 @@
 <xs:element name="retrieveReservedRoomsByReservationId" type="tns:retrieveReservedRoomsByReservationId"/>
 
 <xs:element name="retrieveReservedRoomsByReservationIdResponse" type="tns:retrieveReservedRoomsByReservationIdResponse"/>
+
+<xs:complexType name="allocateRooms">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="allocateRoomsResponse">
+<xs:sequence/>
+</xs:complexType>
 
 <xs:complexType name="createNewReservedRoom">
 <xs:sequence>
