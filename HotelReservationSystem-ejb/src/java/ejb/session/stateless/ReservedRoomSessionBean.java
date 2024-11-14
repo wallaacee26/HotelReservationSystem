@@ -47,6 +47,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         for (ReservedRoom r : rooms) {
             r.getRoomType();
             r.getReservation();
+            r.getRoom();
         }
         return rooms;
     }
