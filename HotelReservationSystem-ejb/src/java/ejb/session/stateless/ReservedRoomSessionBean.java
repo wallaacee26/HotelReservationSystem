@@ -9,6 +9,8 @@ import entity.Reservation;
 import entity.ReservedRoom;
 import entity.Room;
 import entity.RoomType;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -96,7 +98,6 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
     }
     
     @Schedule(hour = "2", minute = "0", second = "0", info = "roomAllocationTimer") // 2am trigger
-    @Timeout
     @Override
     public void allocateRooms() {
         LocalDate today = LocalDate.now();
@@ -180,9 +181,92 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         System.out.println("nothing happened!");
     }
     
+    // for allocating rooms that are in the future, for testing
+    public void allocateRoomsForDate(LocalDate allocationDate) {
+        LocalDate today = allocationDate;
+        // get reserved rooms that are being checked in today
+        List<ReservedRoom> reservedRoomsToAllocate = em.createQuery("SELECT r from ReservedRoom r WHERE r.checkInDate = :today")
+                .setParameter("today", today)
+                .getResultList();
+        
+        for (int i = 0; i < reservedRoomsToAllocate.size(); i++) {
+            ReservedRoom currentReservedRoom = reservedRoomsToAllocate.get(i);
+            // if the reservation room has not been allocated to a room yet
+            if (currentReservedRoom.getRoom() == null) {
+                RoomType roomType = currentReservedRoom.getRoomType();
+                // get available rooms of the reserved room's type
+                List<Room> availableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, roomType.getRoomTypeName());
+                // if have available rooms, assign to reservedRoomsToAllocate one by one. Do associations
+                
+                if (availableRooms.size() > 0) { // meaning there is enough rooms for that roomtype, but may have been reserved
+                    for (Room room : availableRooms) { // loop through to check from 0 to n, whether the room is actually free for usage
+                        if (room.getReservedRooms().size() == 0) {
+                            // assign this room and the reservedRoom
+                            room.getReservedRooms().add(currentReservedRoom);
+                            currentReservedRoom.setRoom(room);
+                            System.out.println("Room allocated! empty list");
+                            break; // break after allocation to avoid looping into other available rooms
+                        } else {
+                            int lastIndex = room.getReservedRooms().size() - 1;
+                            ReservedRoom mostRecentReservedRoom = room.getReservedRooms().get(lastIndex);
+                            if (mostRecentReservedRoom.getCheckOutDate().isBefore(today)) { // means previously allocated room already checked-out
+                                // assign this room and the reservedRoom
+                                room.getReservedRooms().add(currentReservedRoom);
+                                currentReservedRoom.setRoom(room);
+                                System.out.println("Room allocated! something inside");
+                                break;
+                            }
+                        }   
+                    }
+                } else { // no Rooms with desired RoomType
+                    // get next higher room type for search
+                    RoomType nextHigherRoomType = roomType.getHigherRoomType();
+                    if (nextHigherRoomType != null) { // if have higher room type
+                        List<Room> nextTierAvailableRooms = roomSessionBeanLocal.retrieveAvailableRoomsTodayByRoomType(today, nextHigherRoomType.getRoomTypeName());
+                        if (nextTierAvailableRooms.size() > 0) {
+                            for (Room upgradedRoom : nextTierAvailableRooms) { // loop through to check from 0 to n, whether the room is actually free for usage
+                                if (upgradedRoom.getReservedRooms().size() == 0) {
+                                    // assign this room and the reservedRoom
+                                    upgradedRoom.getReservedRooms().add(currentReservedRoom);
+                                    currentReservedRoom.setRoom(upgradedRoom);
+                                    // upgraded to next tier
+                                    currentReservedRoom.setIsUpgraded(true);
+                                    System.out.println("Room allocated! empty list");
+                                    break; // break after allocation to avoid looping into other available rooms
+                                } else {
+                                    int lastIndex = upgradedRoom.getReservedRooms().size() - 1;
+                                    ReservedRoom mostRecentReservedRoom = upgradedRoom.getReservedRooms().get(lastIndex);
+                                    if (mostRecentReservedRoom.getCheckOutDate().isBefore(today)) { // means previously allocated room already checked-out
+                                        // assign this room and the reservedRoom
+                                        upgradedRoom.getReservedRooms().add(currentReservedRoom);
+                                        currentReservedRoom.setRoom(upgradedRoom);
+                                        System.out.println("Room allocated! something inside");
+                                        break;
+                                    }
+                                }   
+                            }
+                        }
+                    } else { // no room allocated, no higher room type
+                        System.out.println("No room allocated! No higher room type available!");
+                    }
+                    
+                    // else cannot upgrade anymore, do nothing
+                }
+            }
+            
+            // if availableRooms returns an empty list
+            // while current room type still has a nextRoomType, 
+            // get the reserved room that cannot be allocated and try to search for the next available room type
+            // if can get, do allocation to the reserved room and update isUpgraded to true
+            // if cannot get, do nothing (assigned room will be null and isUpgraded = false)
+            // go to the next reservedRoom 
+        }
+        System.out.println("nothing happened!");
+    }
+    
     @Override
-    public String generateExceptionReport() {
-        LocalDate today = LocalDate.now();
+    public String generateExceptionReport(LocalDate date) {
+        LocalDate today = date;
         // get ReservedRooms where checkin is today where isUpgraded = true OR rr.room = null
         List<ReservedRoom> exceptions = em.createQuery("SELECT rr FROM ReservedRoom rr "
                 + "WHERE (rr.room IS NULL OR rr.isUpgraded = TRUE) AND rr.checkInDate = :today")
@@ -197,6 +281,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
                             ". Allocated Room Number " + rr.getRoom().getRoomNumber() + "\n";
                 } else {
                     exceptionReport += "Reserved Room: " + rr.getReservedRoomId() + 
+                            " booking for room type " + rr.getRoomType().toString() + 
                             " has no next higher room type available. Room was not allocated! \n";
                 }
             }
@@ -204,19 +289,13 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
         return exceptionReport;
     }
     
-    public void createTimer(Date userDefinedDate) {
-        // Create a one-time timer within the EJB
-        TimerConfig timerConfig = new TimerConfig();
-        timerService.createSingleActionTimer(userDefinedDate, timerConfig); // Timer created here
-    }
-
     // only in web service method
     @Override
     public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate) {
 
         if (reservedRoom == null) {
             reservedRoom = new ReservedRoom();
-        }
+}
         reservedRoom.setCheckInDate(checkInDate);
         reservedRoom.setCheckOutDate(checkOutDate);
 

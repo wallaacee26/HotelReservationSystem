@@ -103,24 +103,20 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public RoomType updateRoomType(String roomTypeName, RoomType newRoomType) throws RoomTypeDNEException, UpdateRoomTypeException {
         try {
             RoomType roomType = retrieveRoomTypeByRoomTypeName(roomTypeName);
-            if (roomTypeName.equals(roomType.getRoomTypeName())) {
-                roomType.setRoomTypeName(newRoomType.getRoomTypeName());
-                roomType.setDescription(newRoomType.getDescription());
-                roomType.setRoomSize(newRoomType.getRoomSize());
-                roomType.setBeds(newRoomType.getBeds());
-                roomType.setCapacity(newRoomType.getCapacity());
-                roomType.setAmenities(newRoomType.getAmenities());
-                roomType.setDisabled(newRoomType.isDisabled());
+            roomType.setRoomTypeName(newRoomType.getRoomTypeName());
+            roomType.setDescription(newRoomType.getDescription());
+            roomType.setRoomSize(newRoomType.getRoomSize());
+            roomType.setBeds(newRoomType.getBeds());
+            roomType.setCapacity(newRoomType.getCapacity());
+            roomType.setAmenities(newRoomType.getAmenities());
+            roomType.setDisabled(newRoomType.isDisabled());
 
-                //roomType.setRoomRates(newRoomType.getRoomRates()); // see how
-                //roomType.setRooms(newRoomType.getRooms()); // see how
+            //roomType.setRoomRates(newRoomType.getRoomRates()); // see how
+            //roomType.setRooms(newRoomType.getRooms()); // see how
 
-                em.flush();
+            em.flush();
 
-                return roomType;
-            } else {
-                throw new UpdateRoomTypeException("RoomType name of room type record to be updated does not match the existing RoomType record!");
-            }
+            return roomType;
         } catch (NoResultException ex) {
             throw new RoomTypeDNEException("Room Type " + roomTypeName + " does not exist!");
         } 
