@@ -11,6 +11,11 @@ import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import entity.Staff;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.exception.RoomDNEException;
@@ -58,10 +63,11 @@ public class OperationsModule {
             System.out.println("6: Delete Room");
             System.out.println("7: View All Rooms");
             System.out.println("8: View Room Allocation Exception Report");
-            System.out.println("9: Logout\n");
+            System.out.println("9: Logout");
+            System.out.println("10: Force Room Allocation\n");
             response = 0;
             
-            while(response < 1 || response > 9) {
+            while(response < 1 || response > 10) {
                 System.out.print("> ");
                 response = sc.nextInt();
                 
@@ -89,6 +95,8 @@ public class OperationsModule {
                 } else if (response == 8) {
                     // view room allocation exception report
                     doViewAllocationExceptionReport();
+                } else if (response == 10) {
+                    doForceAllocation();
                 } else if (response == 9) {
                     break;
                 } else {
@@ -125,14 +133,21 @@ public class OperationsModule {
         List<RoomType> listOfRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
         while(true) {
             System.out.print("Select Next Higher Tier Room Type: \n");
-            for (int i = 0; i < listOfRoomTypes.size(); i++) {
-                System.out.println((i+1) + ": " + listOfRoomTypes.get(i).getRoomTypeName());
+            int totalRoomTypes;
+            for (totalRoomTypes = 0; totalRoomTypes < listOfRoomTypes.size(); totalRoomTypes++) {
+                System.out.println((totalRoomTypes+1) + ": " + listOfRoomTypes.get(totalRoomTypes).getRoomTypeName());
             }
+            System.out.println((totalRoomTypes+1) + ": None");
+            System.out.println("");
             System.out.print("> ");
             int roomTypeNumber = sc.nextInt();
             
-            if (roomTypeNumber >= 1 && roomTypeNumber <= listOfRoomTypes.size()) { //if within range
-                roomType.setHigherRoomType(listOfRoomTypes.get(roomTypeNumber - 1));
+            if (roomTypeNumber >= 1 && roomTypeNumber <= listOfRoomTypes.size() + 1) { //if within range
+                if (roomTypeNumber != totalRoomTypes + 1) { 
+                    roomType.setHigherRoomType(listOfRoomTypes.get(roomTypeNumber - 1));
+                } else { // selected "None" higher room type
+                    roomType.setHigherRoomType(null); 
+                }
                 break;
             } else {
                 System.out.println("Invalid option, please try again!\n");
@@ -182,7 +197,7 @@ public class OperationsModule {
                     response = sc.nextInt();
                     
                     if (response == 1) {
-                        doUpdateRoomType();
+                        doUpdateRoomType(rtName);
                     } else if (response == 2) {
                         // delete room type
                         doDeleteRoomType();
@@ -202,13 +217,13 @@ public class OperationsModule {
         
     }
     
-    private void doUpdateRoomType() { // under view room type details
+    private void doUpdateRoomType(String oldRoomTypename) { // under view room type details
         Scanner sc = new Scanner(System.in);
         RoomType newRoomType = new RoomType();
         String roomTypeName = "";
         
         System.out.println("*** HoRS Management Client :: Update Existing Room Type ***\n");
-        System.out.print("Enter RoomType Name to Update> ");
+        System.out.print("Enter new Room Type Name> ");
         roomTypeName = sc.nextLine().trim();
         newRoomType.setRoomTypeName(roomTypeName);
         System.out.print("Enter Description> ");
@@ -224,8 +239,8 @@ public class OperationsModule {
         newRoomType.setAmenities(sc.nextLine().trim());
         
         try {
-            roomTypeSBRemote.updateRoomType(roomTypeName, newRoomType);
-            System.out.println("Room Type " + roomTypeName + " successfully updated!\n");
+            roomTypeSBRemote.updateRoomType(oldRoomTypename, newRoomType);
+            System.out.println("Room Type " + oldRoomTypename + " successfully updated!\n");
         } catch (RoomTypeDNEException | UpdateRoomTypeException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
@@ -363,10 +378,30 @@ public class OperationsModule {
     private void doViewAllocationExceptionReport() {
         Scanner sc = new Scanner(System.in);
         System.out.println("*** HoRS Management Client :: View Room Allocation Exception Report ***\n");
-        
-        String report = reservedRoomSessionBeanRemote.generateExceptionReport();
-        System.out.println(report);
-        System.out.print("Press ENTER key to continue> ");
-        sc.nextLine();
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+        System.out.print("Date for allocation exceptions (dd/MM/YY): ");
+        try {
+            Date startDate = inputDateFormat.parse(sc.nextLine().trim());
+            LocalDate date = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            String report = reservedRoomSessionBeanRemote.generateExceptionReport(date);
+            System.out.println(report);
+            System.out.print("Press ENTER key to continue> ");
+            sc.nextLine();
+        } catch (ParseException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    private void doForceAllocation() {
+        Scanner sc = new Scanner(System.in);
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+        System.out.print("Date for allocation (dd/MM/YY): ");
+        try {
+            Date startDate = inputDateFormat.parse(sc.nextLine().trim());
+            LocalDate date = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            reservedRoomSessionBeanRemote.allocateRoomsForDate(date);
+        } catch (ParseException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }

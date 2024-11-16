@@ -24,8 +24,8 @@ public interface ReservedRoomSessionBeanLocal {
     public List<ReservedRoom> retrieveReservedRoomsByReservationId(Long reservationId) throws ReservationDNEException;
     
     public void allocateRooms();
-            
-    public String generateExceptionReport();
+    
+    public String generateExceptionReport(LocalDate date);
     
     public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate);
     
