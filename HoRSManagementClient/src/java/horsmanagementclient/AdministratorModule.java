@@ -33,7 +33,7 @@ public class AdministratorModule {
 
     public AdministratorModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = (Validator) validatorFactory.getValidator();
+        validator = validatorFactory.getValidator();
     }
     
 
@@ -124,9 +124,7 @@ public class AdministratorModule {
             }
         } else {
             showValidationErrorsForStaff(violations);
-        }
-        
-        
+        }    
     }
     
     private void doViewAllEmployees() {
@@ -155,12 +153,17 @@ public class AdministratorModule {
         System.out.print("Enter Password> ");
         newPartner.setPassword(sc.nextLine().trim());
         
-        try {
-            Long newPartnerId = partnerSBRemote.createNewPartner(newPartner);
-            System.out.println("New partner created: " + newPartnerId + "\n");
-        } catch (PartnerExistsException ex) {
-            System.out.println("Error when creating new partner. Username already exists!\n");
-        }
+        Set<ConstraintViolation<Partner>> violations = validator.validate(newPartner);
+        if (violations.isEmpty()) {
+            try {
+                Long newPartnerId = partnerSBRemote.createNewPartner(newPartner);
+                System.out.println("New partner created: " + newPartnerId + "\n");
+            } catch (PartnerExistsException ex) {
+                System.out.println("Error when creating new partner. Username already exists!\n");
+            }
+        } else {
+            showValidationErrorsForPartner(violations);
+        }   
     }
     
     private void doViewAllPartners() {
@@ -179,6 +182,15 @@ public class AdministratorModule {
     }
     
     private void showValidationErrorsForStaff(Set<ConstraintViolation<Staff>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
+    }
+    
+    private void showValidationErrorsForPartner(Set<ConstraintViolation<Partner>> violations) {
         System.out.println("\n Input data validation error!");
         
         for (ConstraintViolation violation : violations) {

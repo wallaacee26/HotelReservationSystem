@@ -20,6 +20,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
 import util.exception.RoomDNEException;
@@ -39,13 +44,22 @@ public class RelationsModule {
     private RoomRateSessionBeanRemote roomRateSBRemote;
     private Staff currentStaff;
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
     // constructor
+
+    public RelationsModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     public RelationsModule(ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote, 
             RoomSessionBeanRemote roomSessionBeanRemote, 
             ReservationSessionBeanRemote reservationSessionBeanRemote, 
             RoomTypeSessionBeanRemote roomTypeSBRemote,
             RoomRateSessionBeanRemote roomRateSBRemote, Staff currentStaff) {
+        this();
         this.reservedRoomSessionBeanRemote = reservedRoomSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
@@ -247,10 +261,16 @@ public class RelationsModule {
                 reservedRoom.setCheckOutDate(checkOutDate);
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
                 
-                reservedRoomSessionBeanRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
-                LocalDate today = LocalDate.now();
-                if (checkInDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
-                    reservedRoomSessionBeanRemote.allocateRooms();
+                // check bean validations
+                Set<ConstraintViolation<ReservedRoom>> violations = validator.validate(reservedRoom);
+                if (violations.isEmpty()) {
+                    reservedRoomSessionBeanRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                    LocalDate today = LocalDate.now();
+                    if (checkInDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
+                        reservedRoomSessionBeanRemote.allocateRoomsForDate(checkInDate);
+                    }
+                } else {
+                    showValidationErrorsForReservedRoom(violations);
                 }
                 
                 totalBookingAmount = totalBookingAmount.add(roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
@@ -329,5 +349,14 @@ public class RelationsModule {
         
         // pass in room number, set isAvailable to true
         // need to check if can late check out?
+    }
+    
+    private void showValidationErrorsForReservedRoom(Set<ConstraintViolation<ReservedRoom>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
     }
 }

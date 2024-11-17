@@ -15,6 +15,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.RateTypeEnum;
 import util.exception.RoomRateDNEException;
 import util.exception.RoomRateExistsException;
@@ -29,8 +34,17 @@ public class SalesModule {
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private RoomTypeSessionBeanRemote roomTypeSBRemote;
     private Staff currentStaff;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+
+    public SalesModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     public SalesModule(RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSBRemote, Staff currentStaff) {
+        this();
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
         this.roomTypeSBRemote = roomTypeSBRemote;
         this.currentStaff = currentStaff;
@@ -110,28 +124,41 @@ public class SalesModule {
                     sc.nextLine();
                     // if peak or promotion rate
                     if (rateTypeNum == 3 || rateTypeNum == 4) {
-                        // set start and end date of rates
-                        System.out.print("Enter Rate Start Date (dd/mm//yy): ");
-                        startDate = inputDateFormat.parse(sc.nextLine().trim());
-                        System.out.print("Enter Rate End Date (dd/mm//yy): ");
-                        endDate = inputDateFormat.parse(sc.nextLine().trim()); 
-                        newRoomRate.setStartDate(startDate);
-                        newRoomRate.setEndDate(endDate);
+                        boolean dateValid = false;
+                        while(!dateValid) { // checks if start date is before end date
+                            // set start and end date of rates
+                            System.out.print("Enter Rate Start Date (dd/mm//yy): ");
+                            startDate = inputDateFormat.parse(sc.nextLine().trim());
+                            System.out.print("Enter Rate End Date (dd/mm//yy): ");
+                            endDate = inputDateFormat.parse(sc.nextLine().trim());
+                            if (startDate.after(endDate)) {
+                                System.out.println("Rate Start Date cannot be after Rate End Date. Please try again!");
+                                dateValid = false;
+                            } else {
+                                dateValid = true;
+                                newRoomRate.setStartDate(startDate);
+                                newRoomRate.setEndDate(endDate);
+                            }
+                        }   
                     }
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
-            
-            try {
-                Long roomRateId = roomRateSessionBeanRemote.createNewRoomRate(newRoomRate, rt.getRoomTypeName());
-                System.out.println("New Room Rate Created: " + roomRateId + "\n");
-            } catch (RoomRateExistsException ex) {
-                System.out.println("Room rate already exists!");
-            } catch (RoomTypeDisabledException ex) {
-                System.out.println(ex.getMessage());
-            }
+            Set<ConstraintViolation<RoomRate>> violations = validator.validate(newRoomRate);
+            if (violations.isEmpty()) {
+                try {
+                    Long roomRateId = roomRateSessionBeanRemote.createNewRoomRate(newRoomRate, rt.getRoomTypeName());
+                    System.out.println("New Room Rate Created: " + roomRateId + "\n");
+                } catch (RoomRateExistsException ex) {
+                    System.out.println("Room rate already exists!");
+                } catch (RoomTypeDisabledException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            } else {
+                showValidationErrorsForRoomRate(violations);
+            }  
         } catch (ParseException ex) {
             System.out.println("Invalid date input!\n");
         } catch (RoomTypeDNEException ex) {
@@ -230,13 +257,17 @@ public class SalesModule {
                 }
             }
             
-            try {
-                roomRateSessionBeanRemote.updateRoomRate(roomRateName, newRoomRate);
-                System.out.println("RoomRate " + roomRateName + " successfully updated!");
-            } catch (RoomRateDNEException ex) {
-                System.out.println(ex.getMessage() + "\n");
-            }
-            
+            Set<ConstraintViolation<RoomRate>> violations = validator.validate(newRoomRate);
+            if (violations.isEmpty()) {
+                try {
+                    roomRateSessionBeanRemote.updateRoomRate(roomRateName, newRoomRate);
+                    System.out.println("RoomRate " + roomRateName + " successfully updated!");
+                } catch (RoomRateDNEException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+            } else {
+                showValidationErrorsForRoomRate(violations);
+            }  
         } catch (ParseException ex) {
             System.out.println(ex.getMessage());
         }
@@ -277,5 +308,14 @@ public class SalesModule {
         }
         System.out.print("Press ENTER to continue> ");
         sc.nextLine();
+    }
+    
+    private void showValidationErrorsForRoomRate(Set<ConstraintViolation<RoomRate>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
     }
 }

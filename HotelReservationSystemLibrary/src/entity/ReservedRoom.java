@@ -35,7 +35,6 @@ public class ReservedRoom implements Serializable {
     private boolean isUpgraded;
     @Column(nullable = false)
     @NotNull
-    @Future
     private LocalDate checkInDate;
     @Column(nullable = false)
     @NotNull
