@@ -5,8 +5,11 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
+import entity.ReservedRoom;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.Remote;
+import javax.xml.datatype.XMLGregorianCalendar;
 import util.exception.GuestDNEException;
 import util.exception.PartnerDNEException;
 import util.exception.ReservationDNEException;
@@ -33,4 +36,9 @@ public interface ReservationSessionBeanRemote {
     public void associateReservationWithGuest(Long reservationId, Long guestId) throws ReservationDNEException, GuestDNEException;
     
     public void associateReservationWithPartner(Long reservationId, Long partnerId) throws ReservationDNEException, PartnerDNEException;
+    
+    public void updateReservationBookingAmount(Long reservationId, BigDecimal bookingAmount) throws ReservationDNEException;
+    
+    public String getStringOfCheckInDate(Long reservationId) throws ReservationDNEException;
+    public String getStringOfCheckOutDate(Long reservationId) throws ReservationDNEException;
 }

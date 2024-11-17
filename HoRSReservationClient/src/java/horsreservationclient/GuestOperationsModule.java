@@ -13,6 +13,7 @@ import entity.Guest;
 import entity.Reservation;
 import entity.ReservedRoom;
 import entity.RoomType;
+import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class GuestOperationsModule {
         while(true) {
             System.out.println("*** HoRS Reservation Client ***\n");
             System.out.println("Welcome! You are logged in as " + currentGuest.getEmail() + "!");
-            System.out.println("1: Search Hotel Rooms"); // not sure for 1 and 2 since 2 includes 1
+            System.out.println("1: Search Hotel Rooms");
             System.out.println("2: View My Reservation Details");
             System.out.println("3: View All My Reservations");
             System.out.println("4: Logout");
@@ -143,7 +144,7 @@ public class GuestOperationsModule {
                     String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
                     int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
                     // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
-                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
+                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount (for duration): $" + roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
                 }
             }
             
@@ -186,6 +187,8 @@ public class GuestOperationsModule {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
             Long reservationId = (long) -1; // simply for initialisation
+            BigDecimal totalBookingAmount = BigDecimal.ZERO; // simply for initialisation
+            reservation.setBookingPrice(totalBookingAmount); // simply for initialisation
                
             // guest - reservation association
             reservation.setCustomerOrGuest(currentGuest);
@@ -204,6 +207,7 @@ public class GuestOperationsModule {
                     while (roomTypeName.length() == 0) {
                         System.out.print("No input detected. Please enter a room type> ");
                         roomTypeName = sc.nextLine().trim();
+                        System.out.println();
                     }
 
                     List<RoomType> allRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
@@ -215,11 +219,20 @@ public class GuestOperationsModule {
                                 break;
                             }
                         }
+                        if (roomTypeName.equals("exit")) {
+                            if (!hasReservationBeenCreated) {
+                                System.out.println("You did not reserve a room!");
+                            } else { // if created, print out reservation ID
+                                System.out.println("Your Reservation ID is: " + reservationId + "!");
+                            }
+                            System.out.println();
+                            return;
+                        }
                         if (!isValid) {
                             // if input room type is not valid, then prompt for re-input
-                            System.out.println("Error in getting room type, please enter a valid room type.\n");
-                            // roomTypeName = sc.nextLine().trim();
-                            return;
+                            System.out.print("Error in getting room type, please enter a valid room type. (Type 'exit' to stop reserving more rooms)> ");
+                            roomTypeName = sc.nextLine().trim();
+                            System.out.println();
                         }
                     }
 
@@ -240,7 +253,6 @@ public class GuestOperationsModule {
                     reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
                     reservationSBRemote.associateReservationWithGuest(reservationId, currentGuest.getCustomerId());
                     hasReservationBeenCreated = true;
-                    System.out.println("Your Reservation ID is : " + reservationId + "!");
                 }
 
                 ReservedRoom reservedRoom = new ReservedRoom();
@@ -253,13 +265,16 @@ public class GuestOperationsModule {
                 if (checkInDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
                     reservedRoomSBRemote.allocateRooms();
                 }
-                
+                                
+                totalBookingAmount = totalBookingAmount.add(roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
+                reservationSBRemote.updateReservationBookingAmount(reservationId, totalBookingAmount);
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
                 System.out.println("");
                 
                 if (!response.equals("Y")) {
+                    System.out.println("Successful reservation made! Your Reservation ID is: " + reservationId + "!");
                     break;
                 }
             }
@@ -288,7 +303,8 @@ public class GuestOperationsModule {
                 "Reservation ID: " + reservation.getReservationId() +
                 " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
                 " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
-                " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+                " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString() +
+                " | Reservation Amount: $" + reservation.getBookingPrice()
             );
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 if (reservedRoom.getRoom() != null) {
@@ -313,10 +329,11 @@ public class GuestOperationsModule {
             if (listOfReservations.size() > 0) {
                 for (Reservation reservation : listOfReservations) {
                     System.out.println(
-                            "Reservation ID: " + reservation.getReservationId() +
-                            " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
-                            " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
-                            " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+                        "Reservation ID: " + reservation.getReservationId() +
+                        " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
+                        " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
+                        " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString() +
+                        " | Reservation Amount: $" + reservation.getBookingPrice()
                     );
                     for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                         if (reservedRoom.getRoom() != null) {

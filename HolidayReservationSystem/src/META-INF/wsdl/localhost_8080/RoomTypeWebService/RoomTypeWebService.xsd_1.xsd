@@ -69,6 +69,7 @@
 
 <xs:complexType name="reservation">
 <xs:sequence>
+<xs:element name="bookingPrice" type="xs:decimal" minOccurs="0"/>
 <xs:element name="customerOrGuest" type="tns:customer" minOccurs="0"/>
 <xs:element name="partner" type="tns:partner" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>

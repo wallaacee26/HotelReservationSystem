@@ -14,6 +14,7 @@ import entity.ReservedRoom;
 import entity.Room;
 import entity.RoomType;
 import entity.Staff;
+import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -173,9 +174,11 @@ public class RelationsModule {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
             Long reservationId = (long) -1;
+            BigDecimal totalBookingAmount = BigDecimal.ZERO; // simply for initialisation
+            reservation.setBookingPrice(totalBookingAmount); // simply for initialisation
                
-//            // guest - reservation association
-//            reservation.setGuest(currentGuest);
+//          // guest - reservation association
+//          reservation.setGuest(currentGuest);
             boolean hasReservationBeenCreated = false;
                 
             String response = "Y";
@@ -191,6 +194,7 @@ public class RelationsModule {
                     while (roomTypeName.length() == 0) {
                         System.out.print("No input detected. Please enter a room type> ");
                         roomTypeName = sc.nextLine().trim();
+                        System.out.println();
                     }
 
                     List<RoomType> allRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
@@ -202,11 +206,20 @@ public class RelationsModule {
                                 break;
                             }
                         }
+                        if (roomTypeName.equals("exit")) {
+                            if (!hasReservationBeenCreated) {
+                                System.out.println("You did not reserve a room!");
+                            } else { // if created, print out reservation ID
+                                System.out.println("Successful reservation made! Your Reservation ID is: " + reservationId + "!");
+                            }
+                            System.out.println();
+                            return;
+                        }
                         if (!isValid) {
                             // if input room type is not valid, then prompt for re-input
-                            System.out.println("Error in getting room type, please enter a valid room type.\n");
-                            // roomTypeName = sc.nextLine().trim();
-                            return;
+                            System.out.print("Error in getting room type, please enter a valid room type. (Type 'exit' to stop reserving more rooms)> ");
+                            roomTypeName = sc.nextLine().trim();
+                            System.out.println();
                         }
                     }
 
@@ -240,6 +253,8 @@ public class RelationsModule {
                     reservedRoomSessionBeanRemote.allocateRooms();
                 }
                 
+                totalBookingAmount = totalBookingAmount.add(roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
+                reservationSessionBeanRemote.updateReservationBookingAmount(reservationId, totalBookingAmount);
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();

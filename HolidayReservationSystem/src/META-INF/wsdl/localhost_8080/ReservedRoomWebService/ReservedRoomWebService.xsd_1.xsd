@@ -8,10 +8,6 @@
 
 <xs:element name="allocateRoomsResponse" type="tns:allocateRoomsResponse"/>
 
-<xs:element name="associateReservedRoomWithDatesWebService" type="tns:associateReservedRoomWithDatesWebService"/>
-
-<xs:element name="associateReservedRoomWithDatesWebServiceResponse" type="tns:associateReservedRoomWithDatesWebServiceResponse"/>
-
 <xs:element name="createNewReservedRoom" type="tns:createNewReservedRoom"/>
 
 <xs:element name="createNewReservedRoomResponse" type="tns:createNewReservedRoomResponse"/>
@@ -27,6 +23,14 @@
 <xs:element name="retrieveReservedRoomsByReservationId" type="tns:retrieveReservedRoomsByReservationId"/>
 
 <xs:element name="retrieveReservedRoomsByReservationIdResponse" type="tns:retrieveReservedRoomsByReservationIdResponse"/>
+
+<xs:complexType name="allocateRooms">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="allocateRoomsResponse">
+<xs:sequence/>
+</xs:complexType>
 
 <xs:complexType name="createNewReservedRoomWebService">
 <xs:sequence>
@@ -56,6 +60,7 @@
 
 <xs:complexType name="reservation">
 <xs:sequence>
+<xs:element name="bookingPrice" type="xs:decimal" minOccurs="0"/>
 <xs:element name="customerOrGuest" type="tns:customer" minOccurs="0"/>
 <xs:element name="partner" type="tns:partner" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
@@ -138,14 +143,6 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="allocateRooms">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="allocateRoomsResponse">
-<xs:sequence/>
-</xs:complexType>
-
 <xs:complexType name="createNewReservedRoom">
 <xs:sequence>
 <xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
@@ -179,20 +176,6 @@
 <xs:complexType name="retrieveReservedRoomsByReservationIdResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:reservedRoom" minOccurs="0" maxOccurs="unbounded"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="associateReservedRoomWithDatesWebService">
-<xs:sequence>
-<xs:element name="reservedRoom" type="tns:reservedRoom" minOccurs="0"/>
-<xs:element name="checkInDate" type="xs:anySimpleType" minOccurs="0"/>
-<xs:element name="checkOutDate" type="xs:anySimpleType" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="associateReservedRoomWithDatesWebServiceResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:reservedRoom" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

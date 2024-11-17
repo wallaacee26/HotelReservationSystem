@@ -16,6 +16,14 @@
 
 <xs:element name="createNewReservationResponse" type="tns:createNewReservationResponse"/>
 
+<xs:element name="getStringOfCheckInDate" type="tns:getStringOfCheckInDate"/>
+
+<xs:element name="getStringOfCheckInDateResponse" type="tns:getStringOfCheckInDateResponse"/>
+
+<xs:element name="getStringOfCheckOutDate" type="tns:getStringOfCheckOutDate"/>
+
+<xs:element name="getStringOfCheckOutDateResponse" type="tns:getStringOfCheckOutDateResponse"/>
+
 <xs:element name="retrieveAllReservations" type="tns:retrieveAllReservations"/>
 
 <xs:element name="retrieveAllReservationsOfGuestId" type="tns:retrieveAllReservationsOfGuestId"/>
@@ -31,6 +39,10 @@
 <xs:element name="retrieveReservationByReservationId" type="tns:retrieveReservationByReservationId"/>
 
 <xs:element name="retrieveReservationByReservationIdResponse" type="tns:retrieveReservationByReservationIdResponse"/>
+
+<xs:element name="updateReservationBookingAmount" type="tns:updateReservationBookingAmount"/>
+
+<xs:element name="updateReservationBookingAmountResponse" type="tns:updateReservationBookingAmountResponse"/>
 
 <xs:complexType name="associateReservationWithPartner">
 <xs:sequence>
@@ -67,6 +79,7 @@
 
 <xs:complexType name="reservation">
 <xs:sequence>
+<xs:element name="bookingPrice" type="xs:decimal" minOccurs="0"/>
 <xs:element name="customerOrGuest" type="tns:customer" minOccurs="0"/>
 <xs:element name="partner" type="tns:partner" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
@@ -147,6 +160,29 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="updateReservationBookingAmount">
+<xs:sequence>
+<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+<xs:element name="bookingAmount" type="xs:decimal" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="updateReservationBookingAmountResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="getStringOfCheckOutDate">
+<xs:sequence>
+<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getStringOfCheckOutDateResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
 <xs:complexType name="retrieveReservationByReservationId">
 <xs:sequence>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
@@ -156,6 +192,18 @@
 <xs:complexType name="retrieveReservationByReservationIdResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:reservation" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getStringOfCheckInDate">
+<xs:sequence>
+<xs:element name="reservationId" type="xs:long" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getStringOfCheckInDateResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

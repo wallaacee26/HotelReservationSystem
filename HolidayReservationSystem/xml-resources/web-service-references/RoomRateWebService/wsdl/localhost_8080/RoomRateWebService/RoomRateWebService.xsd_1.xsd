@@ -8,7 +8,7 @@
 
 <xs:complexType name="calculateTotalRoomRateWithNormalRate">
 <xs:sequence>
-<xs:element name="roomTypeName " type="xs:string" minOccurs="0"/>
+<xs:element name="roomTypeName" type="xs:string" minOccurs="0"/>
 <xs:element name="checkInDate" type="xs:anySimpleType" minOccurs="0"/>
 <xs:element name="checkOutDate" type="xs:anySimpleType" minOccurs="0"/>
 </xs:sequence>

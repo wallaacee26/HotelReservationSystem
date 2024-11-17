@@ -27,7 +27,5 @@ public interface ReservedRoomSessionBeanLocal {
     
     public String generateExceptionReport(LocalDate date);
     
-    public ReservedRoom associateReservedRoomWithDatesWebService(ReservedRoom reservedRoom, LocalDate checkInDate, LocalDate checkOutDate);
-    
     public Long createNewReservedRoomWebService(ReservedRoom reservedRoom, Long reservationId, Long roomTypeId, LocalDate checkInDate, LocalDate checkOutDate) throws ReservationDNEException, RoomTypeDNEException;
 }

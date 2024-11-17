@@ -136,7 +136,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
             LocalDate date = checkInDate;
             // is not after the checkoutDate, meaning still during reservation (or booked) period
-            while (!date.isAfter(checkOutDate)) {
+            while (!date.isEqual(checkOutDate)) {
                 BigDecimal dailyRate = getPrevailingRoomRateForDateWithPublishedRate(roomRates, date);
                 totalRate = totalRate.add(dailyRate);
 
@@ -158,7 +158,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
             LocalDate date = checkInDate;
             // is not after the checkoutDate, meaning still during reservation (or booked) period
-            while (!date.isAfter(checkOutDate)) {
+            while (!date.isEqual(checkOutDate)) {
                 BigDecimal dailyRate = getPrevailingRoomRateForDateWithNormalRate(roomRates, date);
                 totalRate = totalRate.add(dailyRate);
 
@@ -236,11 +236,10 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
     // helper method for getPrevailingRoomRateForDate
     private boolean isWithinDateRange(RoomRate rate, Date date) {
-        // if current date is not before rate's start date, and current date is not after rate's end date
+        // within date range: if current date is not before rate's start date AND current date is not after rate's end date
         // used only for peak and promotion rates
         if (rate.getRateType().equals(RateTypeEnum.PROMOTION) || rate.getRateType().equals(RateTypeEnum.PEAK)) {
-            return (rate.getStartDate() != null || !date.before(rate.getStartDate())) &&
-               (rate.getEndDate() != null || !date.after(rate.getEndDate()));
+            return (!date.before(rate.getStartDate())) && !date.after(rate.getEndDate());
         }
         return false;
     }

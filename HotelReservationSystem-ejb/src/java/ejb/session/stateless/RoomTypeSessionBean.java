@@ -168,43 +168,6 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
         return availableRoomsByRoomType; // index is roomTypeId, value is number of available rooms
     }
-/*
-    @Override
-    public List<RoomType> searchAvailableRoomTypes(LocalDate checkInDate, LocalDate checkOutDate) {
-        Query query = em.createQuery(
-            // first line: room type is not disabled, and found in all rooms that are available and not disabled.
-            // second line: additional constraint, where only the available room types are chosen (i.e. not reserved within the check-in/check-out duration)
-            "SELECT DISTINCT rt FROM RoomType rt JOIN rt.rooms r WHERE rt.disabled = false AND r.available = true AND r.disabled = false AND NOT EXISTS (" 
-                + "SELECT rr FROM ReservedRoom rr WHERE rr.roomType = rt AND ((rr.checkInDate <= :inCheckOutDate) AND (rr.checkOutDate >= :inCheckInDate))"
-            + ")")
-                .setParameter("inCheckInDate", checkInDate).setParameter("inCheckOutDate", checkOutDate);
-
-        List<RoomType> availableRoomTypes = query.getResultList();
-        return availableRoomTypes;
-    }
-*/
-    // not used
-    @Override
-    public int findNumberOfAvailableRoomsForRoomType(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
-        try {
-            RoomType roomType = retrieveRoomTypeByRoomTypeName(roomTypeName);
-
-            Query query = em.createQuery(
-                // first line: count the total number of rooms, which are available and not disabed.
-                // second line: additional constraint, where only the available rooms are counted (i.e. not reserved within the check-in/check-out duration)
-                "SELECT COUNT(r) FROM Room r WHERE r.roomType = :inRoomType AND r.available = true AND r.disabled = false AND NOT EXISTS ("
-                    + "SELECT rr FROM ReservedRoom rr WHERE rr.room = r AND ((rr.checkInDate <= :inCheckOutDate) AND (rr.checkOutDate >= :inCheckInDate))" +
-                ")")
-                    .setParameter("inRoomType", roomType)
-                    .setParameter("inCheckInDate", checkInDate)
-                    .setParameter("inCheckOutDate", checkOutDate);
-
-            Long count = (long) query.getSingleResult();
-            return count.intValue();
-        } catch (RoomTypeDNEException ex) {
-            throw new RoomTypeDNEException(ex.getMessage());
-        }
-    }
     
     @Override
     public boolean checkAvailabilityForRoomType(String roomTypeName, LocalDate checkInDate, LocalDate checkOutDate) throws RoomTypeDNEException {
@@ -224,10 +187,11 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
             // count reserved rooms of this RoomType within the check-in and check-out dates
             Query reservedRoomCountQuery = em.createQuery(
+                // combined effect of the 2 conditions : room is either currently booked before the input checkout date, or will be in use during input checkin date
                 "SELECT COUNT(rr) FROM ReservedRoom rr "
                     + "WHERE rr.roomType = :roomType "
-                    + "AND rr.checkInDate <= :inCheckOutDate "
-                    + "AND rr.checkOutDate >= :inCheckInDate")
+                    + "AND rr.checkInDate < :inCheckOutDate " // means room is still in use (its checkin date) before the input checkout date
+                    + "AND rr.checkOutDate > :inCheckInDate") // means room is still in use (its checkout date) after the input checkin date
                     .setParameter("roomType", roomType)
                     .setParameter("inCheckInDate", checkInDate)
                     .setParameter("inCheckOutDate", checkOutDate);

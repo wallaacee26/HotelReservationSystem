@@ -49,6 +49,7 @@
 
 <xs:complexType name="reservation">
 <xs:sequence>
+<xs:element name="bookingPrice" type="xs:decimal" minOccurs="0"/>
 <xs:element name="customerOrGuest" type="tns:customer" minOccurs="0"/>
 <xs:element name="partner" type="tns:partner" minOccurs="0"/>
 <xs:element name="reservationId" type="xs:long" minOccurs="0"/>
@@ -126,6 +127,16 @@
 </xs:sequence>
 </xs:complexType>
 
+<xs:complexType name="retrieveAllPartners">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllPartnersResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:partner" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
 <xs:complexType name="retrievePartnerByPartnerId">
 <xs:sequence>
 <xs:element name="partnerId" type="xs:long" minOccurs="0"/>
@@ -135,16 +146,6 @@
 <xs:complexType name="retrievePartnerByPartnerIdResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:partner" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllPartners">
-<xs:sequence/>
-</xs:complexType>
-
-<xs:complexType name="retrieveAllPartnersResponse">
-<xs:sequence>
-<xs:element name="return" type="tns:partner" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 

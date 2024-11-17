@@ -1,9 +1,11 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +26,8 @@ public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
+    @Column(nullable = false)
+    private BigDecimal bookingPrice;
 
     // mappings:
     @OneToMany(mappedBy = "reservation")
@@ -48,6 +52,14 @@ public class Reservation implements Serializable {
 
     public void setReservationId(Long reservationId) {
         this.reservationId = reservationId;
+    }
+
+    public BigDecimal getBookingPrice() {
+        return bookingPrice;
+    }
+
+    public void setBookingPrice(BigDecimal bookingPrice) {
+        this.bookingPrice = bookingPrice;
     }
 
     public List<ReservedRoom> getReservedRooms() {

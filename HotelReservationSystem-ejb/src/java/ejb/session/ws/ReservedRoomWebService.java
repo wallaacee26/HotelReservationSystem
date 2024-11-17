@@ -101,18 +101,6 @@ public class ReservedRoomWebService {
         }
     }
     
-    @WebMethod(operationName = "associateReservedRoomWithDatesWebService")
-    public ReservedRoom associateReservedRoomWithDatesWebService(
-            @WebParam(name = "reservedRoom") ReservedRoom reservedRoom,
-            @WebParam(name = "checkInDate") XMLGregorianCalendar checkInDate,
-            @WebParam(name = "checkOutDate") XMLGregorianCalendar checkOutDate) {
-        
-        //convert XMLGregorianCalender to localdate
-        LocalDate checkInLocalDate = checkInDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
-        LocalDate checkOutLocalDate = checkOutDate.toGregorianCalendar().toZonedDateTime().toLocalDate();
-        return reservedRoomSessionBeanLocal.associateReservedRoomWithDatesWebService(reservedRoom, checkInLocalDate, checkOutLocalDate);
-    }
-    
     @WebMethod(operationName = "allocateRooms")
     public void allocateRooms() {
         reservedRoomSessionBeanLocal.allocateRooms();

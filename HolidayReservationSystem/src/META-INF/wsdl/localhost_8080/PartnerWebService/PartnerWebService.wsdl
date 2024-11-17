@@ -4,21 +4,6 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1"/>
 </xsd:schema>
 </types>
-<message name="retrievePartnerByPartnerId">
-<part name="parameters" element="tns:retrievePartnerByPartnerId"/>
-</message>
-<message name="retrievePartnerByPartnerIdResponse">
-<part name="parameters" element="tns:retrievePartnerByPartnerIdResponse"/>
-</message>
-<message name="PartnerDNEException">
-<part name="fault" element="tns:PartnerDNEException"/>
-</message>
-<message name="retrievePartnerByUsername">
-<part name="parameters" element="tns:retrievePartnerByUsername"/>
-</message>
-<message name="retrievePartnerByUsernameResponse">
-<part name="parameters" element="tns:retrievePartnerByUsernameResponse"/>
-</message>
 <message name="createNewPartner">
 <part name="parameters" element="tns:createNewPartner"/>
 </message>
@@ -43,17 +28,22 @@
 <message name="InvalidLoginCredentialException">
 <part name="fault" element="tns:InvalidLoginCredentialException"/>
 </message>
+<message name="PartnerDNEException">
+<part name="fault" element="tns:PartnerDNEException"/>
+</message>
+<message name="retrievePartnerByPartnerId">
+<part name="parameters" element="tns:retrievePartnerByPartnerId"/>
+</message>
+<message name="retrievePartnerByPartnerIdResponse">
+<part name="parameters" element="tns:retrievePartnerByPartnerIdResponse"/>
+</message>
+<message name="retrievePartnerByUsername">
+<part name="parameters" element="tns:retrievePartnerByUsername"/>
+</message>
+<message name="retrievePartnerByUsernameResponse">
+<part name="parameters" element="tns:retrievePartnerByUsernameResponse"/>
+</message>
 <portType name="PartnerWebService">
-<operation name="retrievePartnerByPartnerId">
-<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerIdRequest" message="tns:retrievePartnerByPartnerId"/>
-<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerIdResponse" message="tns:retrievePartnerByPartnerIdResponse"/>
-<fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerId/Fault/PartnerDNEException"/>
-</operation>
-<operation name="retrievePartnerByUsername">
-<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsernameRequest" message="tns:retrievePartnerByUsername"/>
-<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsernameResponse" message="tns:retrievePartnerByUsernameResponse"/>
-<fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsername/Fault/PartnerDNEException"/>
-</operation>
 <operation name="createNewPartner">
 <input wsam:Action="http://ws.session.ejb/PartnerWebService/createNewPartnerRequest" message="tns:createNewPartner"/>
 <output wsam:Action="http://ws.session.ejb/PartnerWebService/createNewPartnerResponse" message="tns:createNewPartnerResponse"/>
@@ -69,33 +59,19 @@
 <fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/partnerLogin/Fault/InvalidLoginCredentialException"/>
 <fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/PartnerWebService/partnerLogin/Fault/PartnerDNEException"/>
 </operation>
+<operation name="retrievePartnerByPartnerId">
+<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerIdRequest" message="tns:retrievePartnerByPartnerId"/>
+<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerIdResponse" message="tns:retrievePartnerByPartnerIdResponse"/>
+<fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByPartnerId/Fault/PartnerDNEException"/>
+</operation>
+<operation name="retrievePartnerByUsername">
+<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsernameRequest" message="tns:retrievePartnerByUsername"/>
+<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsernameResponse" message="tns:retrievePartnerByUsernameResponse"/>
+<fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrievePartnerByUsername/Fault/PartnerDNEException"/>
+</operation>
 </portType>
 <binding name="PartnerWebServicePortBinding" type="tns:PartnerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-<operation name="retrievePartnerByPartnerId">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="PartnerDNEException">
-<soap:fault name="PartnerDNEException" use="literal"/>
-</fault>
-</operation>
-<operation name="retrievePartnerByUsername">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="PartnerDNEException">
-<soap:fault name="PartnerDNEException" use="literal"/>
-</fault>
-</operation>
 <operation name="createNewPartner">
 <soap:operation soapAction=""/>
 <input>
@@ -128,6 +104,30 @@
 <fault name="InvalidLoginCredentialException">
 <soap:fault name="InvalidLoginCredentialException" use="literal"/>
 </fault>
+<fault name="PartnerDNEException">
+<soap:fault name="PartnerDNEException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrievePartnerByPartnerId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="PartnerDNEException">
+<soap:fault name="PartnerDNEException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrievePartnerByUsername">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
 <fault name="PartnerDNEException">
 <soap:fault name="PartnerDNEException" use="literal"/>
 </fault>

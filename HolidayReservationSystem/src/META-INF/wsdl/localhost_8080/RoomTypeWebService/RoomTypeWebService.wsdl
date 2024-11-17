@@ -4,6 +4,12 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/RoomTypeWebService/RoomTypeWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="retrieveAllRoomTypes">
+<part name="parameters" element="tns:retrieveAllRoomTypes"/>
+</message>
+<message name="retrieveAllRoomTypesResponse">
+<part name="parameters" element="tns:retrieveAllRoomTypesResponse"/>
+</message>
 <message name="retrieveRoomTypeByRoomTypeName">
 <part name="parameters" element="tns:retrieveRoomTypeByRoomTypeName"/>
 </message>
@@ -25,12 +31,6 @@
 <message name="checkAvailabilityForRoomTypeResponse">
 <part name="parameters" element="tns:checkAvailabilityForRoomTypeResponse"/>
 </message>
-<message name="retrieveAllRoomTypes">
-<part name="parameters" element="tns:retrieveAllRoomTypes"/>
-</message>
-<message name="retrieveAllRoomTypesResponse">
-<part name="parameters" element="tns:retrieveAllRoomTypesResponse"/>
-</message>
 <message name="searchAvailableRoomTypesWithNumberOfRooms">
 <part name="parameters" element="tns:searchAvailableRoomTypesWithNumberOfRooms"/>
 </message>
@@ -38,6 +38,10 @@
 <part name="parameters" element="tns:searchAvailableRoomTypesWithNumberOfRoomsResponse"/>
 </message>
 <portType name="RoomTypeWebService">
+<operation name="retrieveAllRoomTypes">
+<input wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveAllRoomTypesRequest" message="tns:retrieveAllRoomTypes"/>
+<output wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveAllRoomTypesResponse" message="tns:retrieveAllRoomTypesResponse"/>
+</operation>
 <operation name="retrieveRoomTypeByRoomTypeName">
 <input wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveRoomTypeByRoomTypeNameRequest" message="tns:retrieveRoomTypeByRoomTypeName"/>
 <output wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveRoomTypeByRoomTypeNameResponse" message="tns:retrieveRoomTypeByRoomTypeNameResponse"/>
@@ -53,10 +57,6 @@
 <output wsam:Action="http://ws.session.ejb/RoomTypeWebService/checkAvailabilityForRoomTypeResponse" message="tns:checkAvailabilityForRoomTypeResponse"/>
 <fault message="tns:RoomTypeDNEException" name="RoomTypeDNEException" wsam:Action="http://ws.session.ejb/RoomTypeWebService/checkAvailabilityForRoomType/Fault/RoomTypeDNEException"/>
 </operation>
-<operation name="retrieveAllRoomTypes">
-<input wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveAllRoomTypesRequest" message="tns:retrieveAllRoomTypes"/>
-<output wsam:Action="http://ws.session.ejb/RoomTypeWebService/retrieveAllRoomTypesResponse" message="tns:retrieveAllRoomTypesResponse"/>
-</operation>
 <operation name="searchAvailableRoomTypesWithNumberOfRooms">
 <input wsam:Action="http://ws.session.ejb/RoomTypeWebService/searchAvailableRoomTypesWithNumberOfRoomsRequest" message="tns:searchAvailableRoomTypesWithNumberOfRooms"/>
 <output wsam:Action="http://ws.session.ejb/RoomTypeWebService/searchAvailableRoomTypesWithNumberOfRoomsResponse" message="tns:searchAvailableRoomTypesWithNumberOfRoomsResponse"/>
@@ -64,6 +64,15 @@
 </portType>
 <binding name="RoomTypeWebServicePortBinding" type="tns:RoomTypeWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="retrieveAllRoomTypes">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="retrieveRoomTypeByRoomTypeName">
 <soap:operation soapAction=""/>
 <input>
@@ -99,15 +108,6 @@
 <fault name="RoomTypeDNEException">
 <soap:fault name="RoomTypeDNEException" use="literal"/>
 </fault>
-</operation>
-<operation name="retrieveAllRoomTypes">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
 </operation>
 <operation name="searchAvailableRoomTypesWithNumberOfRooms">
 <soap:operation soapAction=""/>

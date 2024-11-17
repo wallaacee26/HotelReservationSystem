@@ -4,12 +4,16 @@
  */
 package holidayreservationsystem;
 
+import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -17,8 +21,6 @@ import ws.partner.Partner;
 import ws.partner.PartnerDNEException;
 import ws.partner.PartnerDNEException_Exception;
 import ws.partner.PartnerWebService_Service;
-import ws.reservation.GuestDNEException;
-import ws.reservation.GuestDNEException_Exception;
 import ws.reservation.Reservation;
 import ws.reservation.ReservationDNEException;
 import ws.reservation.ReservationDNEException_Exception;
@@ -66,7 +68,7 @@ public class PartnerOperationsModule {
         while(true) {
             System.out.println("*** Holiday Reservation System ***\n");
             System.out.println("Welcome! You are logged in as " + currentPartner.getUsername() + "!");
-            System.out.println("1: Search Hotel Rooms"); // not sure for 1 and 2 since 2 includes 1
+            System.out.println("1: Search Hotel Rooms");
             System.out.println("2: View Partner Reservation Details");
             System.out.println("3: View All Partner Reservations");
             System.out.println("4: Logout");
@@ -155,7 +157,7 @@ public class PartnerOperationsModule {
                     String roomTypeName = availableRoomTypes.get(i - 1).getRoomTypeName();
                     int numberOfAvailableRooms = availableRoomsPerRoomType.get(i - 1);
                     // int numberOfAvailableRooms = roomTypeSBRemote.findNumberOfAvailableRoomsForRoomType(roomTypeName, checkInDate, checkOutDate);
-                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount: $" + roomRateService.getRoomRateWebServicePort().calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDateXML, checkOutDateXML));
+                    System.out.println(i + ": " + roomTypeName + " | Number Of Available Rooms: " + numberOfAvailableRooms + " | Reservation Amount (for duration): $" + roomRateService.getRoomRateWebServicePort().calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDateXML, checkOutDateXML));
                 }
             }
             
@@ -181,13 +183,13 @@ public class PartnerOperationsModule {
             
         } catch (DateTimeException ex) {
             System.out.println("Invalid date input(s)! Please try again.");
-        } catch (ws.roomtype.RoomTypeDNEException_Exception ex) {
-            System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         } catch (DatatypeConfigurationException ex) {
+            System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
+        } catch (ws.roomtype.RoomTypeDNEException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         } catch (ws.roomrate.RoomTypeDNEException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
-        } catch (ReservationExistsException_Exception ex) {
+        } catch (ws.reservation.ReservationExistsException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         } catch (ws.reservation.ReservationDNEException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
@@ -195,20 +197,24 @@ public class PartnerOperationsModule {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         } catch (ws.reservedroom.ReservationDNEException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
-        } catch (ws.partner.PartnerDNEException_Exception ex) {
+        } catch (ws.reservation.PartnerDNEException_Exception ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
-        } 
+        }
     }
     
     private void doReserveHotelRoom(XMLGregorianCalendar checkInDate, XMLGregorianCalendar checkOutDate)
             throws RoomTypeDNEException_Exception, ReservationExistsException_Exception, ws.reservation.ReservationDNEException_Exception,
-            ws.reservedroom.ReservationDNEException_Exception, ws.reservedroom.RoomTypeDNEException_Exception, PartnerDNEException_Exception {
+            ws.reservedroom.ReservationDNEException_Exception, ws.reservedroom.RoomTypeDNEException_Exception, ws.reservation.PartnerDNEException_Exception,
+            ws.roomrate.RoomTypeDNEException_Exception {
         try {
             Scanner sc = new Scanner(System.in);
             Reservation reservation = new Reservation();
             Long reservationId = (long) -1; // simply for initialisation
+            BigDecimal totalBookingAmount = BigDecimal.ZERO; // simply for initialisation
+            reservation.setBookingPrice(totalBookingAmount); // simply for initialisation
             
             // guest - reservation association
+            // to overcome error in web service
             ws.reservation.Partner webPartner = new ws.reservation.Partner();
             webPartner.setPartnerId(currentPartner.getPartnerId());
             webPartner.setUsername(currentPartner.getUsername());
@@ -230,6 +236,7 @@ public class PartnerOperationsModule {
                     while (roomTypeName.length() == 0) {
                         System.out.print("No input detected. Please enter a room type> ");
                         roomTypeName = sc.nextLine().trim();
+                        System.out.println();
                     }
 
                     List<RoomType> allRoomTypes = roomTypeService.getRoomTypeWebServicePort().retrieveAllRoomTypes();
@@ -241,11 +248,20 @@ public class PartnerOperationsModule {
                                 break;
                             }
                         }
+                        if (roomTypeName.equals("exit")) {
+                            if (!hasReservationBeenCreated) {
+                                System.out.println("You did not reserve a room!");
+                            } else { // if created, print out reservation ID
+                                System.out.println("Successful reservation made! Your Reservation ID is: " + reservationId + "!");
+                            }
+                            System.out.println();
+                            return;
+                        }
                         if (!isValid) {
                             // if input room type is not valid, then prompt for re-input
-                            System.out.println("Error in getting room type, please enter a valid room type.\n");
-                            // roomTypeName = sc.nextLine().trim();
-                            return;
+                            System.out.print("Error in getting room type, please enter a valid room type. (Type 'exit' to stop reserving more rooms)> ");
+                            roomTypeName = sc.nextLine().trim();
+                            System.out.println();
                         }
                     }
 
@@ -266,7 +282,6 @@ public class PartnerOperationsModule {
                     reservationId = reservationService.getReservationWebServicePort().createNewReservation(reservation); // create new reservation first
                     reservationService.getReservationWebServicePort().associateReservationWithPartner(reservationId, currentPartner.getPartnerId());
                     hasReservationBeenCreated = true;
-                    System.out.println("Your Reservation ID is : " + reservationId + "!");
                 }
             
                 ws.reservedroom.ReservedRoom reservedRoom = new ws.reservedroom.ReservedRoom();
@@ -282,25 +297,36 @@ public class PartnerOperationsModule {
                     reservedRoomService.getReservedRoomWebServicePort().allocateRooms();
                 }
                 
+                totalBookingAmount = totalBookingAmount.add(roomRateService.getRoomRateWebServicePort().calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
+                reservationService.getReservationWebServicePort().updateReservationBookingAmount(reservationId, totalBookingAmount);
+                
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
                 System.out.println("");
                 
                 if (!response.equals("Y")) {
+                    System.out.println("Successful reservation made! Your Reservation ID is: " + reservationId + "!");
                     break;
                 }
             }
  
         } catch (ws.reservedroom.RoomTypeDNEException_Exception ex) {
-            throw new RoomTypeDNEException_Exception(ex.getMessage(), new RoomTypeDNEException());
-        } catch (ReservationExistsException_Exception ex) {
-            throw new ReservationExistsException_Exception(ex.getMessage(), new ReservationExistsException());
+            throw new ws.reservedroom.RoomTypeDNEException_Exception(ex.getMessage(), new ws.reservedroom.RoomTypeDNEException());
+            
+        } catch (ws.reservation.ReservationExistsException_Exception ex) {
+            throw new ws.reservation.ReservationExistsException_Exception(ex.getMessage(), new ws.reservation.ReservationExistsException());
+            
         } catch (ws.reservation.ReservationDNEException_Exception ex) {
-            throw new ReservationDNEException_Exception(ex.getMessage(), new ReservationDNEException());
+            throw new ws.reservation.ReservationDNEException_Exception(ex.getMessage(), new ws.reservation.ReservationDNEException());
+            
         } catch (ws.reservedroom.ReservationDNEException_Exception ex) {
-            throw new ReservationDNEException_Exception(ex.getMessage(), new ReservationDNEException());
+            throw new ws.reservedroom.ReservationDNEException_Exception(ex.getMessage(), new ws.reservedroom.ReservationDNEException());
+            
         } catch (ws.reservation.PartnerDNEException_Exception ex) {
-            throw new PartnerDNEException_Exception(ex.getMessage(), new PartnerDNEException());
+            throw new ws.reservation.PartnerDNEException_Exception(ex.getMessage(), new ws.reservation.PartnerDNEException());
+            
+        } catch (ws.roomrate.RoomTypeDNEException_Exception ex) {
+            throw new ws.roomrate.RoomTypeDNEException_Exception(ex.getMessage(), new ws.roomrate.RoomTypeDNEException());
         }
     }
     
@@ -316,8 +342,9 @@ public class PartnerOperationsModule {
             System.out.println(
                 "Reservation ID: " + reservation.getReservationId() +
                 " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
-                " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
-                " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+                " | Check-In Date: " + reservationService.getReservationWebServicePort().getStringOfCheckInDate(reservation.getReservationId()) +
+                " | Check-Out Date: " + reservationService.getReservationWebServicePort().getStringOfCheckOutDate(reservation.getReservationId())+
+                " | Reservation Amount: $" + reservation.getBookingPrice()
             );
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 if (reservedRoom.getRoom() != null) {
@@ -325,7 +352,7 @@ public class PartnerOperationsModule {
                 }
             }
             System.out.println("");
-        } catch (ReservationDNEException_Exception ex) {
+        } catch (ws.reservation.ReservationDNEException_Exception ex) {
             System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
         }
         
@@ -342,10 +369,11 @@ public class PartnerOperationsModule {
             if (listOfReservations.size() > 0) {
                 for (Reservation reservation : listOfReservations) {
                     System.out.println(
-                            "Reservation ID: " + reservation.getReservationId() +
-                            " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
-                            " | Check-In Date: " + reservation.getReservedRooms().get(0).getCheckInDate().toString() +
-                            " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString()
+                        "Reservation ID: " + reservation.getReservationId() +
+                        " | Number Of Reserved Rooms: " + reservation.getReservedRooms().size() +
+                        " | Check-In Date: " + reservationService.getReservationWebServicePort().getStringOfCheckInDate(reservation.getReservationId()) +
+                        " | Check-Out Date: " + reservationService.getReservationWebServicePort().getStringOfCheckOutDate(reservation.getReservationId())+
+                        " | Reservation Amount: $" + reservation.getBookingPrice()
                     );
                     for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                         if (reservedRoom.getRoom() != null) {
@@ -358,6 +386,8 @@ public class PartnerOperationsModule {
             }
             System.out.println("");
         } catch (ws.reservation.PartnerDNEException_Exception ex) {
+            System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
+        } catch (ws.reservation.ReservationDNEException_Exception ex) {
             System.out.println("Error viewing reservation: " + ex.getMessage() + "!\n");
         }
         

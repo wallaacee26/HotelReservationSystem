@@ -4,6 +4,51 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/ReservationWebService/ReservationWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="getStringOfCheckOutDate">
+<part name="parameters" element="tns:getStringOfCheckOutDate"/>
+</message>
+<message name="getStringOfCheckOutDateResponse">
+<part name="parameters" element="tns:getStringOfCheckOutDateResponse"/>
+</message>
+<message name="ReservationDNEException">
+<part name="fault" element="tns:ReservationDNEException"/>
+</message>
+<message name="getStringOfCheckInDate">
+<part name="parameters" element="tns:getStringOfCheckInDate"/>
+</message>
+<message name="getStringOfCheckInDateResponse">
+<part name="parameters" element="tns:getStringOfCheckInDateResponse"/>
+</message>
+<message name="retrieveAllReservations">
+<part name="parameters" element="tns:retrieveAllReservations"/>
+</message>
+<message name="retrieveAllReservationsResponse">
+<part name="parameters" element="tns:retrieveAllReservationsResponse"/>
+</message>
+<message name="createNewReservation">
+<part name="parameters" element="tns:createNewReservation"/>
+</message>
+<message name="createNewReservationResponse">
+<part name="parameters" element="tns:createNewReservationResponse"/>
+</message>
+<message name="ReservationExistsException">
+<part name="fault" element="tns:ReservationExistsException"/>
+</message>
+<message name="retrieveReservationByReservationId">
+<part name="parameters" element="tns:retrieveReservationByReservationId"/>
+</message>
+<message name="retrieveReservationByReservationIdResponse">
+<part name="parameters" element="tns:retrieveReservationByReservationIdResponse"/>
+</message>
+<message name="retrieveAllReservationsOfGuestId">
+<part name="parameters" element="tns:retrieveAllReservationsOfGuestId"/>
+</message>
+<message name="retrieveAllReservationsOfGuestIdResponse">
+<part name="parameters" element="tns:retrieveAllReservationsOfGuestIdResponse"/>
+</message>
+<message name="GuestDNEException">
+<part name="fault" element="tns:GuestDNEException"/>
+</message>
 <message name="retrieveAllReservationsOfPartnerId">
 <part name="parameters" element="tns:retrieveAllReservationsOfPartnerId"/>
 </message>
@@ -19,40 +64,42 @@
 <message name="associateReservationWithPartnerResponse">
 <part name="parameters" element="tns:associateReservationWithPartnerResponse"/>
 </message>
-<message name="ReservationDNEException">
-<part name="fault" element="tns:ReservationDNEException"/>
+<message name="updateReservationBookingAmount">
+<part name="parameters" element="tns:updateReservationBookingAmount"/>
 </message>
-<message name="retrieveAllReservationsOfGuestId">
-<part name="parameters" element="tns:retrieveAllReservationsOfGuestId"/>
-</message>
-<message name="retrieveAllReservationsOfGuestIdResponse">
-<part name="parameters" element="tns:retrieveAllReservationsOfGuestIdResponse"/>
-</message>
-<message name="GuestDNEException">
-<part name="fault" element="tns:GuestDNEException"/>
-</message>
-<message name="retrieveReservationByReservationId">
-<part name="parameters" element="tns:retrieveReservationByReservationId"/>
-</message>
-<message name="retrieveReservationByReservationIdResponse">
-<part name="parameters" element="tns:retrieveReservationByReservationIdResponse"/>
-</message>
-<message name="createNewReservation">
-<part name="parameters" element="tns:createNewReservation"/>
-</message>
-<message name="createNewReservationResponse">
-<part name="parameters" element="tns:createNewReservationResponse"/>
-</message>
-<message name="ReservationExistsException">
-<part name="fault" element="tns:ReservationExistsException"/>
-</message>
-<message name="retrieveAllReservations">
-<part name="parameters" element="tns:retrieveAllReservations"/>
-</message>
-<message name="retrieveAllReservationsResponse">
-<part name="parameters" element="tns:retrieveAllReservationsResponse"/>
+<message name="updateReservationBookingAmountResponse">
+<part name="parameters" element="tns:updateReservationBookingAmountResponse"/>
 </message>
 <portType name="ReservationWebService">
+<operation name="getStringOfCheckOutDate">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckOutDateRequest" message="tns:getStringOfCheckOutDate"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckOutDateResponse" message="tns:getStringOfCheckOutDateResponse"/>
+<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckOutDate/Fault/ReservationDNEException"/>
+</operation>
+<operation name="getStringOfCheckInDate">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckInDateRequest" message="tns:getStringOfCheckInDate"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckInDateResponse" message="tns:getStringOfCheckInDateResponse"/>
+<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/getStringOfCheckInDate/Fault/ReservationDNEException"/>
+</operation>
+<operation name="retrieveAllReservations">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsRequest" message="tns:retrieveAllReservations"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsResponse" message="tns:retrieveAllReservationsResponse"/>
+</operation>
+<operation name="createNewReservation">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservationRequest" message="tns:createNewReservation"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservationResponse" message="tns:createNewReservationResponse"/>
+<fault message="tns:ReservationExistsException" name="ReservationExistsException" wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservation/Fault/ReservationExistsException"/>
+</operation>
+<operation name="retrieveReservationByReservationId">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationIdRequest" message="tns:retrieveReservationByReservationId"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationIdResponse" message="tns:retrieveReservationByReservationIdResponse"/>
+<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationId/Fault/ReservationDNEException"/>
+</operation>
+<operation name="retrieveAllReservationsOfGuestId">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestIdRequest" message="tns:retrieveAllReservationsOfGuestId"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestIdResponse" message="tns:retrieveAllReservationsOfGuestIdResponse"/>
+<fault message="tns:GuestDNEException" name="GuestDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestId/Fault/GuestDNEException"/>
+</operation>
 <operation name="retrieveAllReservationsOfPartnerId">
 <input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfPartnerIdRequest" message="tns:retrieveAllReservationsOfPartnerId"/>
 <output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfPartnerIdResponse" message="tns:retrieveAllReservationsOfPartnerIdResponse"/>
@@ -64,41 +111,15 @@
 <fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/associateReservationWithPartner/Fault/ReservationDNEException"/>
 <fault message="tns:PartnerDNEException" name="PartnerDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/associateReservationWithPartner/Fault/PartnerDNEException"/>
 </operation>
-<operation name="retrieveAllReservationsOfGuestId">
-<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestIdRequest" message="tns:retrieveAllReservationsOfGuestId"/>
-<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestIdResponse" message="tns:retrieveAllReservationsOfGuestIdResponse"/>
-<fault message="tns:GuestDNEException" name="GuestDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsOfGuestId/Fault/GuestDNEException"/>
-</operation>
-<operation name="retrieveReservationByReservationId">
-<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationIdRequest" message="tns:retrieveReservationByReservationId"/>
-<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationIdResponse" message="tns:retrieveReservationByReservationIdResponse"/>
-<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveReservationByReservationId/Fault/ReservationDNEException"/>
-</operation>
-<operation name="createNewReservation">
-<input wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservationRequest" message="tns:createNewReservation"/>
-<output wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservationResponse" message="tns:createNewReservationResponse"/>
-<fault message="tns:ReservationExistsException" name="ReservationExistsException" wsam:Action="http://ws.session.ejb/ReservationWebService/createNewReservation/Fault/ReservationExistsException"/>
-</operation>
-<operation name="retrieveAllReservations">
-<input wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsRequest" message="tns:retrieveAllReservations"/>
-<output wsam:Action="http://ws.session.ejb/ReservationWebService/retrieveAllReservationsResponse" message="tns:retrieveAllReservationsResponse"/>
+<operation name="updateReservationBookingAmount">
+<input wsam:Action="http://ws.session.ejb/ReservationWebService/updateReservationBookingAmountRequest" message="tns:updateReservationBookingAmount"/>
+<output wsam:Action="http://ws.session.ejb/ReservationWebService/updateReservationBookingAmountResponse" message="tns:updateReservationBookingAmountResponse"/>
+<fault message="tns:ReservationDNEException" name="ReservationDNEException" wsam:Action="http://ws.session.ejb/ReservationWebService/updateReservationBookingAmount/Fault/ReservationDNEException"/>
 </operation>
 </portType>
 <binding name="ReservationWebServicePortBinding" type="tns:ReservationWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-<operation name="retrieveAllReservationsOfPartnerId">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="PartnerDNEException">
-<soap:fault name="PartnerDNEException" use="literal"/>
-</fault>
-</operation>
-<operation name="associateReservationWithPartner">
+<operation name="getStringOfCheckOutDate">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
@@ -109,8 +130,50 @@
 <fault name="ReservationDNEException">
 <soap:fault name="ReservationDNEException" use="literal"/>
 </fault>
-<fault name="PartnerDNEException">
-<soap:fault name="PartnerDNEException" use="literal"/>
+</operation>
+<operation name="getStringOfCheckInDate">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationDNEException">
+<soap:fault name="ReservationDNEException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrieveAllReservations">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="createNewReservation">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationExistsException">
+<soap:fault name="ReservationExistsException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrieveReservationByReservationId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationDNEException">
+<soap:fault name="ReservationDNEException" use="literal"/>
 </fault>
 </operation>
 <operation name="retrieveAllReservationsOfGuestId">
@@ -125,7 +188,19 @@
 <soap:fault name="GuestDNEException" use="literal"/>
 </fault>
 </operation>
-<operation name="retrieveReservationByReservationId">
+<operation name="retrieveAllReservationsOfPartnerId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="PartnerDNEException">
+<soap:fault name="PartnerDNEException" use="literal"/>
+</fault>
+</operation>
+<operation name="associateReservationWithPartner">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
@@ -136,20 +211,11 @@
 <fault name="ReservationDNEException">
 <soap:fault name="ReservationDNEException" use="literal"/>
 </fault>
-</operation>
-<operation name="createNewReservation">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="ReservationExistsException">
-<soap:fault name="ReservationExistsException" use="literal"/>
+<fault name="PartnerDNEException">
+<soap:fault name="PartnerDNEException" use="literal"/>
 </fault>
 </operation>
-<operation name="retrieveAllReservations">
+<operation name="updateReservationBookingAmount">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
@@ -157,6 +223,9 @@
 <output>
 <soap:body use="literal"/>
 </output>
+<fault name="ReservationDNEException">
+<soap:fault name="ReservationDNEException" use="literal"/>
+</fault>
 </operation>
 </binding>
 <service name="ReservationWebService">

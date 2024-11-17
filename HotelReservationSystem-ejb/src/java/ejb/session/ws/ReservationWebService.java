@@ -9,6 +9,7 @@ import entity.Guest;
 import entity.Partner;
 import entity.Reservation;
 import entity.ReservedRoom;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
@@ -169,6 +170,33 @@ public class ReservationWebService {
             throw new ReservationDNEException(ex.getMessage());
         } catch (PartnerDNEException ex) {
             throw new PartnerDNEException(ex.getMessage());
+        }
+    }
+    
+    @WebMethod(operationName = "updateReservationBookingAmount")
+    public void updateReservationBookingAmount(@WebParam(name = "reservationId") Long reservationId, @WebParam(name = "bookingAmount") BigDecimal bookingAmount)
+            throws ReservationDNEException {
+        try {
+            reservationSessionBeanLocal.updateReservationBookingAmount(reservationId, bookingAmount);
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
+    }
+    
+    @WebMethod(operationName = "getStringOfCheckInDate")
+    public String getStringOfCheckInDate(@WebParam(name = "reservationId") Long reservationId) throws ReservationDNEException {
+        try {
+            return reservationSessionBeanLocal.getStringOfCheckOutDate(reservationId);
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
+    }
+    @WebMethod(operationName = "getStringOfCheckOutDate")
+    public String getStringOfCheckOutDate(@WebParam(name = "reservationId") Long reservationId) throws ReservationDNEException {
+        try {
+            return reservationSessionBeanLocal.getStringOfCheckInDate(reservationId);
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
         }
     }
 }

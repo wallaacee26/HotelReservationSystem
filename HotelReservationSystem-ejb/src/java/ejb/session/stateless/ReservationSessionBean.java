@@ -7,6 +7,8 @@ package ejb.session.stateless;
 import entity.Guest;
 import entity.Partner;
 import entity.Reservation;
+import entity.ReservedRoom;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -152,6 +154,40 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new ReservationDNEException(ex.getMessage());
         } catch (PartnerDNEException ex) {
             throw new PartnerDNEException(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void updateReservationBookingAmount(Long reservationId, BigDecimal bookingAmount) throws ReservationDNEException {
+        try {
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            
+            reservation.setBookingPrice(bookingAmount);
+            
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
+    }
+    
+    // for web service
+    @Override
+    public String getStringOfCheckInDate(Long reservationId) throws ReservationDNEException {
+        try {
+            // may have cut the relationship over webservice
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            return reservation.getReservedRooms().get(0).getCheckInDate().toString();
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
+        }
+    }
+    @Override
+    public String getStringOfCheckOutDate(Long reservationId) throws ReservationDNEException {
+        try {
+            // may have cut the relationship over the webservice
+            Reservation reservation = retrieveReservationByReservationId(reservationId);
+            return reservation.getReservedRooms().get(0).getCheckOutDate().toString();
+        } catch (ReservationDNEException ex) {
+            throw new ReservationDNEException(ex.getMessage());
         }
     }
 }
