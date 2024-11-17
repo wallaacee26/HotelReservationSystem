@@ -5,10 +5,9 @@
 package ejb.session.ws;
 
 import ejb.session.stateless.ReservationSessionBeanLocal;
-import entity.Guest;
-import entity.Partner;
 import entity.Reservation;
 import entity.ReservedRoom;
+import entity.Room;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.EJB;
@@ -19,7 +18,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
-import util.exception.GuestDNEException;
 import util.exception.PartnerDNEException;
 import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
@@ -90,8 +88,16 @@ public class ReservationWebService {
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 em.detach(reservedRoom);
                 reservedRoom.setReservation(null);
-                reservedRoom.setRoom(null);
+                // reservedRoom.setRoom(null); // cannot set this to null, need to get for next method call in web client
                 reservedRoom.setRoomType(null);
+                
+                if (reservedRoom.getRoom() != null) { // if null, then ignore (already set to null)
+                    Room assignedRoom = reservedRoom.getRoom();
+                    em.detach(assignedRoom);
+                    assignedRoom.getReservedRooms().clear();
+                    assignedRoom.setRoomType(null);
+                }
+                    
             }
             if (reservation.getCustomerOrGuest() != null) {
                 em.detach(reservation.getCustomerOrGuest());
@@ -107,33 +113,6 @@ public class ReservationWebService {
         }
     }
     
-    @WebMethod(operationName = "retrieveAllReservationsOfGuestId")
-    public List<Reservation> retrieveAllReservationsOfGuestId(@WebParam(name = "guestId") Long guestId) throws GuestDNEException {
-        try {
-            List<Reservation> reservations = reservationSessionBeanLocal.retrieveAllReservationsOfGuestId(guestId);
-            for (Reservation reservation : reservations) {
-                em.detach(reservation); // to cut off relationship to prevent changes to database
-                for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
-                    em.detach(reservedRoom);
-                    reservedRoom.setReservation(null);
-                    reservedRoom.setRoom(null);
-                    reservedRoom.setRoomType(null);
-                }
-                if (reservation.getCustomerOrGuest() != null) {
-                    em.detach(reservation.getCustomerOrGuest());
-                    reservation.getCustomerOrGuest().getReservations().clear();
-                }
-                if (reservation.getPartner() != null) {
-                    em.detach(reservation.getPartner());
-                    reservation.getPartner().getReservations().clear();
-                }
-            }
-            return reservations;
-        } catch (GuestDNEException ex) {
-            throw new GuestDNEException(ex.getMessage());
-        }
-    }
-    
     @WebMethod(operationName = "retrieveAllReservationsOfPartnerId")
     public List<Reservation> retrieveAllReservationsOfPartnerId(@WebParam(name = "partnerId") Long partnerId) throws PartnerDNEException {
         try {
@@ -143,8 +122,15 @@ public class ReservationWebService {
                 for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                     em.detach(reservedRoom);
                     reservedRoom.setReservation(null);
-                    reservedRoom.setRoom(null);
+                    // reservedRoom.setRoom(null); // cannot set this to null, need to get for next method call in web client
                     reservedRoom.setRoomType(null);
+
+                    if (reservedRoom.getRoom() != null) { // if null, then ignore (already set to null)
+                        Room assignedRoom = reservedRoom.getRoom();
+                        em.detach(assignedRoom);
+                        assignedRoom.getReservedRooms().clear();
+                        assignedRoom.setRoomType(null);
+                    }
                 }
                 if (reservation.getCustomerOrGuest() != null) {
                     em.detach(reservation.getCustomerOrGuest());

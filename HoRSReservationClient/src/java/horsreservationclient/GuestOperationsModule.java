@@ -17,10 +17,14 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.GuestDNEException;
 import util.exception.ReservationDNEException;
 import util.exception.ReservationExistsException;
@@ -37,14 +41,20 @@ public class GuestOperationsModule {
     private RoomTypeSessionBeanRemote roomTypeSBRemote;
     private RoomRateSessionBeanRemote roomRateSBRemote;
     private ReservedRoomSessionBeanRemote reservedRoomSBRemote;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public GuestOperationsModule() {
+        this.validatorFactory = Validation.buildDefaultValidatorFactory();
+        this.validator = validatorFactory.getValidator();
     }
     
 
     public GuestOperationsModule(GuestSessionBeanRemote guestSBRemote, ReservationSessionBeanRemote reservationSBRemote,
             RoomTypeSessionBeanRemote roomTypeSBRemote, RoomRateSessionBeanRemote roomRateSBRemote,
             ReservedRoomSessionBeanRemote reservedRoomSBRemote, Guest currentGuest) {
+        this();
         this.guestSBRemote = guestSBRemote;
         this.reservationSBRemote = reservationSBRemote;
         this.roomTypeSBRemote = roomTypeSBRemote;
@@ -107,20 +117,39 @@ public class GuestOperationsModule {
         Scanner sc = new Scanner(System.in);
         
         System.out.println("*** HoRS Reservation Client :: Search Hotel Rooms ***\n");
-        System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
-        String[] checkInInput = sc.nextLine().split("/");
-        System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
-        String[] checkOutInput = sc.nextLine().split("/");
-        System.out.println();
+        boolean inputDatesValidated = false;
+        String[] checkInInput;
+        String[] checkOutInput;
+        LocalDate checkInDate = LocalDate.now(); // only for initialisation
+        LocalDate checkOutDate = LocalDate.now(); // only for initialisation
         
-        if (checkInInput.length != 3 || checkOutInput.length != 3) {
-            System.out.println("Invalid date input(s)! Please try again.");
-            return;
+        while(!inputDatesValidated) {
+            System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
+            checkInInput = sc.nextLine().split("/");
+            System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
+            checkOutInput = sc.nextLine().split("/");
+            System.out.println();
+
+            if (checkInInput.length != 3 || checkOutInput.length != 3) { // first check: for invalid date format
+                System.out.println("Invalid date input(s)! Please try again.");
+            } else {
+                checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
+                checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
+
+                if (!checkOutDate.isAfter(checkInDate)) { // second check: for making sure check-out date is later than check-in date
+                    System.out.println("Check-out date must be after check-in date! Please try again.");
+                } else {
+                    
+                    if (checkInDate.isBefore(LocalDate.now())) {
+                        System.out.println("Check-in date cannot be before today (" + LocalDate.now() + ")! Please try again.");
+                    } else {
+                        inputDatesValidated = true;
+                    }
+                }
+            }
         }
         
         try {
-            LocalDate checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
-            LocalDate checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
             
             List<Integer> listOfAllRoomTypes = roomTypeSBRemote.searchAvailableRoomTypesWithNumberOfRooms(checkInDate, checkOutDate);
             
@@ -250,9 +279,18 @@ public class GuestOperationsModule {
                 // creates the reservation if not already created before (to link reserved rooms to the same reservation object)
                 // will only reach this stage when roomType is valid, so it is safe to link reservationId here
                 if (!hasReservationBeenCreated) {
-                    reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
-                    reservationSBRemote.associateReservationWithGuest(reservationId, currentGuest.getCustomerId());
-                    hasReservationBeenCreated = true;
+                    Set<ConstraintViolation<Reservation>> violations = validator.validate(reservation);
+                    if (violations.isEmpty()) {
+                        try {
+                            reservationId = reservationSBRemote.createNewReservation(reservation); // create new reservation first
+                            reservationSBRemote.associateReservationWithGuest(reservationId, currentGuest.getCustomerId());
+                            hasReservationBeenCreated = true;
+                        } catch (ReservationExistsException ex) {
+                            System.out.println("An error occurred creating a new reservation!\n");
+                        }
+                    } else {
+                        showValidationErrorsForReservation(violations);
+                    }   
                 }
 
                 ReservedRoom reservedRoom = new ReservedRoom();
@@ -260,14 +298,27 @@ public class GuestOperationsModule {
                 reservedRoom.setCheckOutDate(checkOutDate);
                 reservedRoom.setIsUpgraded(false); // initially not upgraded
                 
-                reservedRoomSBRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                
+                Set<ConstraintViolation<ReservedRoom>> violations = validator.validate(reservedRoom);
+                if (violations.isEmpty()) {
+                    try {
+                        reservedRoomSBRemote.createNewReservedRoom(reservedRoom, reservationId, roomType.getRoomTypeId());
+                    } catch (ReservationDNEException ex) {
+                        System.out.println("An error occurred creating a new reservation: " + ex.getMessage() + "!\n");
+                    } catch (RoomTypeDNEException ex) {
+                        System.out.println("An error occurred creating a new reservation: " + ex.getMessage() + "!\n");
+                    } 
+                } else {
+                    showValidationErrorsForReservedRoom(violations);
+                }   
+                
                 LocalDate today = LocalDate.now();
                 if (checkInDate.isEqual(today)) { // force allocation if the room is reserved for today's checkin
                     reservedRoomSBRemote.allocateRooms();
                 }
                                 
                 totalBookingAmount = totalBookingAmount.add(roomRateSBRemote.calculateTotalRoomRateWithNormalRate(roomTypeName, checkInDate, checkOutDate));
-                reservationSBRemote.updateReservationBookingAmount(reservationId, totalBookingAmount);
+                reservationSBRemote.updateReservationBookingAmount(reservationId, totalBookingAmount); // no need for validation, done on server-side calculations via method
                 
                 System.out.print("A " + roomTypeName + " has successfully been reserved! Would you like to reserve more hotel rooms? (Y/N)> ");
                 response = sc.nextLine().trim();
@@ -281,8 +332,6 @@ public class GuestOperationsModule {
  
         } catch (RoomTypeDNEException ex) {
             throw new RoomTypeDNEException(ex.getMessage());
-        } catch (ReservationExistsException ex) {
-            throw new ReservationExistsException(ex.getMessage());
         } catch (ReservationDNEException ex) {
             throw new ReservationDNEException(ex.getMessage());
         } catch (GuestDNEException ex) {
@@ -306,10 +355,15 @@ public class GuestOperationsModule {
                 " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString() +
                 " | Reservation Amount: $" + reservation.getBookingPrice()
             );
+            boolean hasReservedRoom = false;
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 if (reservedRoom.getRoom() != null) {
                     System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                    hasReservedRoom = true;
                 }
+            }
+            if (hasReservedRoom) {
+                System.out.println();
             }
             System.out.println("");
         } catch (ReservationDNEException ex) {
@@ -335,10 +389,15 @@ public class GuestOperationsModule {
                         " | Check-Out Date: " + reservation.getReservedRooms().get(0).getCheckOutDate().toString() +
                         " | Reservation Amount: $" + reservation.getBookingPrice()
                     );
+                    boolean hasReservedRoom = false;
                     for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                         if (reservedRoom.getRoom() != null) {
                             System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                            hasReservedRoom = true;
                         }
+                    }
+                    if (hasReservedRoom) {
+                        System.out.println();
                     }
                 }
             } else { // if listOfReservations.size() == 0
@@ -351,5 +410,23 @@ public class GuestOperationsModule {
         
         System.out.print("Press ENTER to continue> ");
         sc.nextLine();
+    }
+    
+    private void showValidationErrorsForReservation(Set<ConstraintViolation<Reservation>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
+    }
+    
+    private void showValidationErrorsForReservedRoom(Set<ConstraintViolation<ReservedRoom>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
     }
 }

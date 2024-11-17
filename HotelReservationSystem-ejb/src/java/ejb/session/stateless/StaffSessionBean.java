@@ -43,10 +43,10 @@ public class StaffSessionBean implements StaffSessionBeanRemote, StaffSessionBea
                 {
                     throw new StaffUsernameExistsException();
                 } else {
-                    throw new StaffUsernameExistsException(ex.getMessage());
+                    throw new StaffUsernameExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new StaffUsernameExistsException(ex.getMessage());
+               throw new StaffUsernameExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
            }
         }
     }

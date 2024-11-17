@@ -42,9 +42,9 @@ public class MainApp {
     private final Validator validator;
 
     public MainApp() {
-        currentGuest = null;
-        validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
+        this.currentGuest = null;
+        this.validatorFactory = Validation.buildDefaultValidatorFactory();
+        this.validator = validatorFactory.getValidator();
     }
     
     public MainApp(GuestSessionBeanRemote guestSBRemote, ReservationSessionBeanRemote reservationSBRemote,
@@ -167,20 +167,39 @@ public class MainApp {
         Scanner sc = new Scanner(System.in);
         
         System.out.println("*** HoRS Reservation Client :: Search Hotel Rooms ***\n");
-        System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
-        String[] checkInInput = sc.nextLine().split("/");
-        System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
-        String[] checkOutInput = sc.nextLine().split("/");
-        System.out.println();
+        boolean inputDatesValidated = false;
+        String[] checkInInput;
+        String[] checkOutInput;
+        LocalDate checkInDate = LocalDate.now(); // only for initialisation
+        LocalDate checkOutDate = LocalDate.now(); // only for initialisation
         
-        if (checkInInput.length != 3 || checkOutInput.length != 3) {
-            System.out.println("Invalid date input(s)! Please try again.");
-            return;
+        while(!inputDatesValidated) {
+            System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
+            checkInInput = sc.nextLine().split("/");
+            System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
+            checkOutInput = sc.nextLine().split("/");
+            System.out.println();
+
+            if (checkInInput.length != 3 || checkOutInput.length != 3) { // first check: for invalid date format
+                System.out.println("Invalid date input(s)! Please try again.");
+            } else {
+                checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
+                checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
+
+                if (!checkOutDate.isAfter(checkInDate)) { // second check: for making sure check-out date is later than check-in date
+                    System.out.println("Check-out date must be after check-in date! Please try again.");
+                } else {
+                    
+                    if (checkInDate.isBefore(LocalDate.now())) {
+                        System.out.println("Check-in date cannot be before today (" + LocalDate.now() + ")! Please try again.");
+                    } else {
+                        inputDatesValidated = true;
+                    }
+                }
+            }
         }
         
         try {
-            LocalDate checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
-            LocalDate checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
             
             List<Integer> listOfAllRoomTypes = roomTypeSBRemote.searchAvailableRoomTypesWithNumberOfRooms(checkInDate, checkOutDate);
             

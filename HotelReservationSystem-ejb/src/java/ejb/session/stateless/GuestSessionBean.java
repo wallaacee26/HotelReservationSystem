@@ -40,10 +40,10 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
                 {
                     throw new GuestExistsException();
                 } else {
-                    throw new GuestExistsException(ex.getMessage());
+                    throw new GuestExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new GuestExistsException(ex.getMessage());
+               throw new GuestExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
            }
         }
     }

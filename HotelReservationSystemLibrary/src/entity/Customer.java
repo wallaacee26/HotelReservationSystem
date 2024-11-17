@@ -19,7 +19,7 @@ import javax.persistence.OneToMany;
  *
  * @author wallace
  */
-@Entity
+@Entity // initially thought had to use this entity class for walk-in guests, but not needed (Guest entity class is used for reservation client)
 @Inheritance(strategy=InheritanceType.JOINED) // joined subclass strategy
 public class Customer implements Serializable {
 

@@ -53,10 +53,10 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
                     throw new RoomRateExistsException(); // to be confirmed
                 } else {
-                    throw new RoomRateExistsException(ex.getMessage());
+                    throw new RoomRateExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new RoomRateExistsException(ex.getMessage());
+               throw new RoomRateExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
            }
         } catch (RoomTypeDNEException ex) {
             throw new RoomTypeDNEException(ex.getMessage());

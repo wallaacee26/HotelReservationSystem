@@ -5,8 +5,10 @@
 package holidayreservationsystem;
 
 import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Scanner;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -22,7 +24,6 @@ import ws.reservation.ReservationWebService_Service;
 import ws.reservedroom.ReservedRoomWebService_Service;
 import ws.roomrate.RoomRateWebService_Service;
 import ws.roomtype.RoomType;
-import ws.roomtype.RoomTypeDNEException_Exception;
 import ws.roomtype.RoomTypeWebService_Service;
 
 /**
@@ -123,26 +124,47 @@ public class MainApp {
         Scanner sc = new Scanner(System.in);
         
         System.out.println("*** Holiday Reservation System :: Search Hotel Rooms ***\n");
-        System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
-        String[] checkInInput = sc.nextLine().split("/");
-        System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
-        String[] checkOutInput = sc.nextLine().split("/");
-        System.out.println();
+        boolean inputDatesValidated = false;
+        String[] checkInInput;
+        String[] checkOutInput;
+        LocalDate checkInDate = LocalDate.now(); // only for initialisation
+        LocalDate checkOutDate = LocalDate.now(); // only for initialisation
         
-        if (checkInInput.length != 3 || checkOutInput.length != 3) {
-            System.out.println("Invalid date input(s)! Please try again.");
-            return;
+        while(!inputDatesValidated) {
+            System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
+            checkInInput = sc.nextLine().split("/");
+            System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
+            checkOutInput = sc.nextLine().split("/");
+            System.out.println();
+
+            if (checkInInput.length != 3 || checkOutInput.length != 3) { // first check: for invalid date format
+                System.out.println("Invalid date input(s)! Please try again.");
+            } else {
+                checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
+                checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
+
+                if (!checkOutDate.isAfter(checkInDate)) { // second check: for making sure check-out date is later than check-in date
+                    System.out.println("Check-out date must be after check-in date! Please try again.");
+                } else {
+                    
+                    if (checkInDate.isBefore(LocalDate.now())) {
+                        System.out.println("Check-in date cannot be before today (" + LocalDate.now() + ")! Please try again.");
+                    } else {
+                        inputDatesValidated = true;
+                    }
+                }
+            }
         }
         
         try {
             
             // get JAX-WS approved date
             DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
-            XMLGregorianCalendar checkInDateXML = datatypeFactory.newXMLGregorianCalendarDate(Integer.parseInt(checkInInput[2]),
-                Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]), 0);
-            XMLGregorianCalendar checkOutDateXML = datatypeFactory.newXMLGregorianCalendarDate(Integer.parseInt(checkOutInput[2]),
-                Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]), 0);
             
+            GregorianCalendar checkInGC = GregorianCalendar.from(checkInDate.atStartOfDay(ZoneId.systemDefault()));
+            XMLGregorianCalendar checkInDateXML = datatypeFactory.newXMLGregorianCalendar(checkInGC);
+            GregorianCalendar checkOutGC = GregorianCalendar.from(checkOutDate.atStartOfDay(ZoneId.systemDefault()));
+            XMLGregorianCalendar checkOutDateXML = datatypeFactory.newXMLGregorianCalendar(checkOutGC);
                 
             List<Integer> listOfAllRoomTypes = roomTypeService.getRoomTypeWebServicePort().searchAvailableRoomTypesWithNumberOfRooms(checkInDateXML, checkOutDateXML);
             

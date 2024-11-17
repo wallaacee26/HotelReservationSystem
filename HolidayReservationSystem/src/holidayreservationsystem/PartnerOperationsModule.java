@@ -7,31 +7,24 @@ package holidayreservationsystem;
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import ws.partner.Partner;
-import ws.partner.PartnerDNEException;
-import ws.partner.PartnerDNEException_Exception;
 import ws.partner.PartnerWebService_Service;
 import ws.reservation.Reservation;
-import ws.reservation.ReservationDNEException;
-import ws.reservation.ReservationDNEException_Exception;
-import ws.reservation.ReservationExistsException;
 import ws.reservation.ReservationExistsException_Exception;
 import ws.reservation.ReservationWebService_Service;
 import ws.reservation.ReservedRoom;
 import ws.reservedroom.ReservedRoomWebService_Service;
 import ws.roomrate.RoomRateWebService_Service;
 import ws.roomtype.RoomType;
-import ws.roomtype.RoomTypeDNEException;
 import ws.roomtype.RoomTypeDNEException_Exception;
 import ws.roomtype.RoomTypeWebService_Service;
 
@@ -80,7 +73,7 @@ public class PartnerOperationsModule {
                 
                 if (response == 1) {
                     // search hotel rooms
-                    doSearchHotelRoomAsGuest();
+                    doSearchHotelRoomAsPartner();
                     
                 } else if (response == 2) {
                     // view my reservation details for specific reservation
@@ -111,30 +104,51 @@ public class PartnerOperationsModule {
         }
     }
     
-    private void doSearchHotelRoomAsGuest() { // can reserve
+    private void doSearchHotelRoomAsPartner() { // can reserve
         Scanner sc = new Scanner(System.in);
         
         System.out.println("*** Holiday Reservation System :: Search Hotel Rooms ***\n");
-        System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
-        String[] checkInInput = sc.nextLine().split("/");
-        System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
-        String[] checkOutInput = sc.nextLine().split("/");
-        System.out.println();
+        boolean inputDatesValidated = false;
+        String[] checkInInput;
+        String[] checkOutInput;
+        LocalDate checkInDate = LocalDate.now(); // only for initialisation
+        LocalDate checkOutDate = LocalDate.now(); // only for initialisation
         
-        if (checkInInput.length != 3 || checkOutInput.length != 3) {
-            System.out.println("Invalid date input(s)! Please try again.");
-            return;
+        while(!inputDatesValidated) {
+            System.out.print("Enter Check-In Date (Format: DD/MM/YYYY)> ");
+            checkInInput = sc.nextLine().split("/");
+            System.out.print("Enter Check-Out Date (Format: DD/MM/YYYY)> ");
+            checkOutInput = sc.nextLine().split("/");
+            System.out.println();
+
+            if (checkInInput.length != 3 || checkOutInput.length != 3) { // first check: for invalid date format
+                System.out.println("Invalid date input(s)! Please try again.");
+            } else {
+                checkInDate = LocalDate.of(Integer.parseInt(checkInInput[2]), Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]));
+                checkOutDate = LocalDate.of(Integer.parseInt(checkOutInput[2]), Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]));
+
+                if (!checkOutDate.isAfter(checkInDate)) { // second check: for making sure check-out date is later than check-in date
+                    System.out.println("Check-out date must be after check-in date! Please try again.");
+                } else {
+                    
+                    if (checkInDate.isBefore(LocalDate.now())) {
+                        System.out.println("Check-in date cannot be before today (" + LocalDate.now() + ")! Please try again.");
+                    } else {
+                        inputDatesValidated = true;
+                    }
+                }
+            }
         }
         
         try {
             
             // get JAX-WS approved date
             DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
-            XMLGregorianCalendar checkInDateXML = datatypeFactory.newXMLGregorianCalendarDate(Integer.parseInt(checkInInput[2]),
-                Integer.parseInt(checkInInput[1]), Integer.parseInt(checkInInput[0]), 0);
-            XMLGregorianCalendar checkOutDateXML = datatypeFactory.newXMLGregorianCalendarDate(Integer.parseInt(checkOutInput[2]),
-                Integer.parseInt(checkOutInput[1]), Integer.parseInt(checkOutInput[0]), 0);
             
+            GregorianCalendar checkInGC = GregorianCalendar.from(checkInDate.atStartOfDay(ZoneId.systemDefault()));
+            XMLGregorianCalendar checkInDateXML = datatypeFactory.newXMLGregorianCalendar(checkInGC);
+            GregorianCalendar checkOutGC = GregorianCalendar.from(checkOutDate.atStartOfDay(ZoneId.systemDefault()));
+            XMLGregorianCalendar checkOutDateXML = datatypeFactory.newXMLGregorianCalendar(checkOutGC);
                 
             List<Integer> listOfAllRoomTypes = roomTypeService.getRoomTypeWebServicePort().searchAvailableRoomTypesWithNumberOfRooms(checkInDateXML, checkOutDateXML);
             
@@ -213,7 +227,7 @@ public class PartnerOperationsModule {
             BigDecimal totalBookingAmount = BigDecimal.ZERO; // simply for initialisation
             reservation.setBookingPrice(totalBookingAmount); // simply for initialisation
             
-            // guest - reservation association
+            // partner - reservation association
             // to overcome error in web service
             ws.reservation.Partner webPartner = new ws.reservation.Partner();
             webPartner.setPartnerId(currentPartner.getPartnerId());
@@ -346,10 +360,15 @@ public class PartnerOperationsModule {
                 " | Check-Out Date: " + reservationService.getReservationWebServicePort().getStringOfCheckOutDate(reservation.getReservationId())+
                 " | Reservation Amount: $" + reservation.getBookingPrice()
             );
+            boolean hasReservedRoom = false;
             for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                 if (reservedRoom.getRoom() != null) {
                     System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                    hasReservedRoom = true;
                 }
+            }
+            if (hasReservedRoom) {
+                System.out.println();
             }
             System.out.println("");
         } catch (ws.reservation.ReservationDNEException_Exception ex) {
@@ -375,10 +394,15 @@ public class PartnerOperationsModule {
                         " | Check-Out Date: " + reservationService.getReservationWebServicePort().getStringOfCheckOutDate(reservation.getReservationId())+
                         " | Reservation Amount: $" + reservation.getBookingPrice()
                     );
+                    boolean hasReservedRoom = false;
                     for (ReservedRoom reservedRoom : reservation.getReservedRooms()) {
                         if (reservedRoom.getRoom() != null) {
                             System.out.print("Room " + reservedRoom.getRoom().getRoomNumber() + " | ");
+                            hasReservedRoom = true;
                         }
+                    }
+                    if (hasReservedRoom) {
+                        System.out.println();
                     }
                 }
             } else { // if listOfReservations.size() == 0

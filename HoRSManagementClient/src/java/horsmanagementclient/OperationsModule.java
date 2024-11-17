@@ -216,6 +216,7 @@ public class OperationsModule {
                     } else if (response == 2) {
                         // delete room type
                         doDeleteRoomType(rtName);
+                        return; // go back to options
                     } else if (response == 3) {
                         break;
                     } else {

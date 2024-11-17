@@ -40,10 +40,10 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
                 {
                     throw new PartnerExistsException();
                 } else {
-                    throw new PartnerExistsException(ex.getMessage());
+                    throw new PartnerExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new PartnerExistsException(ex.getMessage());
+               throw new PartnerExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
            }
         }
     }

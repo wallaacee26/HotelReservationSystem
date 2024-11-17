@@ -48,12 +48,12 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         } catch(PersistenceException ex) {
            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                 if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new RoomExistsException(); // to be confirmed
+                    throw new RoomExistsException();
                 } else {
-                    throw new RoomExistsException(ex.getMessage());
+                    throw new RoomExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new RoomExistsException(ex.getMessage());
+               throw new RoomExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
             }
         } catch (RoomTypeDNEException ex) {
             throw new RoomTypeDNEException();

@@ -49,10 +49,10 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 {
                     throw new ReservationExistsException();
                 } else {
-                    throw new ReservationExistsException(ex.getMessage());
+                    throw new ReservationExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
                 }
             } else {
-               throw new ReservationExistsException(ex.getMessage());
+               throw new ReservationExistsException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
            }
         }
     }

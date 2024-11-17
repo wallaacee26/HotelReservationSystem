@@ -65,9 +65,9 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
             em.flush();
         return reservedRoom.getReservedRoomId();
         } catch (ReservationDNEException ex) {
-            throw new ReservationDNEException(ex.getMessage());
+            throw new ReservationDNEException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
         } catch (RoomTypeDNEException ex) {
-            throw new RoomTypeDNEException(ex.getMessage());
+            throw new RoomTypeDNEException(ex.getMessage()); // UnknownPersistenceException, but just using this exception for simplicity
         }
     }
     
@@ -272,7 +272,7 @@ public class ReservedRoomSessionBean implements ReservedRoomSessionBeanRemote, R
                 + "WHERE (rr.room IS NULL OR rr.isUpgraded = TRUE) AND rr.checkInDate = :today")
                 .setParameter("today", today)
                 .getResultList();
-        String exceptionReport = "Exception Reports for Today: \n";
+        String exceptionReport = "Exception Reports for " + date.toString() + ": \n";
         if (!exceptions.isEmpty()) {
             for (ReservedRoom rr : exceptions) {
                 if(rr.isIsUpgraded()) {
