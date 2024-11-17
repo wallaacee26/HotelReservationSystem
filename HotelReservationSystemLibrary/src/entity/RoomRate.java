@@ -15,7 +15,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.enumeration.RateTypeEnum;
 
 /**
@@ -31,19 +34,26 @@ public class RoomRate implements Serializable {
     private Long roomRateId;
 
     @Column(nullable = false, unique = true)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String roomRateName;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private RateTypeEnum rateType;
     @Column(nullable = false)
+    @DecimalMin("0.00")
     private BigDecimal ratePerNight;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true) // only for peak and promotion rates
+    @Future
     private Date startDate;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true) // only for peak and promotion rates
+    @Future
     private Date endDate; 
     @Column(nullable = false)
+    @NotNull
     private boolean disabled;
 
     // mappings:

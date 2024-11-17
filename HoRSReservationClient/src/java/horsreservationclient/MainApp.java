@@ -16,6 +16,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.GuestDNEException;
 import util.exception.GuestExistsException;
 import util.exception.InvalidLoginCredentialException;
@@ -32,14 +37,20 @@ public class MainApp {
     private RoomTypeSessionBeanRemote roomTypeSBRemote;
     private RoomRateSessionBeanRemote roomRateSBRemote;
     private ReservedRoomSessionBeanRemote reservedRoomSBRemote;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public MainApp() {
         currentGuest = null;
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
     
     public MainApp(GuestSessionBeanRemote guestSBRemote, ReservationSessionBeanRemote reservationSBRemote,
             RoomTypeSessionBeanRemote roomTypeSBRemote, RoomRateSessionBeanRemote roomRateSBRemote,
             ReservedRoomSessionBeanRemote reservedRoomSBRemote) {
+        this();
         this.guestSBRemote = guestSBRemote;
         this.reservationSBRemote = reservationSBRemote;
         this.roomTypeSBRemote = roomTypeSBRemote;
@@ -130,7 +141,7 @@ public class MainApp {
         System.out.print("Enter password> ");
         password = sc.nextLine().trim();
         
-        if (email.length() <= 0 && password.length() <= 0) {
+        if (email.length() <= 0 || password.length() <= 0) {
             System.out.println("Error registering as guest! Please enter a valid email and/or password.");
             return;
         }
@@ -139,12 +150,17 @@ public class MainApp {
         newGuest.setEmail(email);
         newGuest.setPassword(password);
         
-        try {
-            Long newGuestId = guestSBRemote.createNewGuest(newGuest);
-            System.out.println("New Guest Registered: " + newGuestId + ", with email: " + email);
-        } catch (GuestExistsException ex) {
-            System.out.println("A guest with this email is already registered! Please try again.\n");
-        }
+        Set<ConstraintViolation<Guest>> violations = validator.validate(newGuest);
+        if (violations.isEmpty()) {
+            try {
+                Long newGuestId = guestSBRemote.createNewGuest(newGuest);
+                System.out.println("New Guest Registered: " + newGuestId + ", with email: " + email);
+            } catch (GuestExistsException ex) {
+                System.out.println("A guest with this email is already registered! Please try again.\n");
+            }
+        } else {
+            showValidationErrorsForGuest(violations);
+        }   
     }
     
     private void doSearchHotelRoomAsVisitor() { // cannot reserve
@@ -196,5 +212,14 @@ public class MainApp {
         } catch (RoomTypeDNEException ex) {
             System.out.println("Error while retrieving rooms: " + ex.getMessage() + " Please try again.");
         }
+    }
+    
+    private void showValidationErrorsForGuest(Set<ConstraintViolation<Guest>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
     }
 }

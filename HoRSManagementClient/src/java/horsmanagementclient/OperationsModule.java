@@ -18,6 +18,11 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.RoomDNEException;
 import util.exception.RoomExistsException;
 import util.exception.RoomTypeDNEException;
@@ -35,13 +40,19 @@ public class OperationsModule {
     private RoomSessionBeanRemote roomSBRemote;
     private ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote;
     private Staff currentStaff;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public OperationsModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
     
 
     public OperationsModule(RoomTypeSessionBeanRemote roomTypeSBRemote, RoomSessionBeanRemote roomSBRemote, 
             ReservedRoomSessionBeanRemote reservedRoomSessionBeanRemote, Staff currentStaff) {
+        this();
         this.roomTypeSBRemote = roomTypeSBRemote;
         this.roomSBRemote = roomSBRemote;
         this.currentStaff = currentStaff;
@@ -112,23 +123,23 @@ public class OperationsModule {
     
     private void doCreateNewRoomType() {
         Scanner sc = new Scanner(System.in);
-        RoomType roomType = new RoomType();
+        RoomType newRoomType = new RoomType();
         
         
         System.out.println("*** HoRS Management Client :: Create New Room Type ***\n");
         System.out.print("Enter name> ");
-        roomType.setRoomTypeName(sc.nextLine().trim());
+        newRoomType.setRoomTypeName(sc.nextLine().trim());
         System.out.print("Enter description> ");
-        roomType.setDescription(sc.nextLine().trim());
+        newRoomType.setDescription(sc.nextLine().trim());
         System.out.print("Enter size> ");
-        roomType.setRoomSize(sc.nextDouble());
+        newRoomType.setRoomSize(sc.nextDouble());
         System.out.print("Enter number of beds> ");
-        roomType.setBeds(sc.nextInt());
+        newRoomType.setBeds(sc.nextInt());
         System.out.print("Enter capacity> ");
-        roomType.setCapacity(sc.nextInt());
+        newRoomType.setCapacity(sc.nextInt());
         sc.nextLine();
         System.out.print("Enter amenities> ");
-        roomType.setAmenities(sc.nextLine().trim());
+        newRoomType.setAmenities(sc.nextLine().trim());
         
         List<RoomType> listOfRoomTypes = roomTypeSBRemote.retrieveAllRoomTypes();
         while(true) {
@@ -144,21 +155,25 @@ public class OperationsModule {
             
             if (roomTypeNumber >= 1 && roomTypeNumber <= listOfRoomTypes.size() + 1) { //if within range
                 if (roomTypeNumber != totalRoomTypes + 1) { 
-                    roomType.setHigherRoomType(listOfRoomTypes.get(roomTypeNumber - 1));
+                    newRoomType.setHigherRoomType(listOfRoomTypes.get(roomTypeNumber - 1));
                 } else { // selected "None" higher room type
-                    roomType.setHigherRoomType(null); 
+                    newRoomType.setHigherRoomType(null); 
                 }
                 break;
             } else {
                 System.out.println("Invalid option, please try again!\n");
             }
         }
-        
-        try {
-            Long newRoomTypeId = roomTypeSBRemote.createNewRoomType(roomType);
-            System.out.println("New Room Type created: " + newRoomTypeId + "\n");
-        } catch (RoomTypeExistsException ex) {
-            System.out.println("Error when creating new room type. Room type already exists!\n");
+        Set<ConstraintViolation<RoomType>> violations = validator.validate(newRoomType);
+        if (violations.isEmpty()) {
+            try {
+                Long newRoomTypeId = roomTypeSBRemote.createNewRoomType(newRoomType);
+                System.out.println("New Room Type created: " + newRoomTypeId + "\n");
+            } catch (RoomTypeExistsException ex) {
+                System.out.println("Error when creating new room type. Room type already exists!\n");
+            }
+        } else {
+            showValidationErrorsForRoomType(violations);
         }
     }
     
@@ -180,10 +195,10 @@ public class OperationsModule {
             System.out.println("Capacity: " + roomType.getCapacity());
             System.out.println("Amenities: " + roomType.getAmenities());
             // for testing
-//            for (Room r : roomType.getRooms()) {
+//            for (Room r : newRoomType.getRooms()) {
 //                System.out.println(r.toString());
 //            }
-//            for (RoomRate rt : roomType.getRoomRates()) {
+//            for (RoomRate rt : newRoomType.getRoomRates()) {
 //                System.out.println(rt.toString());
 //            }
             while (true) {
@@ -200,7 +215,7 @@ public class OperationsModule {
                         doUpdateRoomType(rtName);
                     } else if (response == 2) {
                         // delete room type
-                        doDeleteRoomType();
+                        doDeleteRoomType(rtName);
                     } else if (response == 3) {
                         break;
                     } else {
@@ -238,25 +253,28 @@ public class OperationsModule {
         System.out.print("Enter amenities> ");
         newRoomType.setAmenities(sc.nextLine().trim());
         
-        try {
-            roomTypeSBRemote.updateRoomType(oldRoomTypename, newRoomType);
-            System.out.println("Room Type " + oldRoomTypename + " successfully updated!\n");
-        } catch (RoomTypeDNEException | UpdateRoomTypeException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        }
+        Set<ConstraintViolation<RoomType>> violations = validator.validate(newRoomType);
+        if (violations.isEmpty()) {
+            try {
+                roomTypeSBRemote.updateRoomType(oldRoomTypename, newRoomType);
+                System.out.println("Room Type " + oldRoomTypename + " successfully updated!\n");
+            } catch (RoomTypeDNEException | UpdateRoomTypeException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
+            showValidationErrorsForRoomType(violations);
+        }  
     }
     
-    private void doDeleteRoomType() { // under view room type details
+    private void doDeleteRoomType(String oldRoomTypename) { // under view room type details
         Scanner sc = new Scanner(System.in);
-        String roomTypeName = "";
         
         System.out.println("*** HoRS Management Client :: Delete Existing RoomType ***\n");
-        System.out.print("Enter Name of RoomType to Delete> ");
-        roomTypeName = sc.nextLine().trim();
+        System.out.println("Deleting Room Type " + oldRoomTypename);
         
         try {
-            roomTypeSBRemote.deleteRoomType(roomTypeName);
-            System.out.println("RoomType: " + roomTypeName + " successfully deleted!");
+            roomTypeSBRemote.deleteRoomType(oldRoomTypename);
+            System.out.println("RoomType: " + oldRoomTypename + " successfully deleted!");
         } catch (RoomTypeDNEException ex) {
             System.out.println(ex.getMessage());
         }
@@ -299,24 +317,30 @@ public class OperationsModule {
             newRoom.setAvailable(true);
         } else {
             newRoom.setAvailable(false);
-        }     
+        }
+        newRoom.setDisabled(false); // need?
         
-        try {
-            RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
-            newRoom.setRoomType(rt);
-            // already put into create new room SB
-            // rt.getRooms().add(newRoom);
+        Set<ConstraintViolation<Room>> violations = validator.validate(newRoom);
+        if (violations.isEmpty()) {
             try {
-                Long newRoomId = roomSBRemote.createNewRoom(newRoom, rt.getRoomTypeName());
-                System.out.println("New Room created: " + newRoomId + "\n");
-            } catch (RoomExistsException ex) {
-                System.out.println("Error when creating new room. Room already exists!\n");
-            } catch (RoomTypeDisabledException ex) {
-                System.out.println(ex.getMessage());
+                RoomType rt = roomTypeSBRemote.retrieveRoomTypeByRoomTypeName(roomTypeName);
+                newRoom.setRoomType(rt);
+                // already put into create new room SB
+                // rt.getRooms().add(newRoom);
+                try {
+                    Long newRoomId = roomSBRemote.createNewRoom(newRoom, rt.getRoomTypeName());
+                    System.out.println("New Room created: " + newRoomId + "\n");
+                } catch (RoomExistsException ex) {
+                    System.out.println("Error when creating new room. Room already exists!\n");
+                } catch (RoomTypeDisabledException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            } catch (RoomTypeDNEException ex) {
+                System.out.println("Room Type " + roomTypeName + " does not exist!\n");
             }
-        } catch (RoomTypeDNEException ex) {
-            System.out.println("Room Type " + roomTypeName + " does not exist!\n");
-        } 
+        } else {
+            showValidationErrorsForRoom(violations);
+        }
     }
     
     private void doUpdateRoom() {
@@ -336,12 +360,17 @@ public class OperationsModule {
             newRoom.setAvailable(false);
         }
         
-        try {
-            roomSBRemote.updateRoom(roomNumber, newRoom);
-            System.out.println("Room " + roomNumber + " successfully updated!\n");
-        } catch (RoomDNEException | UpdateRoomException ex) {
-            System.out.println(ex.getMessage());
-        } 
+        Set<ConstraintViolation<Room>> violations = validator.validate(newRoom);
+        if (violations.isEmpty()) {
+            try {
+                roomSBRemote.updateRoom(roomNumber, newRoom);
+                System.out.println("Room " + roomNumber + " successfully updated!\n");
+            } catch (RoomDNEException | UpdateRoomException ex) {
+                System.out.println(ex.getMessage());
+            }
+        } else {
+            showValidationErrorsForRoom(violations);
+        }   
     }
     
     private void doDeleteRoom() {
@@ -403,5 +432,23 @@ public class OperationsModule {
         } catch (ParseException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    
+    private void showValidationErrorsForRoomType(Set<ConstraintViolation<RoomType>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
+    }
+    
+    private void showValidationErrorsForRoom(Set<ConstraintViolation<Room>> violations) {
+        System.out.println("\n Input data validation error!");
+        
+        for (ConstraintViolation violation : violations) {
+            System.out.println("\t" + violation.getPropertyPath() + "-" + violation.getInvalidValue() + "; " + violation.getMessage());
+        }
+        System.out.println("\nPlease try again!");
     }
 }
