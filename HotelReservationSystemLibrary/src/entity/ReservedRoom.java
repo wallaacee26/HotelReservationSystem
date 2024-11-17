@@ -14,9 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -37,11 +35,11 @@ public class ReservedRoom implements Serializable {
     private boolean isUpgraded;
     @Column(nullable = false)
     @NotNull
-    @FutureOrPresent
+    @Future
     private LocalDate checkInDate;
     @Column(nullable = false)
     @NotNull
-    @FutureOrPresent
+    @Future
     private LocalDate checkOutDate;
     
     // mappings:

@@ -30,7 +30,7 @@ public class Reservation implements Serializable {
     private Long reservationId;
     @Column(nullable = false)
     @NotNull
-    @DecimalMin("0.01")
+    @DecimalMin("0.00")
     private BigDecimal bookingPrice;
 
     // mappings:
