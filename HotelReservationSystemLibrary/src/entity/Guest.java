@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -18,7 +20,11 @@ public class Guest extends Customer implements Serializable {
     
     @Column(nullable = false, unique = true)
     private String email; // uniquely identifiable?
+    @NotNull
+    @Size(min = 1, max = 32)
     @Column(nullable = false)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String password;
     
     // default no-argument constructor for JPA

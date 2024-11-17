@@ -13,6 +13,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -27,18 +30,28 @@ public class RoomType implements Serializable {
     private Long roomTypeId;
     
     @Column(nullable = false, unique = true)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String roomTypeName;
     @Column(nullable = false)
+    @NotNull
+    @Size(min = 1)
     private String description;
     @Column(nullable = false)
+    @NotNull
     private double roomSize;
     @Column(nullable = false)
+    @Min(1)
     private int beds;
     @Column(nullable = false)
+    @Min(1)
     private int capacity;
     @Column(nullable = false)
+    @NotNull
+    @Size(min = 1)
     private String amenities;
     @Column(nullable = false)
+    @NotNull
     private boolean disabled;
     
     // mappings
